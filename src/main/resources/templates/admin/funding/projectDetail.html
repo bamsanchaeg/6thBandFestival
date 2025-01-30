@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/admin.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="admin-container">
+            <div class="d-flex">
+                <!--/* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */-->
+                <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                    <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+                </div>
+
+                <!--/* 우측 컨텐츠 */-->
+                <div class="page-right flex-grow-1">
+                    <!--/* 헤더 */-->
+                    <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                    <!--/* 컨텐츠 */-->
+                    <div class="main py-4 px-4">
+                        
+                        <!--/* 프로젝트 */-->
+                        <div class="sub-nav mb-3">
+                            <div class="fw-medium fs-5">프로젝트 세부 내용</div>
+                        </div>
+                        <div class="sub-content">
+                            <div class="status-box p-2 new-bg-gray">
+                                <div class="d-flex bar-list new-fs-9">
+                                    <div class="bar">아이디 : <span th:text="${projectData.project.user_account}">test</span></div>
+                                    <div class="bar">프로젝트 상태 : <span th:text="${projectData.project.status}" id="project-status">심사중</span></div>
+                                    <div class="bar">작성일 : <span th:text="${#dates.format(projectData.project.created_at, 'yyyy-MM-dd HH:mm:ss')}">2024-05-0 00:00:00</span></div>
+                                </div>
+                            </div>
+
+                            <div class="creator-box mt-4">
+                                <div class="title py-1">
+                                    <span class="fw-medium">창작자 정보</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 border-top border-dark">
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">창작자 이름</div>
+                                        <div th:text="${projectData.creatorDto.creator_name}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">프로필 이미지</div>
+                                        <div class="col-10 py-2 px-2">
+                                            <div class="overflow-hidden position-relative profile-box">
+                                                <a th:href="|/images/${projectData.creatorDto.profile_location}|" target="_blank" class="d-block">
+                                                    <img th:src="|/images/${projectData.creatorDto.profile_location}|" alt="프로필" class="img-fluid position-absolute top-0 left-0 w-100">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">창작자 소개</div>
+                                        <div th:text="${projectData.creatorDto.introduce}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">입금 계좌 정보</div>
+                                        <div class="col-10 py-1 px-2">
+                                            <p>거래은행 : <span th:text="${projectData.creatorDto.bank_name}"></span></p>
+                                            <p>계좌번호 : <span th:text="${projectData.creatorDto.account_number}"></span></p>
+                                            <p>예금주명 : <span th:text="${projectData.creatorDto.account_holder}"></span></p>
+                                            <p>예금주 생년월일 : <span th:text="${projectData.creatorDto.account_birth}"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="default-box mt-4">
+                                <div class="title py-1">
+                                    <span class="fw-medium">기본 정보</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 border-top border-dark">
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">카테고리</div>
+                                        <div th:text="${projectData.project.category_name}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">제목</div>
+                                        <div th:text="${projectData.project.project_title}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">대표 이미지</div>
+                                        <div class="col-10 py-2 px-2">
+                                            <div class="overflow-hidden position-relative profile-box">
+                                                <a th:href="|/images/${projectData.project.thumbnail_location}|" target="_blank" class="d-block">
+                                                    <img th:src="|/images/${projectData.project.thumbnail_location}|" alt="썸네일" class="img-fluid position-absolute top-0 left-0 w-100">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">프로젝트 요약</div>
+                                        <div th:text="${projectData.project.project_desc}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                    <div th:if="${projectData.project.youtube_url != null and !#strings.isEmpty(projectData.project.youtube_url)}" class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">영상 URL</div>
+                                        <div th:if="${projectData.project.youtube_url != null}" class="col-10 py-1 px-2">
+                                            <div th:text="${projectData.project.youtube_url}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="funding-box mt-4">
+                                <div class="title py-1">
+                                    <span class="fw-medium">펀딩 계획</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 border-top border-dark">
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">목표금액</div>
+                                        <div class="col-10 py-1 px-2">
+                                            <span th:text="${#numbers.formatInteger(projectData.project.expect_amount, 0, 'COMMA')}"></span>원
+                                        </div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">시작일</div>
+                                        <div th:text="${#dates.format(projectData.project.start_at, 'yyyy-MM-dd HH:mm:ss')}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                    <div class="d-flex border-bottom">
+                                        <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">종료일</div>
+                                        <div th:text="${#dates.format(projectData.project.end_at, 'yyyy-MM-dd HH:mm:ss')}" class="col-10 py-1 px-2"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="reward-box mt-4">
+                                <div class="title py-1">
+                                    <span class="fw-medium">선물 구성</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 px-3 new-py-25 border border-light-subtle">
+                                    <div class="content-row">
+                                        <div class="mb-1 fw-medium new-fs-95">선물 목록</div>
+                                        <div class="table-head d-flex new-border-top-gray border-bottom new-bg-gray new-fs-9">
+                                            <div class="col-3 py-1 px-2 fw-medium text-center">선물 이름</div>
+                                            <div class="col-3 py-1 px-2 border-start fw-medium text-center">선물 아이템 목록</div>
+                                            <div class="col-1 py-1 px-2 border-start fw-medium text-center">수량 제한</div>
+                                            <div class="col-2 py-1 px-2 border-start fw-medium text-center">예상 전달일</div>
+                                            <div class="col-1 py-1 px-2 border-start fw-medium text-center">배송여부</div>
+                                            <div class="col-2 py-1 px-2 border-start fw-medium text-center">선물 금액</div>
+                                        </div>
+                                        <div th:each="rewardData : ${rewardDataList}" class="d-flex border-bottom">
+                                            <div th:text="${rewardData.projectRewardDto.title}" class="col-3 py-1 px-2">선물 이름</div>
+                                            <div class="col-3 border-start second-border-top">
+                                                <div th:if="${#lists.isEmpty(rewardData.projectItemDataList)}" class="py-1 px-2 bd-top">없음</div>
+                                                <div th:unless="${#lists.isEmpty(rewardData.projectItemDataList)}" th:each="itemData : ${rewardData.projectItemDataList}" class="py-1 px-2 bd-top">
+                                                    <span th:text="${itemData.projectItemDto.name}"></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-1 py-1 px-2 border-start text-center">
+                                                <span th:if="${rewardData.projectRewardDto.count_limit == 0}">-</span>
+                                                <span th:unless="${rewardData.projectRewardDto.count_limit == 0}" th:text="|${rewardData.projectRewardDto.count_limit}개|"></span>
+                                            </div>
+                                            <div class="col-2 py-1 px-2 border-start text-center">
+                                                <span th:text="${rewardData.projectRewardDto.expect_date}"></span>일 뒤
+                                            </div>
+                                            <div th:text="${rewardData.projectRewardDto.is_delivery == 'T' ? '예' : '아니오'}" class="col-1 py-1 px-2 border-start text-center">배송여부</div>
+                                            <div class="col-2 py-1 px-2 border-start text-end">
+                                                <span th:text="${#numbers.formatInteger(rewardData.projectRewardDto.amount, '0', 'COMMA')}"></span>원
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-row">
+                                        <div class="mb-1 new-mt-25 fw-medium new-fs-95">아이템 목록</div>
+                                        <div class="table-head d-flex new-border-top-gray border-bottom new-bg-gray new-fs-9">
+                                            <div class="col-5 py-1 px-2 fw-medium text-center">아이템이름</div>
+                                            <div class="col-3 py-1 px-2 border-start fw-medium text-center">옵션조건</div>
+                                            <div class="col-4 py-1 px-2 border-start fw-medium text-center">옵션 항목</div>
+                                        </div>
+                                        <div th:each="itemData : ${itemDataList}" class="d-flex border-bottom">
+                                            <div th:text="${itemData.projectItemDto.name}" class="col-5 py-1 px-2">아이템이름</div>
+                                            <div class="col-3 py-1 px-2 border-start text-center">
+                                                <span th:if="${itemData.projectItemDto.option_type == '0'}">없음</span>
+                                                <span th:if="${itemData.projectItemDto.option_type == '1'}">주관식</span>
+                                                <span th:if="${itemData.projectItemDto.option_type == '2'}">객관식</span>
+                                            </div>
+                                            <div class="col-4 border-start second-border-top">
+                                                <div th:if="${#lists.isEmpty(itemData.itemOptionList)}" class="py-1 px-2 bd-top">-</div>
+                                                <div th:unless="${#lists.isEmpty(itemData.itemOptionList)}" th:each="option : ${itemData.itemOptionList}" class="py-1 px-2 bd-top">
+                                                    <span th:text="${option.option_name}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="story-box mt-4">
+                                <div class="title py-1">
+                                    <span class="fw-medium">프로젝트 계획</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 px-3 new-py-25 border border-light-subtle">
+                                    <div class="content-row">
+                                        <div class="mb-2 fw-medium new-fs-95">프로젝트 소개</div>
+                                        <div class="content-box d-flex">
+                                            <div th:utext="${projectData.project.project_introduce}" class="content-text flex-grow-1 new-p-25 new-bg-gray"></div>
+                                            <div th:unless="${#lists.isEmpty(projectFile.introduceFileList)}" class="file-box introduce-file-box ms-3 border">
+                                                <div class="file-preview d-flex flex-wrap p-3">
+                                                    <div th:each="introduceFile, stat : ${projectFile.introduceFileList}" class="file-preview-row col-6 position-relative">
+                                                        <a th:href="|/images/${introduceFile.location}|" target="_blank" class="d-block img-p-box new-pb-90 me-2 mb-2 border">
+                                                            <img th:src="|/images/${introduceFile.location}|" alt="파일이미지" class="img image-thumbnail">
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-row mt-3">
+                                        <div class="mb-2 fw-medium new-fs-95">프로젝트 예산</div>
+                                        <div th:utext="${projectData.project.budget_desc}" class="content-text new-p-25 new-bg-gray"></div>
+                                    </div>
+                                    <div class="content-row mt-3">
+                                        <div class="mb-2 fw-medium new-fs-95">프로젝트 일정</div>
+                                        <div th:utext="${projectData.project.schedule_desc}" class="content-text new-p-25 new-bg-gray"></div>
+                                    </div>
+                                    <div class="content-row mt-3">
+                                        <div class="mb-2 fw-medium new-fs-95">프로젝트 팀 소개</div>
+                                        <div class="content-box d-flex">
+                                            <div th:utext="${projectData.project.team_desc}" class="content-text flex-grow-1 new-p-25 new-bg-gray"></div>
+                                            <div th:unless="${#lists.isEmpty(projectFile.teamdescFileList)}" class="file-box introduce-file-box ms-3 border">
+                                                <div class="file-preview d-flex flex-wrap p-3">
+                                                    <div th:each="teamdescFile, stat : ${projectFile.teamdescFileList}" class="file-preview-row col-6 position-relative">
+                                                        <a th:href="|/images/${teamdescFile.location}|" target="_blank" class="d-block img-p-box new-pb-90 me-2 mb-2 border">
+                                                            <img th:src="|/images/${teamdescFile.location}|" alt="파일이미지" class="img image-thumbnail">
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="content-row mt-3 mb-1">
+                                        <div class="mb-2 fw-medium new-fs-95">선물 설명</div>
+                                        <div class="content-box d-flex">
+                                            <div th:utext="${projectData.project.reward_desc}" class="content-text flex-grow-1 new-p-25 new-bg-gray"></div>
+                                            <div th:unless="${#lists.isEmpty(projectFile.rewarddescFileList)}" class="file-box introduce-file-box ms-3 border">
+                                                <div class="file-preview d-flex flex-wrap p-3">
+                                                    <div th:each="rewarddescFile, stat : ${projectFile.rewarddescFileList}" class="file-preview-row col-6 position-relative">
+                                                        <a th:href="|/images/${rewarddescFile.location}|" target="_blank" class="d-block img-p-box new-pb-90 me-2 mb-2 border">
+                                                            <img th:src="|/images/${rewarddescFile.location}|" alt="파일이미지" class="img image-thumbnail">
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--/* 프로젝트 심사 */-->
+                        <div class="sub-nav mb-3 mt-5 pt-5 border-top border-dark">
+                            <div class="fw-medium fs-5">프로젝트 심사</div>
+                        </div>
+                        <div class="sub-content">
+                            <div th:if="${projectData.project.status == '작성중' or projectData.project.status == '심사중' or projectData.project.status == '반려'}" class="approval-box">
+                                <div class="title py-1">
+                                    <span class="fw-medium">심사 작성</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 border-top border-dark">
+                                    <form action="" id="approval-form">
+                                        <div class="d-flex border-bottom">
+                                            <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">검토 결과</div>
+                                            <div class="col-3 py-1 px-2">
+                                                <select name="result" id="approval-result" class="form-select py-1 rounded-0 new-fs-85">
+                                                    <option value="">결과를 선택해주세요.</option>
+                                                    <option value="승인">승인</option>
+                                                    <option value="반려">반려</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex border-bottom">
+                                            <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">반려 사유 요약</div>
+                                            <div class="col-8 py-1 px-2">
+                                                <p class="mb-1 new-fs-85 text-body-tertiary">검토 결과에 대한 사유를 간략히 작성해주세요. 심사 이력으로 저장됩니다.</p>
+                                                <input type="text" name="content" class="w-100 px-2 py-1 border">
+                                            </div>
+                                        </div>
+                                        <div class="d-flex border-bottom">
+                                            <div class="col-2 py-1 px-2 border-end new-bg-gray fw-medium">메일 발송 내용</div>
+                                            <div class="col-8 py-1 px-2">
+                                                <p class="mb-1 new-fs-85 text-body-tertiary">내용을 작성하지 않을 경우 메일이 발송되지 않습니다.</p>
+                                                <div class="">
+                                                    <input type="text" name="mail_subject" id="mail-subject" class="w-100 px-2 py-1 border" placeholder="메일 제목을 입력해주세요">
+                                                </div>
+                                                <div class="mt-1">
+                                                    <textarea name="mail_content" id="mail-content" class="w-100 new-h-100 px-2 py-1 border" placeholder="메일 내용을 입력해주세요."></textarea>
+                                                </div>
+                                                <div class="btn-box py-1 text-center">
+                                                    <button type="button" onclick="approvalSend()" class="py-1 px-5 border border-dark new-bg-dark text-white fw-medium new-fs-9">심사 진행</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="history-box mt-4">
+                                <div class="title py-1">
+                                    <span class="fw-medium">심사 이력</span>
+                                </div>
+                                <div class="content new-fs-9 mt-1 border-top border-dark">
+                                    <div class="table-head d-flex border-bottom new-bg-gray new-fs-9">
+                                        <div class="col-2 py-1 px-2 fw-medium text-center">날짜</div>
+                                        <div class="col-2 py-1 px-2 border-start fw-medium text-center">심사 결과</div>
+                                        <div class="col-8 py-1 px-2 border-start fw-medium text-center">사유</div>
+                                    </div>
+                                    <div class="table-body">
+                                        <!--/*
+                                        <div class="d-flex border-bottom">
+                                            <div class="col-2 py-1 px-2 text-center"></div>
+                                            <div class="col-2 py-1 px-2 border-start text-center"></div>
+                                            <div class="col-8 py-1 px-2 border-start second-border-top"></div>
+                                        </div>
+                                        */-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center new-mt-45 new-py-45 border-top border-light-subtle text-center">
+                            <a href="/admin/funding/projectList" class="d-block py-2 px-4 border border-dark fw-medium new-fs-95">
+                                프로젝트 목록
+                            </a>
+                        </div>
+                    </div>
+
+                    <!--/* 푸터 */-->
+                    <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/funding.js"></script>
+    <script src="/public/js/funding/fundingAdmin.js"></script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - QnA</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+
+    <style>
+
+    </style>
+
+</head>
+<body>
+<div id="root">
+    <div class="wrapper">
+        <!--/* 헤더 */-->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!--/* 컨텐츠 */-->
+        <div class="main new-text-black">
+            <div class="container">
+
+                <div class="row mx-0 py-2 align-items-center">
+                    <div class="col-1 px-0" onclick="history.back()">
+                        <span class="material-symbols-outlined fs-6 fw-bold d-flex justify-content-start">arrow_back_ios</span>
+                    </div>
+                    <div class="col ps-0 text-center">
+                        <span class="fs-5 fw-bold">문의사항</span>
+                    </div>
+                    <div class="col-1 px-0"></div>
+                </div>
+
+                <div class="row pt-1">
+                    <div class="col">
+
+                        <div class="row new-py-25 border-bottom align-items-center">
+                            <div class="col">
+                                <div class="row align-items-center">
+                                    <div class="col-auto pe-2 new-text-gray new-fs-9">
+                                        <span class="qnaCategorySpan" th:text="|[${qnaDetail.category_title}]|"></span>
+                                    </div>
+                                    <div class="col ps-0 ellipsis-line-one">
+                                        <span class="qnaTitleSpan" th:text="${qnaDetail.title}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 new-text-gray new-fs-8 text-end">
+                                <span id="qnaStatusSpan" class="px-2 py-1 border new-border-gray" th:text="${qnaDetail.status}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row pt-2">
+                            <div class="col-auto ms-auto text-end new-fs-8 new-text-gray">
+                                <span th:text="${#dates.format(qnaDetail.created_at, 'yyyy-MM-dd')}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row py-3 new-fs-9 new-text-gray">
+                            <div class="col">
+                                <span id="qnaContentSpan" th:text="${qnaDetail.content}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row new-pb-45">
+                            <div class="col-3" th:each="e : ${qnaImages}">
+                                <img class="img-fluid image-thumbnail" id="qnaImagesSpan" th:src="|/images/${e.url}|">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col border-bottom"></div>
+                        </div>
+
+                        <div class="row pt-2" style="background-color: #fff9f9;">
+                            <div class="col fw-semibold">
+                                <span>답변</span>
+                            </div>
+                        </div>
+
+<!--                        접수중이면...나올 안내?-->
+                        <div class="row pt-2 new-fs-9" th:if="${qnaDetail.status == '접수 중' or qnaDetail.status == '접수 완료'}" style="background-color: #fff9f9;">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col new-text-gray">
+                                        <span>문의 내용을 정확하게 확인한 후</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col new-text-gray">
+                                        <span>빠른 시일 내에 답변 드리겠습니다.</span>
+                                    </div>
+                                </div>
+                                <div class="row pt-2">
+                                    <div class="col new-text-gray">
+                                        <span>문의량이 증가하거나 확인절차가 길어지는 경우에는</span>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col new-text-gray">
+                                        <span>답변이 지연될 수 있으니 양해 부탁드립니다.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div th:if="${qnaDetail.status == '답변 완료'}" style="background-color: #fff9f9;">
+                            <div class="row pt-2 align-items-center">
+                                <div class="col-auto">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto new-text-gray">
+                                            <span class="material-symbols-outlined d-flex justify-content-center">subdirectory_arrow_right</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="row pt-1 align-items-center">
+                                        <div class="col-1 px-0">
+                                            <img class="img-fluid image-thumbnail" th:src="|/images/${answer.profile}|">
+                                        </div>
+                                        <div class="col">
+                                            <span class="new-fs-9 fw-semibold">[고객센터]</span>
+                                            <span class="new-fs-9 fw-semibold" th:text="${answer.name}"></span>
+                                            <div class="row">
+                                                <div class="col new-fs-75 new-text-gray">
+                                                    <span th:text="${#dates.format(answer.created_at, 'yyyy.MM.dd HH:mm')}"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row ps-2 pt-2 new-fs-9" style="background-color: #fff9f9;">
+                                <div class="col ms-3 ps-4">
+                                    <span id="qnaAnswerContentSpan" th:text="${answer.content}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row ps-2 pt-2" style="background-color: #fff9f9;">
+                                <div class="col ms-3 ps-4">
+                                    <div class="row">
+                                        <div class="col-3" th:each="e : ${answerImages}">
+                                            <img class="img-fluid image-thumbnail" id="qnaAnswerImagesSpan" th:src="|/images/${e.url}|">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row pt-3" style="background-color: #fff9f9;">
+                            <div class="col border-bottom"></div>
+                        </div>
+
+                        <div class="row py-4 new-text-gray new-fs-85">
+                            <div class="col">
+<!--                                <span>답변이 만족스럽지 않으시거나 이 외 다른 문의사항이 있으신 경우 다시 문의 주시면 최대한 빠르게 답변 드리겠습니다.</span>-->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!--/* 푸터 */-->
+<!--        <div th:replace="~{common/navi::bottomNavi_bk}"></div>-->
+        <!-- /* 퀵바 */ -->
+        <div th:replace="~{common/navi::quickNavi}"></div>
+    </div>
+</div>
+
+<!--/* 알림 모달... */-->
+<div class="modal fade" id="reviewUpdateDoneModal" tabindex="-1" aria-labelledby="reviewUpdateDoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-center">
+        <div class="modal-content new-text-black" style="width: 20em;">
+
+            <div class="modal-body">
+                <div class="row py-2 align-items-center">
+                    <div class="col fw-bold text-center">
+                        <span id="testAlert"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script type="text/javascript" src="/public/js/user/userQnaDetail.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

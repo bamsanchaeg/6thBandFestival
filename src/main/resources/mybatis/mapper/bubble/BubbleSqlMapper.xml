@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sixthband.festival.bubble.mapper.BubbleSqlMapper">
+    <insert id="registerBubblePost">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from bubble_post
+        </selectKey>
+        INSERT INTO bubble_post(
+                user_id,
+                title,
+                content
+        )VALUES(
+                #{user_id},
+                #{title},
+                #{content}
+        )
+    </insert>
+
+
+    <insert id="registerBubbleImages">
+        INSERT INTO bubble_images(
+                post_id,
+                image_url
+        )VALUES (
+                #{post_id},
+                #{image_url}
+        )
+    </insert>
+
+    <!--글 쓴 유저 정보 가져오기, 이제 썸네일 추가되면 썸네일도 가져와야함-->
+    <select id="getBubblePostList" resultType="map">
+        SELECT BP.id AS post_id,
+               BP.user_id,
+               BP.title,
+               BP.content,
+               BP.created_at,
+               BI.image_url,
+               six_user.account_name,
+               six_user.profile_img,
+               bubble_artist.access_statement AS artist,
+               COALESCE(BL.like_count, 0) AS like_count
+        FROM bubble_post BP
+        LEFT JOIN bubble_images BI ON BP.id = BI.post_id
+        LEFT JOIN (
+            SELECT
+                post_id,
+                COUNT(*) AS like_count
+            FROM
+                bubble_like
+            GROUP BY
+                post_id
+        ) BL ON BP.id = BL.post_id
+        INNER JOIN
+            six_user ON BP.user_id = six_user.id
+        LEFT JOIN bubble_artist ON bubble_artist.user_id = six_user.id
+        ORDER BY BP.created_at DESC
+    </select>
+
+
+    <select id="getBubblePostDetail" resultType="map">
+        SELECT BP.id AS post_id,
+               BP.user_id,
+               BP.title,
+               BP.content,
+               BP.created_at,
+               BI.image_url,
+               six_user.account_name,
+               six_user.profile_img,
+               bubble_artist.access_statement AS artist,
+               COALESCE(BL.like_count, 0) AS like_count
+        FROM bubble_post BP
+                 LEFT JOIN bubble_images BI ON BP.id = BI.post_id
+                 LEFT JOIN (
+            SELECT
+                post_id,
+                COUNT(*) AS like_count
+            FROM
+                bubble_like
+            GROUP BY
+                post_id
+        ) BL ON BP.id = BL.post_id
+                 INNER JOIN
+             six_user ON BP.user_id = six_user.id
+                 LEFT JOIN bubble_artist ON bubble_artist.user_id = six_user.id
+      WHERE BP.id =#{id}
+    </select>
+
+
+    <select id="getBubbleImagesByPostId" resultType="com.sixthband.festival.bubble.dto.BubbleImageDto">
+        SELECT * FROM bubble_images
+        WHERE post_id = #{post_id}
+    </select>
+
+    <!--좋아요-->
+    <insert id="createLikeForBubble">
+        INSERT INTO bubble_like (
+            post_id,user_id
+        )VALUES (
+                 #{post_id},
+                 #{user_id}
+                        )
+    </insert>
+
+    <!--좋아요 삭제-->
+    <delete id="unLike">
+        DELETE FROM bubble_like
+        WHERE post_id = #{post_id} AND user_id = #{user_id}
+    </delete>
+
+    <!--팔로우-->
+    <!--여기서 follwer_id는 내가 팔로우한 아이디가 됨...-->
+    <!--following이 유저 시점에서 팔로잉을 하는 시점, follower는 팔로잉 당하는 사람-->
+    <insert id="followUser">
+        INSERT INTO bubble_follow(
+             following_id, follower_id
+        ) VALUES (
+                  #{following_id},#{follower_id}
+                         )
+    </insert>
+
+    <!--유저 언팔로우-->
+    <delete id="unFollowUser">
+        DELETE FROM bubble_follow
+        WHERE follower_id =#{follower_id} AND following_id =#{following_id}
+    </delete>
+
+    <!--팔로우 여부 확인-->
+    <select id="followOrUnFollow" resultType="boolean">
+        SELECT
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM bubble_follow
+                WHERE follower_id =#{follower_id} AND following_id =#{following_id}
+            ) THEN 1 ELSE 0 END AS followed
+    </select>
+
+    <insert id="createdComment">
+        INSERT INTO bubble_comment(
+            post_id,user_id,content
+        )VALUES (
+                 #{post_id},
+                 #{user_id},
+                 #{content}
+                        )
+    </insert>
+    
+    <select id="getCommentListByPostId" resultType="map">
+        SELECT bubble_comment.*,six_user.account_name
+            FROM bubble_comment
+            INNER JOIN six_user ON bubble_comment.user_id = six_user.id
+        WHERE bubble_comment.post_id = #{post_id}
+    </select>
+
+    <!--댓글 갯수 세기-->
+    <select id="getCommentCountByPostId" resultType="int">
+        SELECT count(*) FROM bubble_comment WHERE post_id = #{post_id}
+    </select>
+
+    <!--좋아요 카운트 표시, 이걸 한화면에 출력시켜야함.-->
+    <select id="countLikeByArticleId" resultType="com.sixthband.festival.bubble.dto.LikeDto">
+        select count(*) from bubble_like where post_id = #{post_id}
+    </select>
+
+
+    <!--아티스트 아이디와 유저 아이디를 합해서 inner Join 해주기-->
+    <!--이거 사용안할듯-->
+    <select id="getArtistUserList" resultType="map">
+        SELECT
+            ba.id,
+            six_user.id AS user_id,
+            six_user.name,
+            six_user.account_name,
+            six_user.created_at
+            FROM bubble_artist ba
+        INNER JOIN six_user ON ba.user_id = six_user.id
+    </select>
+
+    <!--채팅방 메신저 기능 타래, 여기서 receiver아이디는 유저 아이디이다.-->
+    <insert id="createBubbleMessage">
+        INSERT INTO bubble_messages(
+                sender,
+                receiver,
+                content
+        ) VALUES (
+                  #{sender},
+                  #{receiver},
+                  #{content}
+        )
+
+    </insert>
+
+    <!--채팅방을 없애서 이 부분 합의가 필요할듯..-->
+<!--    <select id="getMessages" resultType="map">-->
+<!--        SELECT * FROM bubble_messages-->
+<!--        WHERE chat_id =#{chat_id} AND created_at > #{lastCheckTime}-->
+<!--        ORDER BY-->
+<!--            created_at ASC-->
+<!--    </select>-->
+
+<!--    유저정보 가져오기, 추후에 썸네일도 추가해야함 null일경우 0을 반환함-->
+    <select id="getBubbleUserMyInfoById" resultType="map">
+        SELECT
+            six_user.id AS user_id,
+            six_user.account_name,
+            six_user.name,
+            six_user.profile_img,
+            bubble_artist.access_statement AS artist,
+            COUNT(DISTINCT bubble_post.id) AS post_count,
+            COUNT(DISTINCT bf1.following_id) AS follower,
+            COUNT(DISTINCT bf2.follower_id) AS following
+        FROM six_user
+                 LEFT JOIN bubble_post ON six_user.id = bubble_post.user_id
+            -- 팔로잉 수를 계산하기 위한 JOIN (six_user가 다른 유저를 팔로우하는 경우)
+                 LEFT JOIN bubble_follow bf1 ON six_user.id = bf1.follower_id
+            -- 팔로워 수를 계산하기 위한 JOIN (다른 유저가 six_user를 팔로우하는 경우)
+                 LEFT JOIN bubble_follow bf2 ON six_user.id = bf2.following_id
+            -- 아티스트 정보를 가져오기 위한 JOIN
+                 LEFT JOIN bubble_artist ON bubble_artist.user_id = six_user.id
+        WHERE six_user.id = #{id}
+        GROUP BY
+            six_user.id,
+            six_user.account_name,
+            six_user.name,
+            six_user.profile_img,
+            bubble_artist.access_statement
+    </select>
+
+    <select id="getBubbleUserInfoById" resultType="map">
+        SELECT
+            six_user.id AS user_id,
+            six_user.account_name,
+            six_user.name,
+            six_user.profile_img,
+            bubble_artist.access_statement AS artist,
+            COUNT(DISTINCT bubble_post.id) AS post_count,
+            COUNT(DISTINCT bf1.following_id) AS follower,
+            COUNT(DISTINCT bf2.follower_id) AS following
+        FROM six_user
+                 LEFT JOIN bubble_post ON six_user.id = bubble_post.user_id
+                 LEFT JOIN bubble_follow bf1 ON six_user.id = bf1.follower_id
+                 LEFT JOIN bubble_follow bf2 ON six_user.id = bf2.following_id
+                 LEFT JOIN bubble_artist ON bubble_artist.user_id = six_user.id
+        WHERE six_user.id = #{id}
+        GROUP BY
+            six_user.id,
+            six_user.account_name,
+            six_user.name,
+            six_user.profile_img,
+            bubble_artist.access_statement
+    </select>
+
+
+
+    <!--유저정보 가져오기, 추후에 썸네일도 추가해야함 null일경우 0을 반환함-->
+    <select id="getBubbleImagesInfoById" resultType="map">
+        SELECT
+            six_user.id,
+            six_user.profile_img,
+            BP.id AS post_id,
+            BP.title,
+            BP.content,
+            IFNULL(
+                    (SELECT bi.image_url
+                     FROM bubble_images bi
+                     WHERE bi.post_id = BP.id
+                     LIMIT 1),
+                    0
+            ) AS image_url
+        FROM bubble_post BP
+                 INNER JOIN six_user ON BP.user_id = six_user.id
+        WHERE six_user.id = #{id}
+        ORDER BY BP.created_at DESC
+    </select>
+
+    <select id="selectChatListBySenderIdAndReceiverId" resultType="map">
+        SELECT *
+        FROM bubble_messages
+        WHERE
+            (sender = #{sender} AND receiver = #{receiver}) OR
+            (sender = #{receiver} AND receiver = #{sender})
+        ORDER BY created_at ASC;
+    </select>
+
+    <select id="getSessionUserInfoById" resultType="map">
+        SELECT
+            id,
+            account_name,
+            nickname
+            FROM six_user
+        WHERE id = #{id}
+    </select>
+
+    <!--유저아이디를 입력받음-->
+    <select id="selectChatListByMyId" resultType="map">
+        SELECT
+            CASE
+                WHEN bubble_messages.sender = #{userId} THEN bubble_messages.receiver
+                ELSE bubble_messages.sender
+                END AS other_user_id,
+            six_user.account_name AS other_username,
+            six_user.profile_img,
+            bubble_messages.*
+        FROM
+            bubble_messages
+                JOIN
+            six_user ON six_user.id = (CASE WHEN bubble_messages.sender = #{userId} THEN bubble_messages.receiver ELSE bubble_messages.sender END)
+        WHERE
+            bubble_messages.sender = #{userId} OR bubble_messages.receiver = #{userId}
+        ORDER BY
+            bubble_messages.created_at ASC;
+    </select>
+
+    <!--채팅방 리스트 가져오기... 이거 이해 잘 하고 넘어가야할듯..-->
+    <select id="getChatListByUserId" resultType="map">
+        SELECT
+            CASE
+                WHEN bubble_messages.sender = #{userId} THEN bubble_messages.receiver
+                ELSE bubble_messages.sender
+                END AS other_user_id,
+            six_user.account_name AS other_username,
+            six_user.profile_img,
+            MAX(bubble_messages.created_at) AS last_message_time,
+            (SELECT content FROM bubble_messages bm WHERE bm.id = MAX(bubble_messages.id)) AS last_message_content,
+            CONCAT(LEAST(bubble_messages.sender, bubble_messages.receiver), '-', GREATEST(bubble_messages.sender, bubble_messages.receiver)) AS chat_room_id
+        FROM
+            bubble_messages
+                JOIN
+            six_user ON six_user.id = (CASE WHEN bubble_messages.sender = #{userId} THEN bubble_messages.receiver ELSE bubble_messages.sender END)
+        WHERE
+            bubble_messages.sender = #{userId} OR bubble_messages.receiver = #{userId}
+        GROUP BY
+            other_user_id, six_user.account_name
+        ORDER BY
+            last_message_time DESC
+    </select>
+
+    <select id="LikeOrUnlike" resultType="boolean">
+        SELECT
+            CASE WHEN EXISTS (
+                SELECT 1
+                FROM bubble_like
+                WHERE post_id = #{post_id} AND user_id = #{user_id}
+            ) THEN 1 ELSE 0 END AS liked
+    </select>
+
+    <!--여기서 follwer_id는 내가 팔로우한 아이디가 됨...-->
+    <!--following이 유저 시점에서 팔로잉을 하는 시점, follower는 팔로잉 당하는 사람-->
+    <select id="getPostsFromMyFollowings" resultType="map">
+        SELECT
+            BP.id AS post_id,
+            BP.user_id,
+            BP.title,
+            BP.content,
+            BP.created_at,
+            BI.image_url,
+            SU.profile_img,
+            COALESCE(BL.like_count, 0) AS like_count,
+            SU.account_name,
+            bubble_artist.access_statement AS artist
+        FROM
+            bubble_post BP
+                INNER JOIN
+            bubble_follow BF ON BP.user_id = BF.follower_id
+                LEFT JOIN
+            bubble_images BI ON BP.id = BI.post_id
+                LEFT JOIN
+            (
+                SELECT
+                    post_id,
+                    COUNT(*) AS like_count
+                FROM
+                    bubble_like
+                GROUP BY
+                    post_id
+            ) BL ON BP.id = BL.post_id
+                INNER JOIN
+            six_user SU ON BP.user_id = SU.id
+                LEFT JOIN
+            bubble_artist ON SU.id = bubble_artist.user_id  -- 수정된 부분
+        WHERE
+            BF.following_id = #{current_user}
+        ORDER BY
+            BP.created_at DESC
+    </select>
+
+    <select id="selectMyLikePost" resultType="map">
+        SELECT
+            BP.id,
+            BP.content,
+            bubble_images.image_url,
+            bubble_like.created_at AS likeTime
+            FROM bubble_post BP
+        INNER JOIN bubble_images ON BP.id = bubble_images.post_id
+        INNER JOIN bubble_like ON bubble_like.post_id = BP.id
+        WHERE bubble_like.user_id = #{user_id}
+    </select>
+
+    <!--알림창 쿼리-->
+    <select id="getMyAlarmsBySessionId" resultType="map">
+        SELECT
+            bubble_like.id AS activity_id,
+            bubble_like.created_at AS activity_created_at,
+            'like' AS activity_type,  -- 활동 타입을 'like'로 명시
+            six_user.id AS user_id,
+            six_user.account_name AS username,
+            six_user.profile_img,
+            bubble_post.id AS post_id,
+            NULL AS content  -- 댓글의 내용이 없는 경우 NULL로 처리
+        FROM bubble_like
+                 JOIN bubble_post ON bubble_like.post_id = bubble_post.id
+                 JOIN six_user ON bubble_like.user_id = six_user.id
+        WHERE bubble_post.user_id = #{user_id}
+
+        UNION ALL
+
+        SELECT
+            bubble_comment.id AS activity_id,
+            bubble_comment.created_at AS activity_created_at,
+            'comment' AS activity_type,  -- 활동 타입을 'comment'로 명시
+            six_user.id AS user_id,
+            six_user.account_name AS username,
+            six_user.profile_img,
+            bubble_post.id AS post_id,
+            bubble_comment.content AS content  -- 댓글의 내용
+        FROM bubble_comment
+                 JOIN bubble_post ON bubble_comment.post_id = bubble_post.id
+                 JOIN six_user ON bubble_comment.user_id = six_user.id
+        WHERE bubble_post.user_id = #{user_id}
+
+        UNION ALL
+
+-- 팔로우 알림 (팔로우 받은 사람에게만 알림)
+        SELECT
+            bubble_follow.id AS activity_id,
+            bubble_follow.create_at AS activity_created_at,
+            'follow' AS activity_type,  -- 활동 타입을 'follow'로 명시
+            six_user.id AS user_id,
+            six_user.account_name AS username,
+            six_user.profile_img,
+            NULL AS post_id,  -- 팔로우는 특정 게시물과 관련이 없으므로 NULL
+            NULL AS content  -- 팔로우는 내용이 없으므로 NULL
+        FROM bubble_follow
+                 JOIN six_user ON bubble_follow.following_id = six_user.id
+        WHERE bubble_follow.follower_id = #{user_id}  -- **팔로우 받은 유저**가 알림을 받음
+        ORDER BY activity_created_at DESC
+    </select>
+
+    <!--아티스트 신청 폼-->
+    <insert id="applyArtistForm">
+        INSERT INTO bubble_artist(
+            user_id,user_name,identification_image, email_address
+        )VALUES (
+                 #{user_id},#{user_name},#{identification_image},#{email_address}
+                        )
+    </insert>
+
+    <update id="registerIdentification">
+        UPDATE bubble_artist
+        SET identification_image = #{identification_image}
+        WHERE id = #{id}
+    </update>
+
+    <select id="getArtistApplicationList" resultType="com.sixthband.festival.bubble.dto.BubbleArtistDto">
+        SELECT * FROM bubble_artist
+    </select>
+
+    <select id="getArtistApplication" resultType="com.sixthband.festival.bubble.dto.BubbleArtistDto">
+        SELECT * FROM bubble_artist
+        WHERE id = #{id}
+    </select>
+
+    <update id="updateApplyStatement">
+        UPDATE bubble_artist
+        SET access_statement = 'Y'
+            WHERE id=#{id}
+    </update>
+
+
+</mapper>

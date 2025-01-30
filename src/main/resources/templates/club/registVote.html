@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+
+    <title>6th BAND - Community</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+
+    <script>
+        const urlParams = new URL(window.location.href).searchParams;
+        const clubId = urlParams.get("id");
+
+        function setSessionUserId(){
+                const url = "/six/user/getSessionUserId";
+                fetch(url)
+                .then(response => response.json())
+                .then((response) => {
+                    myId= response.data.id;
+              
+                })
+            }
+
+
+        let formCount=1;
+
+        function addButton(){
+
+            const memberInputForm = document.getElementById("memberInputForm");
+            const newmemberInputForm = document.createElement('div');
+            newmemberInputForm.classList.add('row','py-2');
+            newmemberInputForm.classList.add("voteRrow");
+            newmemberInputForm.setAttribute("formId",formCount);
+
+            newmemberInputForm.innerHTML = 
+                            `
+                            <div class="col-auto ps-2 pe-0 ">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="border rounded-4 text-center  d-flex align-items-center" id="previewImage_${formCount}" style="width: 70px; height: 70px;">No image</div>
+                                    </div>
+                                
+                                </div>
+                                <div class="row py-2 d-flex justify-content-center">
+                                    <div class="col-auto">
+                                        <input type="file"  class="custom-file-input d-none" id="formFile_${formCount}" accept="image/*" name="uploadFiles">
+                                        <label class="custom-file-label btn btn-dark d-flex align-items-center" for="formFile_${formCount}"><span class="material-symbols-outlined">image</span></label>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            <div class="col-8 px-1 pe-0">
+                                <textarea type="text" id="question_${formCount}" name="question_content" class="form-control border-0 px-0 d-flex align-items-center px-2" style="height: 70px;" placeholder="질문 내용을 입력해주세요."></textarea>
+                                <div class="row">
+                                    <div class="col text-end pe-3 new-fs-8">
+                                        <span id="questionLength_${formCount}" ></span>/<span id="maxQuestionLength_${formCount}"></span>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-auto d-flex align-items-center pe-2 " style="justify-content: flex-end;">
+                                
+                                <span class="material-symbols-outlined text-danger text-end" onclick="formDelete(event)">do_not_disturb_on</span>                                
+                            </div>
+                            
+                            `;
+            
+            memberInputForm.appendChild(newmemberInputForm);
+            
+            questionIndexLength(formCount);
+            formFileUpload(document.getElementById(`formFile_${formCount}`), formCount);
+            formCount++;           
+                    
+        }
+
+        // 이미지 미리보기 코드
+
+        function formFileUpload(formInput,index){
+
+
+            formInput.addEventListener('change',function(event){
+                const file = event.target.files[0];
+                const previewImage = document.getElementById(`previewImage_${index}`);
+                previewImage.innerHTML="";
+
+                if(file){
+                    const reader = new FileReader();
+                    reader.onload = function(e){
+                        const img = document.createElement('img');
+                        img.src = e.target.result               ;
+                        img.classList.add("img-fluid");
+                        img.style.width=`70px`;
+                        img.style.height=`70px`;
+                        img.classList.add("rounded-4");
+                        previewImage.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+
+                }
+                
+            })
+        }
+
+        function formDelete(event){
+            event.target.closest('.row').remove();
+            
+        }
+
+        function periodSetting(){
+            const dateSetting = document.getElementById("dateSetting");
+            let today = new Date();
+            let year = today.getFullYear();
+            let month = ('0'+(today.getMonth()+1)).slice(-2);
+            let day = ('0'+(today.getDate())).slice(-2);
+            let todayDate = year+'-'+month+'-'+day;
+            dateSetting.setAttribute("min",todayDate);
+            dateSetting.setAttribute("max",'2025-09-30');
+
+            const finalDate = document.getElementById('dateSetting').value;
+            if(finalDate){
+                let selectDate = new Date(finalDate);
+                let today = new Date(todayDate);
+
+                let diffDate = selectDate- today;
+                let diffDays = Math.ceil(diffDate / (1000 * 60 * 60 * 24));
+
+                const restDay = document.getElementById('restDay');
+                restDay.innerText= diffDays;
+            }
+        }
+
+        function questionIndexLength(formCount){
+
+            const question = document.getElementById(`question_${formCount}`);
+            const questionLength = document.getElementById(`questionLength_${formCount}`);
+            const maxQuestionLength = document.getElementById(`maxQuestionLength_${formCount}`);
+            const maxContent = 50; // 최대 글자 수
+
+            questionLength.innerText=`(0)`;
+
+            maxQuestionLength.innerText = maxContent;
+            question.addEventListener('input',function(event){
+                const currentLength = question.value.length;
+                questionLength.innerText=`(${currentLength})`;
+                
+                if(question.value.length > maxContent){
+
+                    question.value = question.value.slice(0,maxContent-1);
+                }
+            })
+        }
+            
+        function questionLength(){
+            const question = document.getElementById("question");
+            const questionLength = document.getElementById("questionLength");
+            const maxQuestionLength = document.getElementById("maxQuestionLength");
+            const maxContent = 50; // 최대 글자 수
+
+            questionLength.innerText=`(0)`;
+
+            maxQuestionLength.innerText = maxContent;
+            question.addEventListener('input',function(event){
+                const currentLength = question.value.length;
+                questionLength.innerText=`(${currentLength})`;
+                
+                if(question.value.length > maxContent){
+
+                    question.value = question.value.slice(0,maxContent-1);
+                }
+            })  
+        }
+
+        function limitTitleLength(){
+            const title = document.getElementById("title");
+            const maxLength = 30; // 최대 글자 수
+
+            title.addEventListener('input',function(event){
+                const currentLength = title.value.length;                
+                if(title.value.length > maxLength){
+
+                    title.value = title.value.slice(0,maxLength-1);
+                }
+            })
+        }
+
+        function voteRegistConfirm() {
+            const voteRegistModal = bootstrap.Modal.getOrCreateInstance("#voteRegistModal");
+            voteRegistModal.show();
+        }
+
+        window.addEventListener("DOMContentLoaded",() => {
+            setSessionUserId();
+            questionLength();
+            limitTitleLength();
+            const formFile_0 = document.getElementById("formFile_0")
+            formFileUpload(formFile_0,0);
+            periodSetting();
+
+            let today = new Date();
+            let day = String(today.getDate()).padStart(2, '0');
+            let month = String(today.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
+            let year = today.getFullYear();
+
+            // 날짜를 'YYYY-MM-DD' 형식으로 변환
+            let todayString = `${year}-${month}-${day}`;
+
+            // 입력 박스에 오늘의 날짜 설정
+            let dateInput = document.getElementById('dateSetting');
+            dateInput.value = todayString;
+
+            dateInput.addEventListener('change',periodSetting);
+            
+            const restDay = document.getElementById('restDay');
+            restDay.innerText=0;
+
+            });
+
+            function goToBeforePage(){
+                window.location.href = '/club/detail/vote?id='+clubId;
+            }
+
+    </script>
+    <style>
+        .border-custom{
+            border-right: 0;
+            border-left: 0;
+            
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{common/navi::topNavi}"></div>
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+            <!-- /* 컨텐츠 */ -->
+            <div class="main">
+                <div class="container">
+                    <div class="row pt-4 fw-semibold fs-5 text-center">
+                        <div class="material-symbols-outlined col-1 d-flex align-items-center" onclick="goToBeforePage()">chevron_left</div>
+                        <div class="col-3"></div>
+                        <div class="col-4">
+                            투표 등록
+                        </div>
+                        <div class="col-4"></div>
+                    </div>
+                    <div class="row py-3">
+                        <div class="col-2"></div>
+                    </div>
+                    <form  enctype="multipart/form-data" id="voteRegist">
+                        <div class="row pb-5">
+                            <div class="col-12 mx-auto">
+                                <input type="text" id="title" name="question_title" class="form-control border-custom py-3 text-center rounded-0" placeholder="질문 제목을 입력해주세요.">
+                            </div>
+                        </div>
+
+                        <div id="memberInputForm">
+                            <div class="row voteRrow pb-2" formId="0">
+                                
+                                <div class="col-auto ps-2 pe-0 "  >
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="border rounded-4 text-center  d-flex align-items-center" id="previewImage_0" style="width: 70px; height: 70px;">No image</div>
+                                        </div>
+                                    
+                                    </div>
+                                    <div class="row py-2 d-flex justify-content-center">
+                                        <div class="col-auto">
+                                            <input type="file"  class="custom-file-input d-none" id="formFile_0" accept="image/*" name="uploadFiles">
+                                            <label class="custom-file-label btn btn-dark d-flex align-items-center" for="formFile_0"><span class="material-symbols-outlined">image</span></label>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                <div class="col-8 px-1 pe-0">
+                                    <textarea type="text" id="question" name="question_content" class="form-control border-0 px-0 d-flex align-items-center px-2" style="height: 70px;" placeholder="질문 내용을 입력해주세요."></textarea>
+                                    <div class="row">
+                                        <div class="col text-end pe-3 new-fs-8">
+                                            <span id="questionLength" ></span>/<span id="maxQuestionLength"></span>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto d-flex align-items-center pe-2 " style="justify-content: flex-end;">
+                                    
+                                    <span class="material-symbols-outlined text-danger text-end" onclick="formDelete(event)">do_not_disturb_on</span>                                
+                                </div>
+                            </div>
+                            <input type="hidden" name="club_id" id="clubId">
+
+                        </div>  
+                        
+                        <div class="row py-3 border-bottom border-4">
+                            <div class="col text-center">
+                                <span class="material-symbols-outlined fs-1" onclick="addButton()">add_circle</span>                        
+                            </div>
+                        </div>
+                        <div class="row pt-3" style="padding-bottom: 30%;">
+                            <div class="col-6 new-fs-9">
+                                질문 종료일
+                            </div>
+                            <div class="col-4">
+                                <input type="date" name="final_date" id="dateSetting" onclick="periodSetting()">
+                            </div>&nbsp;
+                            <div class="col-auto new-fs-85 border border-primary btn-outline-primary rounded-pill d-flex align-items-center p-0 px-1" >
+                                <span>D -  </span> &nbsp;
+                                <span id="restDay"></span>
+                            </div>
+                        </div>
+                        <div class="row new-fixed-bottom">
+                            <div class="col d-grid px-0 ">
+                                <button type="button" class="btn btn-primary rounded-0" onclick="voteRegistConfirm()" style="background-color: #ff6d96; border-color: #ff6d96;">등록</button>
+                            </div>
+                        </div>
+                    </form> 
+                </div>
+            </div>
+            <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+            <!-- /* 푸터 */ -->
+            <!-- <div th:replace="~{common/navi::bottomNavi}"></div> -->
+        </div>
+    </div>
+    
+
+    <div class="modal fade" id="voteRegistModal" tabindex="-1" aria-labelledby="voteRegistModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">등록 확인</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    투표를 등록하면 수정 및 삭제가 불가능합니다.<br> 이대로 등록하시겠습니까?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn " style="background-color: rgb(165, 165, 165); color: #f8f8f8;" data-bs-dismiss="modal">취소</button>
+                    <button type="button" class="btn btn-primary" style="background-color: #ff6d96; border-color: #ff6d96;"  onclick="voteRegist()">등록</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/public/js/club/ClubVote.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

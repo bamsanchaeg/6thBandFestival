@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th band</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <style>
+
+        .chatListBox {
+            overflow-y: auto;
+            max-height: 70em;
+
+        }
+
+        .chatListBox::-webkit-scrollbar {
+            display: none;
+        }
+
+    </style>
+    
+</head>
+
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!--/* 헤더 */-->
+            <div th:replace="~{common/navi::topNavi}"></div>
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+            <!--/* 컨텐츠 */-->
+            <div class="main">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row pt-2">
+                                <div class="col-1">
+                                    <div class="material-symbols-outlined col-auto ps-0 text-dark" onclick="goToBeforePage()">
+                                        chevron_left
+                                    </div>
+                                </div>
+                                <div class="col-10">
+                                    <div class="card-header text-center">
+                                        <div class="row">
+                                            <div id="scheduleTitle" class="new-fs-9 fw-medium"></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="new-fs-7 new-club-text-grey">일정으로 이동</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-1"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding-bottom: 5em !important;">
+                        <div class="chatListBox"></div>
+
+                    </div>
+
+                    <div id="chatBody" class="d-none">
+                     
+                        <div class="chatWrapper col-11 mx-auto pb-3 align-items-center">
+                            <div class="row pb-2 align-items-center">
+                                <div class="col-auto px-0">
+                                    <div class="px-0 imageContainer"></div>
+
+                                </div>
+                                <div class="col-auto ps-1">
+                                    <div class=" px-0 yourName new-fs-8"></div>
+
+                                </div>
+                            </div> 
+                            <div class="row justifyContent">
+                                    <div class="p-1 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row new-fixed-bottom" style="background-color: #fff;">
+                        <div class="col p-3 pt-1">
+                            <div class="card-footer border-0">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="메시지를 입력하세요" id="messageInput">
+                                    <button class="btn btn-primary new-py-25" type="button" onclick="sendMessage()">전송</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+    <script>
+        const urlParams = new URL(window.location.href).searchParams;
+        const scheduleId = urlParams.get("schedule_id");
+        const clubId = urlParams.get("club_id");
+
+        function goToBeforePage(){
+            window.location.href = "/club/schedule/detail?club_id="+clubId+"&event_id="+scheduleId;
+        }
+        let myId="";
+         function setSessionId(){
+            const url = "/six/user/getSessionUserId";
+            fetch(url)
+            .then(response => response.json())
+            .then((response)=>{
+                myId = response.data.id;
+                myInfo();
+            })
+        };
+
+        const socket = new WebSocket('wss://festival.null-pointer-exception.com/chat');
+
+        let userInfo = {};
+        function myInfo() {
+            const url = "/six/user/userInfo?id="+myId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                userInfo = response.data.userInfo;  // 전체 객체를 저장
+            })
+        }
+        function scrollToBottom() {
+            const chatListBox = document.querySelector('.chatListBox');
+            if (!chatListBox) {
+                console.warn('chatListBox가 렌더링되지 않았습니다.');
+                return;
+            }
+            chatListBox.scrollTop = chatListBox.scrollHeight;
+        }
+
+        socket.onmessage = function (event) {
+            const chat = JSON.parse(event.data); // 서버로부터 받은 메시지 파싱
+            renderMessage(chat); // 실시간으로 메시지 렌더링
+
+        };
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim(); 
+            if(message ==""){
+                return;
+            }
+
+            if(message.length !=0){
+                socket.send(JSON.stringify({
+                message: message,
+                userDto: userInfo
+                }));
+
+            }
+            
+            const messageData = {
+                message: input.value,
+                schedule_id: scheduleId
+            };
+
+            const chatContent = "/api/club/scheduleChatMessage";
+            fetch(chatContent, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify(messageData),
+
+            })
+                .then((response) => response.json())
+                .then((response) => {
+                    input.value = '';
+                
+                })
+                .catch((error) => {
+                    console.error('메시지 전송 실패:', error);
+                });
+        }
+            document.getElementById('messageInput').addEventListener('keydown',function(event){
+                if(event.key =='Enter'){
+                    sendMessage();
+                }
+            }
+        )
+
+        function clubScheduleDetail(){
+            const url = "/api/club/clubSchedulDetail?id="+scheduleId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response)=>{
+                const clubScheduleTitle = document.getElementById("scheduleTitle");
+                clubScheduleTitle.innerText=response.data.clubSchedulDetail.clubPlanDto.schedule_title;
+
+                clubScheduleTitle.addEventListener('click', function(event) {
+                    window.location.href = "/club/schedule/detail?club_id=" + clubId + "&event_id=" + scheduleId;
+                });
+            })
+        }
+
+        
+
+        function chatList(){
+            const url = "/api/club/chatList?schedule_id="+scheduleId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+
+                const chatListBox = document.querySelector(".chatListBox");
+                chatListBox.innerHTML="";
+                
+                const chatWrapperTemplate = document.querySelector("#chatBody .chatWrapper");
+
+                for (let e of response.data.chatList) {
+                    const newChatWrapper = chatWrapperTemplate.cloneNode(true);
+
+                    const justifyContent = newChatWrapper.querySelector('.justifyContent');
+                    const messageBox = newChatWrapper.querySelector('.p-1');
+
+                    if (e.userDto.id === myId) {
+                        messageBox.classList.add('bg-primary', 'text-white','col-auto'); 
+                        justifyContent.classList.add('justify-content-end')
+                        
+                    } else {
+                        const imageContainer = newChatWrapper.querySelector(".imageContainer");
+                        
+                        const yourName = newChatWrapper.querySelector(".yourName");
+
+                        const img = document.createElement('img');
+                        img.src = `/images/${e.userDto.profile_img}`;
+                        
+                        imageContainer.classList.add('image-container');
+                        img.classList.add("image-thumbnail");
+                        img.style.width="1.5em";
+                        img.style.height="1.5em";
+                        img.style.borderRadius="50%";
+                        imageContainer.appendChild(img);
+
+                        yourName.innerText=e.userDto.nickname;
+                        messageBox.classList.add('bg-light', 'text-dark','col-auto'); 
+                        justifyContent.classList.add('justify-content-start');
+                    }
+
+                    newChatWrapper.querySelector('.p-1').textContent = e.sendMessageDto.message;
+                    chatListBox.appendChild(newChatWrapper);
+                }
+
+                scrollToBottom(); 
+            })
+
+            
+        }
+
+        function renderMessage(chat) {
+            const chatListBox = document.querySelector(".chatListBox");
+            const chatWrapperTemplate = document.querySelector("#chatBody .chatWrapper");
+
+            const newChatWrapper = chatWrapperTemplate.cloneNode(true);
+            const messageBox = newChatWrapper.querySelector('.p-1');
+            const justifyContent = newChatWrapper.querySelector('.justifyContent');
+
+            // 수신된 메시지를 사용자에 따라 스타일 적용
+            if (chat.userDto.id === myId) {
+                messageBox.classList.add('bg-primary', 'text-white','col-auto');
+                justifyContent.classList.add('justify-content-end')
+
+            } else {
+                const imageContainer = newChatWrapper.querySelector(".imageContainer");
+                        
+                const yourName = newChatWrapper.querySelector(".yourName");
+
+                const img = document.createElement('img');
+                img.src = `/images/${chat.userDto.profile_img}`;
+                
+                imageContainer.classList.add('image-container');
+                img.classList.add("image-thumbnail");
+                img.style.width="1.5em";
+                img.style.height="1.5em";
+                img.style.borderRadius="50%";
+                imageContainer.appendChild(img);
+
+                yourName.innerText=chat.userDto.nickname;
+                messageBox.classList.add('bg-light', 'text-dark','col-auto');
+                justifyContent.classList.add('justify-content-start')
+
+            }
+
+            messageBox.textContent = chat.message;
+            chatListBox.appendChild(newChatWrapper);
+            scrollToBottom(); 
+
+        }
+
+        window.addEventListener("DOMContentLoaded",() => {
+                setSessionId();
+                chatList();
+                clubScheduleDetail();
+
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

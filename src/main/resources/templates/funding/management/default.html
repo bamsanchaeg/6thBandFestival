@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Funding</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/funding.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            <!-- /* 서브 헤더 */ -->
+            <div th:replace="~{funding/fundingNavi::projectManagementHeader}"></div>
+            
+            <!-- /* 컨텐츠 */ -->
+            <div class="main">
+                <div class="sub-title">
+                    <div class="container">
+                        <span>프로젝트 기획</span>
+                    </div>
+                </div>
+                <!-- /* 프로젝트 기획 탭 */ -->
+                <div th:replace="~{funding/fundingNavi::projectManagementTab}"></div>
+
+                <div class="default-con new-pt-45 pb-5">
+                    <div class="container">
+                        <form method="post" id="peditor-form" enctype="multipart/form-data">
+                            <div class="peditor-box">
+                                <div class="peditor-title">
+                                    카테고리<span class="peditor-required">*</span>
+                                </div>
+                                <div class="peditor-desc">
+                                    <p>프로젝트와 가장 잘 어울리는 카테고리로 선택해주세요.</p>
+                                    <p>적합하지 않을 경우 운영자에 의해 조정될 수 있습니다.</p>
+                                </div>
+                                <div class="peditor-content">
+                                    <select name="category_id" id="project-catetory" class="peditor-namebox peditor-select form-select">
+                                        <option value="" hidden>카테고리 선택</option>
+                                        <option th:each="projectCategoryDto : ${projectCategoryList}" th:selected="${projectCategoryDto.id} == ${projectDto.category_id}" th:value="${projectCategoryDto.id}" th:text="${projectCategoryDto.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="peditor-box paditor-mt peditor-py">
+                                <div class="peditor-title">
+                                    프로젝트 제목<span class="peditor-required">*</span>
+                                </div>
+                                <div class="peditor-desc">
+                                    프로젝트의 주제, 창작물의 품목이 명확하게 드러나는 멋진 제목을 붙여주세요.
+                                </div>
+                                <div class="peditor-content">
+                                    <input type="text" name="project_title" th:value="${projectDto.project_title}" data-minlength="1" data-maxlength="30" id="project-title" class="peditor-namebox peditor-input peditor-setting" placeholder="제목을 입력해주세요.">
+                                </div>
+                                <div class="peditor-text-count">0/30</div>
+                            </div>
+                            <div class="peditor-box peditor-py">
+                                <div class="peditor-title">
+                                    프로젝트 요약<span class="peditor-required">*</span>
+                                </div>
+                                <div class="peditor-desc">
+                                    후원자 분들이 프로젝트를 빠르게 이해할 수 있도록 명확하고 간략하게 소개해주세요.
+                                </div>
+                                <div class="peditor-content">
+                                    <textarea name="project_desc" id="project-desc" th:text="${projectDto.project_desc}" data-minlength="1" data-maxlength="50" placeholder="프로젝트 요약을 입력해주세요." class="peditor-namebox peditor-textarea peditor-setting"></textarea>
+                                </div>
+                                <div class="peditor-text-count">0/50</div>
+                            </div>
+                            <div class="peditor-box peditor-py">
+                                <div class="peditor-title">
+                                    프로젝트 대표 이미지<span class="peditor-required">*</span>
+                                </div>
+                                <div class="peditor-desc">
+                                    후원자들이 프로젝트의 내용을 쉽게 파악하고 좋은 인상을 받을 수 있는 대표 이미지를 등록해주세요.
+                                </div>
+                                <div class="peditor-content">
+                                    <input type="hidden" name="old_thumbnail_location" th:value="${projectDto.thumbnail_location}">
+                                    <div class="peditor-profile-box d-flex">
+                                        <div th:unless="${projectDto.thumbnail_location != null}" class="peditor-file-preview img-p-box">
+                                            <span class="material-symbols-outlined img no-img">broken_image</span>
+                                        </div>
+                                        <div th:if="${projectDto.thumbnail_location != null}" class="peditor-file-preview img-p-box">
+                                            <a th:href="|/images/${projectDto.thumbnail_location}|" target="_blank" class="upload-link d-block">
+                                                <img th:src="|/images/${projectDto.thumbnail_location}|" alt="썸네일" class="upload-thumbnail img image-thumbnail">
+                                            </a>
+                                        </div>
+                                        <div class="profile-text-box">
+                                            <input type="file" name="uploadFiles" accept="image/*" class="form-control peditor-file" >
+                                            <div class="text">파일 형식은 jpg 또는 png 또는 gif로, 1:1 비율로 올려주세요.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="peditor-box peditor-py">
+                                <div class="peditor-title">
+                                    프로젝트 대표 영상
+                                </div>
+                                <div class="peditor-desc">
+                                    대표 영상을 유튜브 링크로 등록해주시면 프로젝트 상세에서 함께 제공됩니다.
+                                </div>
+                                <div class="peditor-content">
+                                    <input type="text" name="youtube_url" th:value="${projectDto.youtube_url}" class="peditor-namebox peditor-input" placeholder="URL 을 입력해주세요.">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="peditor-btn-box">
+                    <button type="button" disabled onclick="projectUpdate();" id="peditor-btn" class="peditor-btn">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/management.js"></script>
+</body>
+</html>

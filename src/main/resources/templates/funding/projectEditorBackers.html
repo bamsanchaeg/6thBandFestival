@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Funding</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/funding.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            <!-- /* 서브 헤더 */ -->
+            <div th:replace="~{funding/fundingNavi::managementHeader}"></div>
+
+            <!-- /* 컨텐츠 */ -->
+            <div class="main main-management">
+                <!-- /* 관리 헤더 */ -->
+                <div th:replace="~{funding/fundingNavi::managementTitle}"></div>
+
+                <div class="management-con mt-3 new-bg-gray">
+                    <div class="search-box pt-3 new-pb-45 bg-white">
+                        <div class="container">
+                            <div class="search-form-box">
+                                <form action="">
+                                    <div class="">
+                                        <select name="" class="form-select rounded-0 new-fs-8">
+                                            <option value="">선물</option>
+                                            <option value="">선물 목록</option>
+                                        </select>
+                                    </div>
+                                    <div class="d-flex mt-2">
+                                        <div class="flex-grow-1">
+                                            <select name="" class="form-select rounded-0 new-fs-8">
+                                                <option value="">결제 상태</option>
+                                                <option value="">결제 완료</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex-grow-1 ms-2">
+                                            <select name="" class="form-select rounded-0 new-fs-8">
+                                                <option value="">대기 중</option>
+                                                <option value="">배송 완료</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="search-text-box mt-2">
+                                        <input type="text" class="form-control border rounded-0 new-fs-8" placeholder="후원번호 또는 이름 검색">
+                                    </div>
+                                    <div class="btn-box mt-2">
+                                        <button type="button" class="new-btn-none w-100 py-2 border new-bg-gray new-fs-8 text-dark lh-1">적용</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="count-box mt-2 new-py-25 border-bottom bg-white new-fs-9">
+                        <div class="container">
+                            총 후원자 <span class="backers-count fw-medium text-primary">0</span>
+                        </div>
+                    </div>
+                    <div class="backers-box"></div> 
+                    
+                    <div class="pagination-box mt-2 pt-4 pb-5 bg-white">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item">
+                                    <a class="page-link py-1 rounded-0 text-dark" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item"><a class="page-link py-1 text-dark" href="#">1</a></li>
+                                <li class="page-item">
+                                    <a class="page-link py-1 rounded-0 text-dark" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- /* 오프캔버스 */ -->
+        <div class="offcanvas offcanvas-bottom offcanvas-custom" tabindex="-1" id="offcanvasWrapper" aria-labelledby="offcanvasBottomLabel">
+            <div class="offcanvas-header">
+                <button type="button" onclick="closeCanvas()" class="btn-close"></button>
+            </div>
+            <div class="offcanvas-body small"></div>
+        </div>
+    </div>
+
+    <div class="d-none" id="template-wrapper">
+        <!--/* 후원 목록 줄 */-->
+        <div class="backers-table new-fs-9 py-3 mb-2 bg-white">
+            <div class="container">
+                <div class="backers-header position-relative mb-2 border-bottom fw-medium">
+                    <a class="backers-href d-block pb-2">
+                        <div class="d-flex">
+                            <div class="col-3">주문번호</div>
+                            <div class="support-id col-9">12</div>
+                        </div>
+                        <span class="material-symbols-outlined position-absolute top-0 end-0 fw-light fs-5">keyboard_arrow_right</span>
+                    </a>
+                </div>
+                <div class="backers-body">
+                    <div class="backers-row d-flex">
+                        <div class="col-title col-3 text-body-secondary">아이디</div>
+                        <div class="col-content backers-account-name col-9 new-fs-85"></div>
+                    </div>
+                    <div class="backers-row d-flex mt-1">
+                        <div class="col-title col-3 text-body-secondary">선물</div>
+                        <div class="col-content backers-reward col-9 new-fs-85"></div>
+                    </div>
+                    <div class="backers-row d-flex mt-1">
+                        <div class="col-title col-3 text-body-secondary">총 후원 금액</div>
+                        <div class="col-content backers-total-price col-9 new-fs-85"></div>
+                    </div>
+                    <div class="backers-row d-flex mt-1">
+                        <div class="col-title col-3 text-body-secondary">후원 일시</div>
+                        <div class="col-content backers-support-at col-9 new-fs-85"></div>
+                    </div>
+                    <div class="backers-row d-flex mt-1">
+                        <div class="col-title col-3 text-body-secondary">결제 상태</div>
+                        <div class="col-content backers-pay-status col-9 new-fs-85"><span class="status-dot status-success"></span></div>
+                    </div>
+                    <div class="backers-row d-flex mt-1">
+                        <div class="col-title col-3 text-body-secondary">선물 전달</div>
+                        <div class="col-content col-9 new-fs-8">
+                            <span class="backers-delivery-status new-d-inline-block px-2 rounded-pill">대기중</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--/* 후원 상세 */-->
+        <div class="backers-wrapper">
+            <!--/* 후원자 확인 */-->
+            <div class="backers-detail-box pb-3 border-bottom border-dark">
+                <div class="title fw-medium fs-5">후원 세부 내역</div>
+            </div>
+
+            <div class="reward-delivery-box mt-3 pb-3 border-bottom fw-medium">
+                <div class="pledge-title new-mb-25 fw-semibold new-fs-95">선물 전달 관리</div>
+                <div class="pledge-content new-fs-9">
+                    <form class="deileryStatusForm">
+                        <div class="col-box d-flex align-items-center">
+                            <div class="col-title col-3 text-body-secondary">선물 전달</div>
+                            <div class="col-content col-9 font-roboto new-fs-85">
+                                <select name="delivery_status" class="delivery-status form-select rounded-0 new-fs-85 text-body-secondary text-start">
+                                    <option value="">배송 상태</option>
+                                    <option value="대기중">대기중</option>
+                                    <option value="전달완료">전달완료</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="button-box mt-2">
+                            <button type="button" class="btn-delivery-status new-btn-none w-100 new-py-25 bg-dark new-fs-85 lh-1 fw-medium text-white">상태 변경</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="pledge-info-box py-3 border-bottom fw-medium">
+                <div class="pledge-title new-mb-25 fw-semibold new-fs-95">후원자 정보</div>
+                <div class="pledge-content new-fs-9">
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">아이디</div>
+                        <div class="col-content account-name col-9 new-fs-85"></div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">연락처</div>
+                        <div class="col-content user-phone col-9 new-fs-85"></div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">이메일</div>
+                        <div class="col-content user-email col-9 new-fs-85"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="pledge-info-box py-3 border-bottom fw-medium">
+                <div class="pledge-title new-mb-25 fw-semibold new-fs-95">후원 정보</div>
+                <div class="pledge-content new-fs-9">
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">후원 번호</div>
+                        <div class="col-content support-id col-9 new-fs-85"></div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">후원 날짜</div>
+                        <div class="col-content support-at col-9 new-fs-85"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="reward-info-box py-3 border-bottom fw-medium">
+                <div class="pledge-title new-mb-25 fw-semibold new-fs-95">선물 정보</div>
+                <div class="pledge-content new-fs-9">
+                    <div class="col-box d-flex">
+                        <div class="col-title col-3 text-body-secondary">선물 구성</div>
+                        <div class="col-content col-9 font-roboto new-fs-85">
+                            <ul class="pledge-reward-list"></ul>
+                        </div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">선물 금액</div>
+                        <div class="col-content reward-total-price col-9 new-fs-85"><span class="font-roboto new-fs-95 lh-1"></span>원</div>
+                    </div>
+                </div>
+            </div>
+            <div class="payment-info-box py-3 border-bottom fw-medium">
+                <div class="pledge-title new-mb-25 fw-semibold new-fs-95">결제 정보</div>
+                <div class="pledge-content new-fs-9">
+                    <div class="col-box d-flex align-items-center">
+                        <div class="col-title col-3 text-body-secondary">결제 수단</div>
+                        <div class="col-content pay-method col-9 font-roboto new-fs-85">카카오페이</div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">결제 금액</div>
+                        <div class="col-content total-amount col-9 new-fs-85"></div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">결제 상태</div>
+                        <div class="col-content pay-status col-9 new-fs-85"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="delivery-info-box py-3 border-bottom fw-medium">
+                <div class="pledge-title new-mb-25 fw-semibold new-fs-95">배송 정보</div>
+                <div class="pledge-content new-fs-9">
+                    <div class="col-box d-flex align-items-center">
+                        <div class="col-title col-3 text-body-secondary">받는 사람</div>
+                        <div class="col-content recipient-name col-9 font-roboto new-fs-85"></div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">연락처</div>
+                        <div class="col-content recipient-phone col-9 new-fs-85"></div>
+                    </div>
+                    <div class="col-box d-flex align-items-center mt-2">
+                        <div class="col-title col-3 text-body-secondary">주소</div>
+                        <div class="col-content address-detail col-9 new-fs-85"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-box text-center mt-1 pt-4 pb-5">
+                <button type="button" onclick="closeCanvas()" class="new-d-inline-block px-4 py-2 border-0 bg-dark fw-medium new-fs-85 lh-1 new-text-white">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/funding.js"></script>
+    <script src="/public/js/funding/editorManagement.js"></script>
+</body>
+</html>

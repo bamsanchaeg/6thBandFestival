@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="d-flex">
+            <!--/* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */-->
+            <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+            </div>
+
+            <!--/* 우측 컨텐츠 */-->
+            <div class="page-right flex-grow-1">
+                <!--/* 헤더 */-->
+                <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                <!--/* 컨텐츠 */-->
+                <div class="main py-4 px-4">
+                    <div class="row border shadow-sm">
+                        <div class="col">
+
+                            <div class="row py-2">
+                                <div class="col-4">
+                                    <canvas id="dailySalesCanvas"></canvas>
+                                </div>
+                                <div class="col-4">
+                                    <canvas id="monthlySalesCanvas"></canvas>
+                                </div>
+                                <div class="col-4">
+                                    <canvas id="annualSalesCanvas"></canvas>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row pt-3 pb-3">
+                        <div class="col-4 ps-0">
+                            <select class="form-select" id="festivalIdSelect" aria-label="festival select">
+                                <option class="defaultInfo" value="0" selected style="display: none;">페스티벌을 선택해 주세요.</option>
+                                <div class="resetBox"></div>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center">
+                        <div class="col-4">
+                            <div class="row align-items-center">
+                                <div id="dayTypeRatioBox"></div>
+                            </div>
+                        </div>
+
+                        <div class="col-8">
+                            <div class="grid gap-2 align-items-center mb-2">
+                                <div id="oneDayAgeInfoBox" class="p-2 g-col-6" style="height: 16em;"></div>
+                                <div id="oneDayGenderInfoBox" class="p-2 g-col-6" style="height: 16em;"></div>
+                            </div>
+
+                            <div class="grid gap-2 align-items-center">
+                                <div id="allDayAgeInfoBox" class="p-2 g-col-6" style="height: 16em;"></div>
+                                <div id="allDayGenderInfoBox" class="p-2 g-col-6" style="height: 16em;"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!--/* 푸터 */-->
+                <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 페스티벌  -->
+<div id="festivalListTemplate" class="d-none">
+    <div class="festivalListWrapper">
+        <option class="festivalList">페스티벌 이름</option>
+    </div>
+</div>
+
+<!-- 비율 그래프 템플릿-->
+<div id="ratioTemplate" class="d-none">
+    <div class="ratioWrapper d-flex justify-content-center">
+        <canvas class="dayTypeRatio"></canvas>
+    </div>
+</div>
+
+<!-- 1일권 나이대 템플릿-->
+<div id="oneDayTemplate" class="d-none">
+    <div class="oneDayWrapper d-flex justify-content-center">
+        <canvas class="oneDayAgeInfo"></canvas>
+    </div>
+</div>
+
+<!-- 1일권 성병 비율 템플릿-->
+<div id="oneDayGenderTemplate" class="d-none">
+    <div class="oneDayGenderWrapper d-flex justify-content-center" style="height: 15em;">
+        <canvas class="oneDayGenderRatio"></canvas>
+    </div>
+</div>
+
+<!-- 3일권 나이대 템플릿-->
+<div id="allDayTemplate" class="d-none">
+    <div class="allDayWrapper d-flex justify-content-center">
+        <canvas class="allDayAgeInfo"></canvas>
+    </div>
+</div>
+
+<!-- 3일권 성별 비율 템플릿-->
+<div id="allDayGenderTemplate" class="d-none">
+    <div class="allDayGenderWrapper d-flex justify-content-center" style="height: 15em;">
+        <canvas class="allDayGenderRatio"></canvas>
+    </div>
+</div>
+
+<script type="text/javascript" src="/public/js/ticket/ticketStatistics.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/admin.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="admin-container">
+            <div class="d-flex">
+                <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                    <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+                </div>
+
+                <!--/* 우측 컨텐츠 */-->
+                <div class="page-right flex-grow-1">
+                    <!--/* 헤더 */-->
+                    <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                    <!--/* 컨텐츠 */-->
+                    <div class="main py-4 px-4">
+                        <div class="sub-nav mb-3">
+                            <div class="fw-medium fs-5">정산 관리</div>
+                        </div>
+
+                        <!--/**/-->
+                        <div class="search-box px-4 py-3 new-bg-gray border new-fs-9">
+                            <form action="" method="get">
+                                <div class="d-flex align-items-center mb-1 pb-1 border-bottom">
+                                    <div class="search-col col-6 d-flex align-items-center">
+                                        <div class="search-title px-3 fw-medium">정산 상태</div>
+                                        <div class="search-con d-flex">
+                                            <select name="pay_status" class="form-select new-w-150 py-1 rounded-0 new-fs-8">
+                                                <option value="">전체</option>
+                                                <option value="미정산">미정산</option>
+                                                <option value="정산완료">정산완료</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="search-col col-6 d-flex align-items-center">
+                                        <div class="search-title px-3 fw-medium">정산 일시</div>
+                                        <div class="search-con d-flex align-items-center">
+                                            <input type="date" name="fromDate" class="form-control new-w-150 py-1 rounded-0 new-fs-8">
+                                            <span class="mx-2  font-roboto">~</span>
+                                            <input type="date" name="toDate" class="form-control new-w-150 py-1 rounded-0 new-fs-8">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center pb-1 border-bottom">
+                                    <div class="search-title px-3 fw-medium">검색어</div>
+                                    <div class="search-con d-flex pe-3">
+                                        <div class="">
+                                            <select name="searchOption" class="form-select new-w-150 py-1 rounded-0 new-fs-8">
+                                                <option value="support_id">프로젝트 번호</option>
+                                                <option value="project_title">프로젝트명</option>
+                                                <option value="account_name">창작자 아이디</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex-grow-1 px-2">
+                                            <input name="searchWord" type="text" class="form-control py-1 rounded-0 new-fs-8">
+                                        </div>
+                                        <div class="">
+                                            <button class="btn btn-dark new-bg-dark new-w-150 py-1 px-4 rounded-0 new-fs-8 text-white">검색하기</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="sort-box d-flex align-items-center mt-2 py-2">
+                            <div class="new-fs-9">
+                                총 <span th:text="${settlementListCount}" class="font-roboto fw-medium">0</span>개
+                            </div>
+                        </div>
+
+                        <div class="sub-content">
+                            <div class="order-list">
+                                <div class="table-head d-flex py-2 new-border-top-gray border-bottom new-bg-gray new-fs-9">
+                                    <div class="col-1 px-2 fw-medium text-center">프로젝트 번호</div>
+                                    <div class="col-2 px-2 fw-medium text-center">실 정산 금액(a+b)</div>
+                                    <div class="col-2 px-2 fw-medium text-center">결제 금액(a)</div>
+                                    <div class="col-2 px-2 fw-medium text-center">수수료(b)</div>
+                                    <div class="col-1 px-2 fw-medium text-center">정산 예정일</div>
+                                    <div class="col-2 px-2 fw-medium text-center">정산 완료일</div>
+                                    <div class="col-1 px-2 fw-medium text-center">정산 상태</div>
+                                    <div class="col-1 px-2 fw-medium text-center">관리</div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(settlementDetailDataList)}" class="mt-2 py-5 px-2 border text-center">
+                                    <div class="new-fs-9">정산 내역이 없습니다.</div>
+                                </div>
+                                <div th:unless="${#lists.isEmpty(settlementDetailDataList)}" th:each="settlementDetailData : ${settlementDetailDataList}" class="d-flex align-items-center py-2 new-fs-9 border-bottom">
+                                    <div class="col-1 text-center">
+                                        <a th:href="@{/admin/funding/projectDetail(id=${settlementDetailData.settlementDetails.project_id})}" th:text="${settlementDetailData.settlementDetails.project_id}" class="d-block px-2">프로젝트 번호</a>
+                                    </div>
+                                    <div th:text="|${#numbers.formatInteger(settlementDetailData.settlementDetails.settlement_amount, 0, 'COMMA')}원|"  class="col-2 px-2 font-roboto fw-medium text-end">실 정산 금액</div>
+                                    <div th:text="|${#numbers.formatInteger(settlementDetailData.projectTotalAmount, 0, 'COMMA')}원|" class="col-2 px-2 fw-medium text-end">결제금액</div>
+                                    <div th:text="|-${#numbers.formatInteger(settlementDetailData.settlementDetails.settlement_fee, 0, 'COMMA')}원|" class="col-2 px-2 fw-medium text-end text-primary">수수료</div>
+                                    <div th:text="${settlementDetailData.expectedDate}" class="col-1 px-2 font-roboto text-center">정산 예정일</div>
+                                    <div th:text="${settlementDetailData.settlementDetails.settlement_date != null ? #dates.format(settlementDetailData.settlementDetails.settlement_date, 'yyyy-MM-dd HH:mm') : '-'}" class="col-2 px-2 font-roboto text-center">정산 완료일</div>
+                                    <div class="col-1 px-2 font-roboto text-center">
+                                        <span th:text="${settlementDetailData.settlementDetails.settlement_status}" th:classappend="${settlementDetailData.settlementDetails.settlement_status == '정산완료' ? 'status-success' : 'status-fail'}" class="status-dot">정산 상태</span>
+                                    </div>
+                                    <div class="col-1 px-2 d-flex justify-content-center">
+                                        <a th:href="@{/admin/funding/settlementDetail(id=${settlementDetailData.settlementDetails.id})}" class="px-2 border fw-medium new-fs-8 text-body-secondary">보기</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pagination-box my-4">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item">
+                                        <a class="page-link py-1 rounded-0 text-dark" th:classappend="${startPage le 1} ? 'disabled'" th:href="@{./settlementList(page=${startPage-1})}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li th:if="${startPage le endPage}" th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-item">
+                                        <a class="page-link py-1 text-dark" th:classappend="${currentPage == i} ? 'active text-white'" th:href="@{./settlementList(page=${i})}" th:text="${i}">1</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link py-1 rounded-0 text-dark" th:classappend="${endPage ge lastPageNumber} ? 'disabled'" th:href="@{./settlementList(page=${endPage+1})}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <!--/* 푸터 */-->
+                    <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

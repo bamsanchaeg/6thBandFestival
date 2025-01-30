@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Tickets</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+
+    <script>
+
+    </script>
+
+    <style>
+
+    </style>
+</head>
+<body>
+<div id="root">
+    <div class="wrapper bgPatternPink">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <div class="main px-3">
+            <div class="row fs-2 fw-bold py-5 text-center">
+                <div class="col new-text-white">
+                    <span>2024 Tickets</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col mx-2 new-bg-white">
+
+                    <div class="row pt-2 pb-1 ps-1">
+                        <div class="col">
+                            <span class="fs-5 text-primary fw-bold">1-DAY TICKETS</span>
+                        </div>
+                    </div>
+
+                    <div class="row pt-2 mb-3 mx-1 align-items-center border border-primary">
+                        <div class="col-1 d-grid pe-0">
+                            <button class="btn new-btn-none" type="button" aria-expanded="false" onclick="showCollapseOneDay()">
+                                <i id="collapseIconOneDay" class="bi bi-caret-right-fill"></i>
+                                <i id="collapseIconOneDayDown" class="bi bi-caret-down-fill d-none"></i>
+                            </button>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <span class="new-fs-8 new-text-gray">1-Day</span>
+                                </div>
+                            </div>
+                            <div class="row pb-3 align-items-center">
+                                <div class="col pe-0 fw-bold text-primary">
+                                    <span th:text="${festivalInfo.festival_name}">페스티벌 이름</span>
+                                </div>
+                                <div class="col-auto text-end fw-bold new-text-black">
+                                    <span th:text="${#numbers.formatInteger(minPrice.oneDayMin, 3, 'COMMA')}">1일권 최소가격 </span><span> KRW ~</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="collapse" id="oneDayTicket">
+                            <div class="row pt-1 mx-2">
+                                <div class="col border border-primary"></div>
+                            </div>
+<!--                            마감 / 매진 처리해야함-->
+                            <div class="row pt-3" th:each="e : ${ticketOneDayList}">
+                                <div class="col text-center" th:if="${e.open_date >= #dates.createNow()}">
+                                    <a class="btn text-primary fw-bold rounded-0 bg-black" style="width: 13em;">
+                                        <div class="row">
+                                            <div class="col">
+                                                <span th:text="${#dates.format(e.booking_day, 'd (EEE)')}"></span>
+                                                <span> - </span>
+                                                <span> 오픈 </span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <span class="new-fs-85 new-text-light-gray" th:text="${#dates.format(e.open_date, 'MM/dd HH:mm')}"></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col text-center" th:if="${e.open_date < #dates.createNow() and e.deadline_date >= #dates.createNow()}">
+                                    <a th:href="@{/ticket/infoPage(id=${e.id})}" class="btn text-primary fw-bold rounded-0 bg-black" style="width: 13em;">
+                                        <span th:text="${#dates.format(e.booking_day, 'd (EEE)')}"></span>
+                                        <span> - 구매하기</span>
+                                    </a>
+                                </div>
+
+                                <div class="col text-center" th:if="${e.deadline_date < #dates.createNow()}">
+                                    <a class="btn text-primary fw-bold rounded-0 bg-black" style="width: 13em;">
+                                        <span th:text="${#dates.format(e.booking_day, 'd (EEE)')}"></span>
+                                        <span> - 마감</span>
+                                    </a>
+                                </div>
+                            </div>
+
+<!--                            주의사항-->
+                            <div class="row">
+                                <div class="col pt-3 px-4 new-text-black">
+                                    <span class="fw-bold">
+                                        [예매 안내]
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 1일권 티켓 예매자는 예매 시 지정한 날짜에만 관람할 수 있습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모든 티켓은 한정 수량으로 조기 매진될 수 있습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 본 티켓은 모바일티켓으로 운영되며 현장에서 예매자 본인 확인을 진행합니다. 예매자 본인 외에는 모바일티켓 및 입장 팔찌의 대리수령이 불가하므로 반드시 관람자 명의의 ID로 예매하여 주십시오.</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col pt-3 px-4 new-text-black">
+                                    <span class="fw-bold">
+                                        [취소 및 환불]
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 출연 아티스트와 공연 시간은 부득이한 사정으로 변경될 수 있으며, 이로 인한 환불은 불가합니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 공연 티켓의 당일 변경/취소/환불은 불가합니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col pt-3 px-4 new-text-black">
+                                    <span class="fw-bold">
+                                        [모바일티켓 운영]
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모든 티켓은 모바일티켓으로 운영되며, 실물티켓이 제공되지 않습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모바일티켓은 현장 팔찌배부처에서 모바일티켓(QR코드) 및 예매자 본인 확인 절차 후 입장팔찌로 교체되며, 입장팔찌 수령/착용 후에 입장대기 및 공연장 내 입장이 가능합니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모바일티켓(QR코드)의 캡처본 및 사본은 티켓으로 절대 인정되지 않습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 pb-3 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 본인 확인 절차는 예매자 기준으로 진행되므로 동행인의 경우 예매자와 동행하셔야 입장팔찌 수령이 가능합니다.</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row py-4 mx-1">
+                        <div class="col border border-primary"></div>
+                    </div>
+
+<!--                    3일권-->
+                    <div class="row pb-1 ps-1">
+                        <div class="col">
+                            <span class="fs-5 text-primary fw-bold">3-DAY TICKETS</span>
+                        </div>
+                    </div>
+
+                    <div class="row pt-2 mx-1 align-items-center border border-primary">
+                        <div class="col-1 d-grid pe-0">
+                            <button class="btn new-btn-none" type="button" aria-expanded="false" onclick="showCollapseAllDay()">
+                                <i id="collapseIconAllDay" class="bi bi-caret-right-fill"></i>
+                                <i id="collapseIconAllDayDown" class="bi bi-caret-down-fill d-none"></i>
+                            </button>
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <span class="new-fs-8 new-text-gray">3-Day</span>
+                                </div>
+                            </div>
+                            <div class="row pb-3">
+                                <div class="col pe-0 fw-bold text-primary">
+                                    <span th:text="${festivalInfo.festival_name}">페스티벌 이름</span>
+                                </div>
+                                <div class="col-auto text-end fw-bold new-text-black">
+                                    <span th:text="${#numbers.formatInteger(minPrice.allDayMin, 3, 'COMMA')}">3일권 최소가격 </span><span> KRW ~</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="collapse" id="threeDayTicket">
+                            <div class="row pt-1 mx-2">
+                                <div class="col border border-primary"></div>
+                            </div>
+                            <div class="row pt-3">
+                                <div class="col text-center" th:if="${ticketAllDayInfo.open_date >= #dates.createNow()}">
+                                    <a class="btn text-primary fw-bold rounded-0 bg-black" style="width: 13em;">
+                                        <div class="row">
+                                            <div class="col">
+                                                <span> 오픈 </span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <span class="new-fs-85 new-text-light-gray" th:text="${#dates.format(ticketAllDayInfo.open_date, 'MM/dd HH:mm')}"></span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </div>
+
+                                <div class="col text-center" th:if="${ticketAllDayInfo.open_date < #dates.createNow() and ticketAllDayInfo.deadline_date >= #dates.createNow()}">
+                                    <a th:href="@{/ticket/infoPage(id=${ticketAllDayInfo.id})}" class="btn text-primary fw-bold rounded-0 bg-black" style="width: 13em;">
+                                        <span>구매하기</span>
+                                    </a>
+                                </div>
+
+                                <div class="col text-center" th:if="${ticketAllDayInfo.deadline_date < #dates.createNow()}">
+                                    <a class="btn text-primary fw-bold rounded-0 bg-black" style="width: 13em;">
+                                        <span>마감</span>
+                                    </a>
+                                </div>
+                            </div>
+
+<!--                            주의사항-->
+                            <div class="row">
+                                <div class="col pt-3 px-4 new-text-black">
+                                    <span class="fw-bold">
+                                        [예매 안내]
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 3일권 티켓은 공연기간 모든 일자 관람이 가능한 3일권 티켓입니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모든 티켓은 한정 수량으로 조기 매진될 수 있습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 본 티켓은 모바일티켓으로 운영되며 현장에서 예매자 본인 확인을 진행합니다. 예매자 본인 외에는 모바일티켓 및 입장 팔찌의 대리수령이 불가하므로 반드시 관람자 명의의 ID로 예매하여 주십시오.</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col pt-3 px-4 new-text-black">
+                                    <span class="fw-bold">
+                                        [취소 및 환불]
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 3일권 티켓은 부분 일자 취소 및 변경이 불가능합니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 출연 아티스트와 공연 시간은 부득이한 사정으로 변경될 수 있으며, 이로 인한 환불은 불가합니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 공연 티켓의 당일 변경/취소/환불은 불가합니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col pt-3 px-4 new-text-black">
+                                    <span class="fw-bold">
+                                        [모바일티켓 운영]
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모든 티켓은 모바일티켓으로 운영되며, 실물티켓이 제공되지 않습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모바일티켓은 현장 팔찌배부처에서 모바일티켓(QR코드) 및 예매자 본인 확인 절차 후 입장팔찌로 교체되며, 입장팔찌 수령/착용 후에 입장대기 및 공연장 내 입장이 가능합니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 모바일티켓(QR코드)의 캡처본 및 사본은 티켓으로 절대 인정되지 않습니다.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col px-4 pb-3 new-text-black">
+                                    <span class="ps-2 new-fs-8">• 본인 확인 절차는 예매자 기준으로 진행되므로 동행인의 경우 예매자와 동행하셔야 입장팔찌 수령이 가능합니다.</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row pt-4"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNavi_bk }"></div>
+        <!-- /* 퀵바 */ -->
+        <div th:replace="~{common/navi::quickNavi}"></div>
+    </div>
+</div>
+
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script type="text/javascript" src="/public/js/ticket/ticketUser.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // 페이지 로드 시 collapse를 열기
+    document.addEventListener("DOMContentLoaded", function() {
+        var myCollapse = document.getElementById('oneDayTicket');
+        var bsCollapse = new bootstrap.Collapse(myCollapse, {
+            toggle: true // 페이지 로드 시 열림 상태로 시작
+        });
+    });
+</script>
+</body>
+</html>

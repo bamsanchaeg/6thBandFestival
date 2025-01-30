@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Funding</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/funding.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!--/* 헤더 */-->
+            <div th:replace="~{common/navi::topNavi}"></div>
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            <!--/* 펀딩 카테고리 */-->
+            <div th:replace="~{funding/fundingNavi::fundingCategory}"></div>
+
+            <!--/* 컨텐츠 */-->
+            <div class="main">
+                <div class="sub-content new-bg-gray">
+                    <div class="project-info-box new-py-45 bg-white">
+                        <div class="container">
+                            <div class="project-info d-flex">
+                                <div class="thumbnail-box col-3">
+                                    <a th:href="@{/funding/detailPage(id=${projectData.id})}" class="d-block">
+                                        <div class="img-p-box new-pb-100">
+                                            <img th:src="|/images/${projectData.thumbnail_location}|" alt="썸네일 이미지" class="img">
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="text-box col-9 ps-3">
+                                    <div class="category-box mb-1 new-fs-75 text-body-secondary">
+                                        <span th:text="${projectData.category_name}" class="category-name"></span><i class="bi bi-dot"></i><span th:text="${projectData.creator_name}" class="creator-name"></span>
+                                    </div>
+                                    <div class="project-title fw-medium">
+                                        <a th:href="@{/funding/detailPage(id=${projectData.id})}" th:text="${projectData.project_title}" class="d-block"></a>
+                                    </div>
+                                    <div th:if="${pledgeStatus != null}" class="funding-status mt-2 new-fs-8">
+                                        <span th:text="|${#numbers.formatInteger(pledgeStatus.total_amount, 0, 'COMMA')}원|"></span>
+                                        <span th:text="|${pledgeStatus.percentage}%|" class="new-d-inline-block ms-2 text-primary"></span><i class="bi bi-dot"></i>
+                                        <span th:if="${projectData.project_status == '진행중'}" th:text="|${projectData.rest_day}일 남음|" class="new-d-inline-block"></span>
+                                        <span th:if="${projectData.project_status == '성공' || projectData.project_status == '무산'}" th:text="|펀딩 ${projectData.project_status}|" class="new-d-inline-block"></span>
+                                    </div>
+                                    <div th:unless="${pledgeStatus != null}" class="funding-status mt-2 new-fs-8">
+                                        <span>0원</span>
+                                        <span class="new-d-inline-block ms-2 text-primary">0%</span><i class="bi bi-dot"></i><span th:text="|${projectData.rest_day}일 남음|" class="new-d-inline-block"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:if="${projectData.project_status == '성공' && supportData.supportDto.delivery_status == '전달완료' && !isReviewWrite}" class="review-box mt-3 bg-white">
+                                <button type="button" onclick="showReviewWrite()" class="d-flex align-items-center w-100 px-3 py-3 border-0 new-bg-pick">
+                                    <div class="text d-flex align-items-center new-fs-9 text-primary">
+                                        <span class="material-symbols-outlined fill-1 me-1 fs-5">description</span>후원 후기 작성하기
+                                    </div>
+                                    <span class="material-symbols-outlined ms-auto fw-light fs-1 text-primary">keyboard_arrow_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pledge-info-box mt-2 new-py-45 bg-white fw-medium">
+                        <div class="container">
+                            <div class="pledge-title mb-3 fw-semibold">후원 정보</div>
+                            <div class="pledge-content new-fs-9">
+                                <div class="col-box d-flex align-items-center">
+                                    <div class="col-title col-3 text-body-secondary">펀딩 상태</div>
+                                    <div class="col-content col-9 font-roboto fw-medium new-fs-85 text-primary">
+                                        펀딩 <span th:text="${projectData.project_status}"></span>
+                                    </div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">후원 번호</div>
+                                    <div th:text="${supportData.supportDto.id}" class="col-content col-9 new-fs-85"></div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">후원 날짜</div>
+                                    <div th:text="${#dates.format(supportData.supportDto.support_at, 'yyyy.MM.dd')}" class="col-content col-9 new-fs-85"></div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">펀딩 마감일</div>
+                                    <div th:text="${#dates.format(projectData.end_at, 'yyyy.MM.dd')}" class="col-content col-9 new-fs-85"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reward-info-box mt-2 new-py-45 bg-white fw-medium">
+                        <div class="container">
+                            <div class="pledge-title mb-3 fw-semibold">선물 정보</div>
+                            <div class="pledge-content new-fs-9">
+                                <div class="col-box d-flex">
+                                    <div class="col-title col-3 text-body-secondary">선물 구성</div>
+                                    <div class="col-content col-9 font-roboto new-fs-85">
+                                        <ul class="pledge-reward-list">
+                                            <li th:each="projectRewardData : ${projectRewardDataList}" class="mb-2">
+                                                <div class="reward-title">
+                                                    <span th:text="|${projectRewardData.projectRewardDto.title}(x${projectRewardData.supportRewardDto.quantity})|" class="fw-medium">선물 이름</span>
+                                                </div>
+                                                <div th:unless="${#lists.isEmpty(projectRewardData.projectItemDataList)}" class="item-box mt-1">
+                                                    <div th:each="projectitemData : ${projectRewardData.projectItemDataList}" class="item-row list-big-dot ps-3">
+                                                        <div th:text="${projectitemData.projectItemDto.name}" class="item-name new-fs-85">아이템명</div>
+                                                        <div th:if="${projectitemData.projectItemOption != null}" class="">
+                                                            <div th:text="|옵션 : ${projectitemData.projectItemOption.option_content}|" th:if="${projectitemData.projectItemDto.option_type == '1'}" class="option-name new-fs-8 text-body-secondary">옵션 : 옵션명</div>
+                                                            <div th:text="|옵션 : ${projectitemData.projectItemOption.option_name}|" th:if="${projectitemData.projectItemDto.option_type == '2'}" class="option-name new-fs-8 text-body-secondary">옵션 : 옵션명</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="expected-date d-flex mt-1">
+                                                    <div th:if="${projectData.project_status == '진행중'}" class="col-auto py-1 px-2 new-bg-gray">
+                                                        <span>예상 전달일</span>
+                                                        <span th:text="${#dates.format(projectRewardData.rewardExpectedDate.expected_date, 'yyyy.MM.dd')}" class="ps-1 text-primary">2024.08.16</span>
+                                                    </div>
+                                                    <div th:if="${projectData.project_status == '성공'}" class="col-auto py-1 px-2 new-bg-gray">
+                                                        <span th:if="${supportData.supportDto.delivery_status == '대기중'}" th:text="|선물 전달 ${supportData.supportDto.delivery_status}|"></span>
+                                                        <span th:if="${supportData.supportDto.delivery_status == '전달완료'}">선물 전달 완료</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">선물 금액</div>
+                                    <div class="col-content col-9 new-fs-85"><span th:text="${#numbers.formatInteger(supportTotalPirce, 0, 'COMMA')}" class="font-roboto new-fs-95 lh-1">10000</span>원</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/* 출력 필요 */-->
+                    <div class="payment-info-box mt-2 new-py-45 bg-white fw-medium">
+                        <div class="container">
+                            <div class="pledge-title mb-3 fw-semibold">결제 정보</div>
+                            <div class="pledge-content new-fs-9">
+                                <div class="col-box d-flex align-items-center">
+                                    <div class="col-title col-3 text-body-secondary">결제 수단</div>
+                                    <div class="col-content col-9 font-roboto new-fs-85" th:text="${supportData.supportDto.payment_type}"></div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">결제 금액</div>
+                                    <div class="col-content col-9 new-fs-85" th:text="|${#numbers.formatInteger(supportTotalPirce, 0, 'COMMA')}원|"></div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">결제 상태</div>
+                                    <div class="col-content col-9 new-fs-85" th:text="${supportData.supportDto.pay_status}"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${supportData.supportDeliveryDto != null}" class="delivery-info-box mt-2 new-py-45 bg-white fw-medium">
+                        <div class="container">
+                            <div class="pledge-title mb-3 fw-semibold">배송 정보</div>
+                            <div class="pledge-content new-fs-9">
+                                <div class="col-box d-flex align-items-center">
+                                    <div class="col-title col-3 text-body-secondary">받는 사람</div>
+                                    <div th:text="${supportData.supportDeliveryDto.recipient_name}" class="col-content col-9 font-roboto new-fs-85"></div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">연락처</div>
+                                    <div th:text="${supportData.supportDeliveryDto.recipient_phone}" class="col-content col-9 new-fs-85"></div>
+                                </div>
+                                <div class="col-box d-flex align-items-center mt-2">
+                                    <div class="col-title col-3 text-body-secondary">주소</div>
+                                    <div th:text="${supportData.supportDeliveryDto.address_detail}" class="col-content col-9 new-fs-85"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-box mt-2 new-py-45 bg-white fw-medium text-center">
+                        <div class="container">
+                            <a href="/funding/pledges" class="new-d-inline-block px-4 new-py-25 border-0 bg-dark fw-medium new-fs-9 new-text-white">후원 목록 보기</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- /* 푸터 */ -->
+            <div th:replace="~{common/navi::bottomNavi}"></div>
+            <!--/* 퀵바 */-->
+            <div th:replace="~{common/navi::quickNavi}"></div>
+        </div>
+
+        <!-- /* 오프캔버스 */ -->
+        <div class="offcanvas offcanvas-bottom offcanvas-custom" tabindex="-1" id="offcanvasWrapper" aria-labelledby="offcanvasBottomLabel">
+            <div class="offcanvas-header">
+                <button type="button" onclick="closeCanvas()" class="btn-close"></button>
+            </div>
+            <div class="offcanvas-body small"></div>
+        </div>
+    </div>
+
+    <div class="d-none" id="template-wrapper">
+        <!--/* 후기 작성 폼 */-->
+        <div class="review-wrapper">
+            <div class="review-title fw-medium fs-5">프로젝트 후기 작성</div>
+            <div class="review-content new-mt-45">
+                <form action="" class="review-write-form" enctype="multipart/form-data">
+                    <div class="review-keyword-box p-3 new-bg-lightgray">
+                        <div class="title fw-medium new-fs-85">프로젝트의 어떤 점이 좋았나요?</div>
+                        <div class="desc mt-1 new-fs-8">프로젝트를 후원한 후기를 키워드로 선택해 주세요! (최대 5개)</div>
+                        <div class="keyword-box mt-3"></div>
+                    </div>
+                    <div class="review-write-box new-mt-45 p-3 new-bg-lightgray">
+                        <div class="title fw-medium new-fs-85">후원 후기를 남겨주세요.</div>
+                        <div class="desc mt-1 new-fs-8">후원 후기는 창작자 뿐만 아니라 다른 후원자에게도 큰 도움이 됩니다.</div>
+                        <div class="review-write mt-3">
+                            <textarea name="content" accept="image/*" class="w-100 new-px-25 py-2 new-h-100 border new-fs-8" placeholder="프로젝트 후기를 작성해주세요."></textarea>
+                        </div>
+                        <div class="review-file-box mt-2">
+                            <input class="form-control form-control-sm rounded-0 new-fs-75" id="" name="uploadFiles" type="file" multiple accept="image/*">
+                        </div>
+                    </div>
+                    <div class="review-btn-box new-mt-45">
+                        <button onclick="writeReview()" class="new-btn-none w-100 new-py-25 bg-primary fw-medium new-text-white" type="button">완료</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/funding.js"></script>
+    <script src="/public/js/funding/userProject.js"></script>
+</body>
+</html>

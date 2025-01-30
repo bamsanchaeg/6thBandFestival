@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+
+    <title>6th BAND - Community</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- 왕관 추가 css -->
+    <script>
+        const urlParams = new URL(window.location.href).searchParams;
+        const clubId = urlParams.get("id");
+
+        function setSessionId(){
+                const url = "/six/user/getSessionUserId";
+                fetch(url)
+                .then(response => response.json())
+                .then((response)=>{
+                    myId = response.data.id;
+                    residentInfo();
+                    memberList();
+                })
+            };
+
+        function memberList(){
+            
+            const url = "/api/club/memberList?id="+clubId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+
+                const memberAcceptBefore = document.getElementById("memberAcceptBefore");   
+                memberAcceptBefore.innerHTML="";
+                const memberAccept =document.getElementById("memberAccept");
+                memberAccept.innerHTML="";
+                const memberReject =document.getElementById("memberReject");
+                memberReject.innerHTML="";
+                
+
+                const memberAcceptBeforeTemplate = document.querySelector("#template .clubBeforeList");
+                const memberAcceptTemplate = document.querySelector("#acceptTemplate .clubAcceptList");
+                const memberRejectTemplate = document.querySelector("#rejectTemplate .clubRejectList");
+
+
+                for(e of response.data.memberClubRegist){
+                    if (e.clubMemberRegistDto || e.userDto) {
+                    const newMemberAcceptBeforeTemplate = memberAcceptBeforeTemplate.cloneNode(true);
+
+                    
+                    const userNickname = newMemberAcceptBeforeTemplate.querySelector(".userNickname");
+                    userNickname.innerText = e.userDto.nickname;
+
+                    const userRegistTime = newMemberAcceptBeforeTemplate.querySelector(".userRegistTime");
+                    const date = new Date(e.clubMemberRegistDto.created_at);
+                    const padZero = (num) => num.toString().padStart(2, '0');
+
+                    userRegistTime.innerText=`${date.getFullYear()}.${padZero(date.getMonth()+1)}.${padZero(date.getDate())} `;
+
+                    const signUpClubQuestion1 = newMemberAcceptBeforeTemplate.querySelector(".signUpClubQuestion1");
+                    signUpClubQuestion1.innerText=e.clubDto.question1;
+
+                    const signUpClubAnswer1 = newMemberAcceptBeforeTemplate.querySelector(".signUpClubAnswer1");
+                    signUpClubAnswer1.innerText=e.clubMemberRegistDto.regist_reason;
+
+                    const signUpClubQuestion2 = newMemberAcceptBeforeTemplate.querySelector(".signUpClubQuestion2");
+                    signUpClubQuestion2.innerText=e.clubDto.question2;
+                    
+                    const signUpClubAnswer2 = newMemberAcceptBeforeTemplate.querySelector(".signUpClubAnswer2");
+                    signUpClubAnswer2.innerText=e.clubMemberRegistDto.self_introduction;
+
+                    const userReject = newMemberAcceptBeforeTemplate.querySelector(".userReject");
+                    userReject.setAttribute("onclick",`rejectUser(${e.clubMemberRegistDto.id})`);
+
+                    const userAccept = newMemberAcceptBeforeTemplate.querySelector(".userAccept");                                                                                          
+                    userAccept.setAttribute("onclick",`acceptUser(${e.clubMemberRegistDto.id})`)
+
+                    const memberBeforeImageContainer = newMemberAcceptBeforeTemplate.querySelector(".memberBeforeImageContainer");
+                    const img = document.createElement('img');
+                    img.src = `/images/${e.userDto.profile_img}`;
+                    memberBeforeImageContainer.appendChild(img);
+                    img.classList.add("image-thumbnail");
+                    img.style.width="3.5em";
+                    img.style.height="3.5em";
+                    img.style.borderRadius="50%";
+
+                    memberAcceptBefore.appendChild(newMemberAcceptBeforeTemplate);
+
+
+                    }
+
+                    if(e.userDtoAccept || e.acceptMemberDto){
+
+                    
+                        const newMemberAcceptTemplate = memberAcceptTemplate.cloneNode(true);
+                                            
+                        const userAcceptNickname = newMemberAcceptTemplate.querySelector(".acceptUserNickname");
+
+                        userAcceptNickname.innerText = e.userDtoAccept.nickname;
+
+                        const userAcceptRegistTime = newMemberAcceptTemplate.querySelector(".userRegistTime");
+                        const acceptUserRegistDate = new Date(e.userDtoAccept.created_at);
+                        const padZero = (num) => num.toString().padStart(2, '0');
+
+                        userAcceptRegistTime.innerText=`${acceptUserRegistDate.getFullYear()}.${padZero(acceptUserRegistDate.getMonth()+1)}.${padZero(acceptUserRegistDate.getDate())}`;
+
+                        const getOutUser = newMemberAcceptTemplate.querySelector(".getOutUser");
+                        getOutUser.setAttribute("onclick",`getOutUser(${e.acceptMemberDto.id})`)
+
+                        const imageContainer = newMemberAcceptTemplate.querySelector(".imageContainer");
+                        const img = document.createElement('img');
+                        img.src = `/images/${e.userDtoAccept.profile_img}`;
+                        imageContainer.appendChild(img);
+                        img.classList.add("image-thumbnail");
+                        img.style.width="3.5em";
+                        img.style.height="3.5em";
+                        img.style.borderRadius="50%";
+                        
+                        memberAccept.appendChild(newMemberAcceptTemplate);
+                        
+                        acceptMemberCount();
+                    }
+
+                    if(e.getOutMemberDto || e.userDtoGetOut){
+                                        
+                        const newMemberRejectTemplate = memberRejectTemplate.cloneNode(true);
+                                            
+                        const userRejectNickname = newMemberRejectTemplate.querySelector(".rejectUserNickname");
+
+                        userRejectNickname.innerText = e.userDtoGetOut.nickname;
+
+                        const userRejectRegistTime = newMemberRejectTemplate.querySelector(".userRegistTime");
+                        const rejectUserRegistDate = new Date(e.getOutMemberDto.created_at);
+                        const padZero = (num) => num.toString().padStart(2, '0');
+
+                        userRejectRegistTime.innerText=`${rejectUserRegistDate.getFullYear()}.${padZero(rejectUserRegistDate.getMonth()+1)}.${rejectUserRegistDate.getDate()}`;
+                        
+                        const switchToMember = newMemberRejectTemplate.querySelector(".switchToMember");
+                        switchToMember.setAttribute("onclick",`switchToMember(${e.getOutMemberDto.id})`);
+
+                        
+                        const rejectImageContainer = newMemberRejectTemplate.querySelector(".rejectImageContainer");
+                        const img = document.createElement('img');
+                        img.src = `/images/${e.userDtoGetOut.profile_img}`;
+                        rejectImageContainer.appendChild(img);
+                        img.classList.add("image-thumbnail");
+                        img.style.width="3.5em";
+                        img.style.height="3.5em";
+                        img.style.borderRadius="50%";
+
+                        memberReject.appendChild(newMemberRejectTemplate);
+                        getOutMemberCount();
+                    }
+                    localStorage.setItem('hasNewAlert', 'true');
+
+                }
+            
+            })
+        }
+
+        function acceptMemberCount(){
+            const url = "/api/club/memberAcceptCount?id="+clubId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+
+                const acceptMember = document.getElementById("acceptMember");
+                acceptMember.innerText=response.data.memberAcceptCount;
+
+            })
+
+        }
+
+
+        function memberCount(){
+            const url = "/api/club/memberRegistCount?id="+clubId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                
+                const registMember = document.getElementById("registMember");
+                registMember.innerText=response.data.memberRegistCount;
+
+            })
+
+        }
+        
+
+        
+        function getOutMemberCount(){
+            const url = "/api/club/memberRejectCount?id="+clubId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                const rejectMember = document.getElementById("rejectMember");
+                rejectMember.innerText=response.data.memberRejectCount;
+
+
+            })
+
+        }
+
+        function rejectUser(registMemberId){
+            const url = "/api/club/memberReject?id="+registMemberId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                memberList();
+                memberCount();
+                acceptMemberCount();
+                getOutMemberCount();
+            })
+        }
+        
+
+        function getOutUser(clubMemberId){
+            const url = "/api/club/memberGetOut?id="+clubMemberId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                memberList();
+                memberCount(); 
+                acceptMemberCount();
+                getOutMemberCount();
+            })
+        }
+// 수락 및 인원초과시 경고창
+        function acceptUser(clubMemberId){
+            const url1 = "/api/club/memberCount?id="+clubId;
+            fetch(url1)
+            .then(response => response.json())
+            .then((response) => {
+                const maxMember = response.data.memberCount.clubDto.max_members;
+                const recentMember = response.data.memberCount.recentMember;
+                
+                if((maxMember-recentMember) <= 0 ){
+                    const messageContainer = document.getElementById("messageContainer");
+                    messageContainer.classList.remove("d-none");
+                    messageContainer.innerText = "참여 인원이 모두 찼습니다.";
+
+                    setTimeout(() => {
+                        messageContainer.innerText = ""; // 메시지를 제거하거나 빈 문자열로 변경
+                        messageContainer.classList.add("d-none");
+
+                    }, 3000); 
+
+                    return false; //return 이면 return false;가 default 임 
+                }
+
+                else{
+                    const url = "/api/club/memberAccept?id="+clubMemberId;
+
+                    fetch(url)
+                    .then(response => response.json())
+                    .then(response => {
+                        memberList();
+                        acceptMemberCount();
+                        memberCount();
+                        getOutMemberCount();
+                        
+                    })
+
+                
+                }
+            });
+
+            
+        }
+
+        function switchToMember(switchMember){
+            const url = "/api/club/memberAccept?id="+switchMember;
+
+                fetch(url)
+                .then(response => response.json())
+                .then(response => {
+                    memberList();
+                    acceptMemberCount();
+                    memberCount();
+                    getOutMemberCount();
+                    acceptUser();
+                })
+            
+        }
+
+// 방장정보
+        function residentInfo(){
+            const url = "/api/club/memberResidentInfo?club_id="+clubId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                
+                const residentName = document.querySelector("#residentInfo .residentName");
+                residentName.innerText= response.data.residentInfo.userDto.nickname;
+
+                const residentRegistTime = document.querySelector("#residentInfo .residentRegistTime");
+                const date = new Date(response.data.residentInfo.clubDto.created_at);
+                const padZero = (num) => num.toString().padStart(2, '0');
+
+                residentRegistTime.innerText= `${date.getFullYear()}.${padZero(date.getMonth()+1)}.${padZero(date.getDate())}`;
+                const residentImageContainer = document.querySelector(".residentImageContainer");
+                const img = document.createElement('img');
+                img.src = `/images/${response.data.residentInfo.userDto.profile_img}`;
+                img.classList.add("img-fluid");
+                img.classList.add("image-thumbnail");
+                img.style.width="3.5em";
+                img.style.height="3.5em";
+                img.style.borderRadius="50%";
+                residentImageContainer.appendChild(img);
+
+            })
+        }
+
+        window.addEventListener("DOMContentLoaded",() => {
+                memberList();
+                setSessionId();
+                memberCount(); 
+                acceptMemberCount();
+                getOutMemberCount(); 
+            });
+    </script>
+
+    <style>
+         .tab-container {
+            display: flex;
+            justify-content: space-around;
+        }
+        .tab-item {
+            text-align: center;
+        }
+        .nav-link {
+            display: inline-block;
+            padding: 10px 20px;
+        }
+
+        .custom-button-container {
+            gap: 2px; /* 버튼 사이의 공간을 없앰 */
+        }
+    </style>
+
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+            <!-- /* 컨텐츠 */ -->
+            <div class="main">
+                <div class="container">
+                    <div class="row pt-2 fw-semibold fs-5 text-center">
+                        <div class="material-symbols-outlined col-1 ps-2 d-flex align-items-center" onclick="history.back()">chevron_left</div>
+                    </div>
+                    <div class="row " style="padding-bottom: 30%;">
+                        <div class="col-12 mx-auto">
+                            <nav>
+                                <div class="nav nav-underline tab-container" id="nav-tab" role="tablist">
+                                    <div class="tab-item" style="flex: 1.3; ">
+                                        <button class="nav-link active text-dark " id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true" style="text-align: center;"><span>수락 멤버</span> <span id="acceptMember"></span></button>
+                                    </div>
+                                    <div class="tab-item"  style="flex: 1.5;">
+                                        <button class="nav-link text-dark" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false"><span>가입 요청 멤버</span> <span id="registMember"></span></button>
+                                    </div>
+                                    <div class="tab-item"  style="flex: 1.5;">
+                                        <button class="nav-link text-dark" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" type="button" role="tab" aria-controls="nav-contact" aria-selected="false"><span>내보낸 멤버</span> <span id="rejectMember"></span></button>
+                                    </div>
+                                </div>
+                            </nav>            
+
+                            <div class="tab-content " id="nav-tabContent">
+
+                                <!-- 수락 멤버 -->
+                                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+                                    
+                                    <!-- 수락 멤버 -->
+
+                                    <div class="row" id="memberAccept">
+
+
+                                    </div>
+
+                                    <div id="acceptTemplate" class="d-none">
+                                        <div class="col-12 mx-auto clubAcceptList">
+                                            <div class="row pt-3 pb-2 px-4">
+                                                <div class="col-3 imageContainer">
+
+                                                </div>
+                                                <div class="col-6 pt-2">
+                                                    <div class="row">
+                                                        <div class="col acceptUserNickname" >닉네임</div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col new-fs-9">
+                                                            <span class="userRegistTime new-club-text-grey" >소모임가입시간</span> <span class="new-club-text-grey">가입</span> 
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 btn align-self-center new-text-white getOutUser new-fs-9 p-1"  style="background-color: #ff6d96;">
+                                                    내보내기
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 방장 -->
+                                    <div class="row">
+                                        <div class="col-12 mx-auto" id="residentInfo">
+                                            <div class="row pt-3 pb-2 px-4">
+                                                <div class="col-3 residentImageContainer ">
+
+                                                </div>
+                                                <div class="col-8 pt-2">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <span class="residentName">닉네임</span> <span><i class="fas fa-crown" style="color:rgb(246, 195, 92)"></i></span>    
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col new-fs-9">
+                                                                <span class=" new-club-text-grey residentRegistTime">소모임가입시간</span> <span class="new-club-text-grey">가입</span> 
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+                                <!--가입 요청 멤버-->
+                                <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+                                    <div class="row pt-3" id="memberAcceptBefore">
+                                    
+                                    </div>
+                                    <div id="template" class="d-none">
+                                        <div class="col-11 border border-1 mx-auto mb-3 clubBeforeList ">
+                                            <div class="row pt-3 pb-3 px-3">
+                                                <div class="col-3 px-0 memberBeforeImageContainer">
+
+                                                </div>
+                                                <div class="col-9 ps-0 pt-2">
+                                                    <div class="row">
+                                                        <div class="col userNickname" >닉네임</div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col new-fs-9">
+                                                            <span class="userRegistTime new-club-text-grey" >소모임가입시간</span> <span class="new-club-text-grey">요청</span> 
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-11 mx-auto">
+                                                <div class="row py-3 new-bg-gray">
+                                                    <div class="col-12">
+                                                        <div class="row px-3 pb-2">
+                                                            <div class="col">
+                                                                <span>Q.</span> <span class="signUpClubQuestion1">가입질문</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pt-1 px-3">
+                                                            <div class="col">
+                                                                <span>A.</span> <span class="signUpClubAnswer1">가입답변</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row py-3"></div>
+
+                                                <div class="row py-3 new-bg-gray">
+                                                    <div class="col-12">
+                                                        <div class="row px-3 pb-2">
+                                                            <div class="col">
+                                                                <span>Q.</span> <span class="signUpClubQuestion2">가입질문</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pt-1 px-3">
+                                                            <div class="col">
+                                                                <span>A.</span> <span class="signUpClubAnswer2">가입답변</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <!-- 소모임별 가입질문 -->
+                                                </div>
+                                            </div>
+                                            <div class="row px-3 pt-3 justify-content-between custom-button-container">
+                                                <span class="col btn btn-dark userReject d-grid">거절</span>
+                                                <span class="col btn btn-dark userAccept d-grid" >수락</span>
+
+                                            </div>
+                                            <div class="row pt-3 px-3">
+                                                <div class="col text-white py-1 d-none" id="messageContainer" style="background-color: #ff6d96;">
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            <!-- 거절멤버 -->
+                                <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">
+                                    <div class="row" id="memberReject">
+                                    </div>
+
+                                    <div id="rejectTemplate" class="d-none">
+                                        <div class="col-12 mx-auto clubRejectList">
+                                            <div class="row pt-3 pb-2 px-4">
+                                                <div class="col-3 rejectImageContainer">
+
+                                                </div>
+                                                <div class="col-6 pt-2 pe-1">
+                                                    <div class="row">
+                                                        <div class="col rejectUserNickname" >닉네임</div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col new-fs-9">
+                                                            <span class="userRegistTime new-club-text-grey" >소모임가입시간</span> <span class="new-club-text-grey">내보냄</span> 
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-3 btn align-self-center new-text-white switchToMember new-fs-9 p-1"  style="background-color: #ff6d96;">
+                                                    멤버로 전환
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+            <!-- /* 푸터 */ -->
+            <!-- <div th:replace="~{common/navi::bottomNavi}"></div> -->
+            <div th:replace="~{common/navi::quickNavi}"></div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

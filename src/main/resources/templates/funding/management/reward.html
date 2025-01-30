@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Funding</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/funding.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper wrapper-bg">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            <!-- /* 서브 헤더 */ -->
+            <div th:replace="~{funding/fundingNavi::projectManagementHeader}"></div>
+            
+            <!-- /* 컨텐츠 */ -->
+            <div class="main main-reward">
+                <div class="sub-title bg-white">
+                    <div class="container">
+                        <span>프로젝트 기획</span>
+                    </div>
+                </div>
+                <!-- /* 프로젝트 기획 탭 */ -->
+                <div th:replace="~{funding/fundingNavi::projectManagementTab}"></div>
+
+                <div class="reward-tab custom-shadow">
+                    <div class="container">
+                        <ul class="reward-tab-list">
+                            <li id="reward-tab" onclick="changePage('reward')">
+                                <span class="material-symbols-outlined pe-1 fw-light fs-6">featured_seasonal_and_gifts</span>
+                                선물
+                            </li>
+                            <li id="item-tab" onclick="changePage('item')">
+                                <span class="material-symbols-outlined pe-1 new-fw-thin fs-6">lists</span>
+                                아이템
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="reward-con" class="reward-con pb-5 active">
+                    <div class="container"></div>
+
+                    <div class="peditor-btn-box">
+                        <button type="button" onclick="showReward()" id="reward-btn" class="peditor-btn">선물 만들기</button>
+                    </div>
+                </div>
+
+                <div id="item-con" class="reward-con pb-5">
+                    <div class="container"></div>
+
+                    <div class="peditor-btn-box">
+                        <button type="button" onclick="showItem()" id="item-btn" class="peditor-btn">아이템 만들기</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- /* 오프캔버스 */ -->
+        <div class="offcanvas offcanvas-bottom offcanvas-custom" tabindex="-1" id="offcanvasWrapper" aria-labelledby="offcanvasBottomLabel">
+            <div class="offcanvas-header">
+                <button type="button" onclick="closeCanvas()" class="btn-close"></button>
+            </div>
+            <div class="offcanvas-body small"></div>
+        </div>
+
+        <!-- /* 모달 */ -->
+        <div class="modal modal-custom fade" id="modalWrapper" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-6" id="exampleModalLabel">Modal title</h1>
+                        <button type="button" onclick="closeModal(event)" class="btn-close"></button>
+                    </div>
+                    <div class="modal-body"></div>
+                    <div class="modal-footer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="template" class="d-none">
+        <!-- /* 아이템 작성폼 */ -->
+        <div class="item-write-box write-box">
+            <div class="peditor-box">
+                <div class="peditor-title">아이템 만들기</div>
+                <div class="peditor-desc">
+                    아이템은 선물에 포함되는 구성 품목을 말합니다. 특별한 물건부터 의미있는 경험까지 선물을 구성할 아이템을 만들어 보세요.
+                </div>
+            </div>
+            <div class="peditor-box paditor-mt">
+                <div class="peditor-sub-title">아이템 이름</div>
+                <div class="peditor-sub-content">
+                    <input type="text" name="name" id="item-name" class="peditor-namebox peditor-input" placeholder="아이템 이름을 입력해주세요.">
+                </div>
+            </div>
+            <div class="peditor-box paditor-mt">
+                <div class="peditor-sub-title">옵션 조건</div>
+                <div class="item-option-type peditor-sub-content">
+                    <div class="item-option-radio">
+                        <div class="item-option-box">
+                            <input onclick="selectOptionType(0)" type="radio" name="option_type" value="0" id="option_type0" class="option-type-radio">
+                            <label for="option_type0" class="option-type-label">없음</label>
+                        </div>
+                        <div class="item-option-box">
+                            <input onclick="selectOptionType(1)" type="radio" name="option_type" value="1" id="option_type1" class="option-type-radio">
+                            <label for="option_type1" class="option-type-label">주관식</label>
+                        </div>
+                        <div class="item-option-box">
+                            <input onclick="selectOptionType(2)" type="radio" name="option_type" value="2" id="option_type2" class="option-type-radio">
+                            <label for="option_type2" class="option-type-label">객관식</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="peditor-box paditor-mt">
+                <div class="peditor-sub-btn-box">
+                    <button type="button" onclick="resetItem()" class="peditor-btn btn-border">초기화</button>
+                    <button type="button" onclick="createItem()" class="peditor-btn">저장</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- /* 선물 작성폼 */ -->
+        <div class="reward-write-box write-box">
+            <form action="">
+                <div class="peditor-box">
+                    <div class="peditor-title">선물 만들기</div>
+                    <div class="peditor-desc">
+                        선물은 후원자에게 프로젝트의 가치를 전달하는 수단입니다. 다양한 금액대로 여러 개의 선물을 만들어 주세요. 펀딩 성공률이 높아지고, 더 많은 후원 금액을 모금할 수 있어요.
+                    </div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-title">선물 아이템</div>
+                    <div class="peditor-sub-desc">선물을 구성하는 아이템을 추가해주세요.</div>
+                    <div class="peditor-sub-content">
+                        <button type="button" onclick="getSelectItemList()" class="peditor-select-item">아이템을 선택해주세요</button>
+                    </div>
+                    <div class="peditor-item-box"></div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-title">선물 이름</div>
+                    <div class="peditor-sub-desc">어떤 아이템으로 구성되었는지 쉽게 알 수 있는 선물 이름을 붙여주세요.</div>
+                    <div class="peditor-sub-content">
+                        <input type="text" name="title" id="reward-title" class="peditor-namebox peditor-input" placeholder="50글자 내로 작성해주세요. 예&#41; A 세트 / 티켓 + 응원봉">
+                    </div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-title">수량 제한</div>
+                    <div class="peditor-sub-desc">선착순으로 선물을 제공하는 경우 총 선물 수량을 설정해주세요.</div>
+                    <div class="peditor-radio-content peditor-sub-content">
+                        <div class="peditor-radio-row">
+                            <label class="radio-col" for="is_limit1">
+                                <input class="form-check-input" type="radio" value="T" name="is_limit" id="is_limit1">있음
+                            </label>
+                            <div class="radio-count">
+                                <input type="number" value="0" name="count_limit" disabled class="count-limit">
+                                <div class="count-text">개</div>
+                            </div>
+                        </div>
+                        <div class="peditor-radio-row">
+                            <label class="radio-col" for="is_limit2">
+                                <input class="form-check-input" type="radio" value="F" name="is_limit" id="is_limit2">없음
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-title">예상 전달일</div>
+                    <div class="peditor-sub-desc">예상 전달일은 후원자를 기준으로 잡아주세요. 발송할 수 있는 날짜에 1~3일 정도 더하여 정해주시면 후원자가 기다리지 않을 수 있어요.</div>
+                    <div class="peditor-sub-content peditor-content-border">
+                        <div class="d-flex align-tems-center mb-2 new-fs-8">
+                            <span class="material-symbols-outlined mt-1 fw-light fs-6">calendar_month</span>
+                            결제 종료일 (<span class="project-end-at font-roboto"></span>)로 부터
+                        </div>
+                        <div class="input-unit-box">
+                            <input type="number" name="expect_date" id="expect_date" class="input-box" placeholder="">
+                            <span class="unit">일 뒤</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-title">배송 여부</div>
+                    <div class="peditor-sub-desc">'네'를 선택하시면 선물 전달에 필요한 후원자의 주소를 후원 과정에서 수집합니다. 수집된 주소는 후원자가 결제를 완료한 후에 확인할 수 있습니다.</div>
+                    <div class="peditor-radio-content peditor-sub-content">
+                        <div class="peditor-radio-row">
+                            <label class="radio-col" for="is_delivery1">
+                                <input class="form-check-input" type="radio" value="T" name="is_delivery" id="is_delivery1">네
+                            </label>
+                        </div>
+                        <div class="peditor-radio-row">
+                            <label class="radio-col" for="is_delivery2">
+                                <input class="form-check-input" type="radio" value="F" name="is_delivery" id="is_delivery2">아니요
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-title">선물 금액</div>
+                    <div class="peditor-sub-desc">선물 제작 및 전달에 필요한 모든 비용(포장비, 배송비 등)이 포함된 금액으로 입력해주세요.</div>
+                    <div class="peditor-sub-content">
+                        <div class="input-unit-box">
+                            <input type="number" name="amount" id="award-amount" class="input-box" placeholder="1000원 이상의 금액을 입력해주세요.">
+                            <span class="unit">원</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="peditor-box paditor-mt">
+                    <div class="peditor-sub-btn-box">
+                        <button type="button" onclick="resetReward()" class="peditor-btn btn-border">초기화</button>
+                        <button type="button" onclick="createReward()" class="peditor-btn">저장</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/funding.js"></script>
+    <script src="/public/js/funding/managementReward.js"></script>
+</body>
+</html>

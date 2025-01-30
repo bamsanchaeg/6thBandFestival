@@ -1,0 +1,209 @@
+
+
+.color-pink {
+    background-color: #ff6d96;
+    color: white; 
+}
+
+.new-text-red {
+    color: rgb(255, 85, 0);
+}
+
+.custom-offcanvas {
+    width: 100%; 
+    max-width: 520px; 
+    margin: 0 auto; 
+}
+    
+.image-scroll-container {
+    display: flex; 
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+}
+
+.reviewImageSZ {
+    height: 7em;
+    margin-right: 10px; 
+    flex-shrink: 0; 
+}
+
+.avgStar {
+    color: rgb(255, 85, 0);
+    font-size: 16px; 
+    font-weight: 800;
+}
+
+.avgText {
+    color: rgb(0, 0, 0);
+    font-size: 15px; 
+    font-weight: 600;
+}
+
+#reviewImagesWrapper {
+    overflow-x: auto; 
+    white-space: nowrap;
+    width: 100%;
+    border: 1px solid #ddd; 
+    padding: 10px;
+}
+
+#reviewImagesContainer img {
+    display: inline-block;
+    max-width: 100%;
+    margin-right: 10px;
+}
+
+.ImagesWrapper {
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#goods_detailImageContainer {
+    display: flex;
+    align-items: center;
+    height: 15em;
+}
+
+#goods_detailImageContainer img {
+    display: inline-block;
+    max-height: 15em;
+    margin-right: 10px;
+}
+
+.form-check-input:checked {
+    border-color: black !important;
+    background-color: black;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    justify-content: space-around;
+    padding: 0 0.2em;
+    text-align: center;
+    width: 5em;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    -webkit-text-fill-color: transparent; 
+    -webkit-text-stroke-width: 2.3px;
+    -webkit-text-stroke-color: #2b2a29;
+    cursor: pointer;
+}
+
+.star-rating :checked ~ label {
+   -webkit-text-fill-color: gold;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+ -webkit-text-fill-color: #fff58c;
+}
+
+
+/* MainPage css */
+.carousel-inner {
+    position: relative;
+    width: 100%; 
+    height: 100%;
+    overflow: hidden;
+  }
+
+.carousel-item {
+  position: relative;
+  width: 100%; 
+  height: 500px; 
+  overflow: hidden; 
+}
+
+.carousel-item .background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffcccc;
+  z-index: 1; 
+  transition: background-color 1.5s ease; 
+}
+
+.carousel-item .background.bottom {
+  background-color: #ffffff;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%; 
+  z-index: 0;
+}
+
+.carousel-item img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%); 
+  max-height: 90%;
+  max-width: 100%;
+  object-fit: contain;
+  z-index: 2;
+}
+
+.bgPatternBlackAndWhite {
+background: #2E2E2E repeat-y top url("/public/img/bgPatternBlack2.png");
+background-size: contain;
+}
+
+.carousel-item {
+background-color: #ffcccc;
+}
+
+.carousel-item.bg-pattern {
+background: #2E2E2E repeat-y top url("/public/img/bgPatternBlack2.png");
+background-size: contain;
+}
+
+/* badge1 */
+.translate-middle{
+  transform: translate(280%, -100%)!important;
+}
+/* badge2 */
+.translate-middle2{
+  transform: translate(-110%, -130%)!important;
+}
+
+.badge-container {
+  position: relative;
+}
+
+.badge1 {
+  position: absolute;
+  top: 50%;
+  left: 45%;
+}
+
+.badge2 {
+  position: absolute;
+  top: 55%;
+  left: 20%;
+}
+
+/* 배송상태 */
+.statusCircle {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}

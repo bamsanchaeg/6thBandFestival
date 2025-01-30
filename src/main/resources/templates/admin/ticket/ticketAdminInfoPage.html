@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<body>
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="d-flex">
+            <!-- /* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */ -->
+            <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+            </div>
+
+            <!-- /* 우측 컨텐츠 */ -->
+            <div class="page-right flex-grow-1">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                <!-- /* 컨텐츠 */ -->
+                <div class="main py-4 px-4">
+                    <div class="row pb-4 new-text-black">
+                        <div class="col fs-5 fw-bold">
+                            <span>티켓 상세 정보</span>
+                        </div>
+                    </div>
+
+<!--                    티켓 상세 정보 -->
+                    <div class="row">
+                        <div class="col-3">
+                            <div class="row">
+                                <div class="col">
+                                    <img class="img-fluid" th:src="|/images/${ticketInfo.thumbnail}|">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <span>페스티벌 이름 : </span>
+                                    <span th:text="${ticketInfo.festival_name}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>티켓 종류 : </span>
+                                    <span th:text="${ticketInfo.day_type}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>공연일 : </span>
+                                    <span th:text="${#dates.format(ticketInfo.booking_day, 'yyyy-MM-dd')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>남은 수량 : </span>
+                                    <span th:text="${ticketInfo.total_quantity - purchaseQuantity}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>성인 가격 : </span>
+                                    <span th:text="${#numbers.formatInteger(ticketInfo.adult_price, 3, 'COMMA')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>청소년 가격 : </span>
+                                    <span th:text="${#numbers.formatInteger(ticketInfo.youth_price, 3, 'COMMA')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>티켓팅 오픈 : </span>
+                                    <span th:text="${#dates.format(ticketInfo.open_date, 'yyyy-MM-dd')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-2">
+                                <div class="col">
+                                    <span>티켓팅 마감 : </span>
+                                    <span th:text="${#dates.format(ticketInfo.deadline_date, 'yyyy-MM-dd')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row pt-3" th:if="${ticketInfo.day_type == 'AllDay'}">
+                                <div class="col">
+                                    <a class="link-underline link-underline-opacity-0 text-black">
+                                        <span onclick="showDiscount()" class="btn btn-primary">얼리버드 할인 등록하기</span>
+                                    </a>
+                                </div>
+
+<!--                                할인 등록 form-->
+                                <form id="discountForm" method="post">
+                                    <div id="discountDNone" class="row pt-2 align-items-center d-none">
+                                        <input type="hidden" th:value="${ticketInfo.id}" name="info_id">
+                                        <div class="col-auto">
+                                            <span>할인율 : </span>
+                                        </div>
+                                        <div class="col-2">
+                                            <input id="inputDiscount" type="text" class="form-control" name="discount">
+                                        </div>
+                                        <div class="col-auto">
+                                            <span>수량 : </span>
+                                        </div>
+                                        <div class="col-2">
+                                            <input id="inputDiscountQuantity" type="number" class="form-control" name="discount_quantity">
+                                        </div>
+                                        <div class="col">
+                                            <button class="btn btn-black createDiscount">
+                                                <span class="material-symbols-outlined" onclick="createDiscount()">check</span>
+                                            </button>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col text-danger new-fs-9">
+                                                <span>할인율은 0.1, 0.2 형식으로 입력하십시오.</span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col text-danger new-fs-9">
+                                                <span>할인 정보는 수정이 불가능합니다. 확인하고 등록하여 주십시오.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div> <!-- col 나눈거 -->
+                    </div>
+
+                    <div class="row my-4 mx-1 border-bottom border-black"></div>
+<!--                    티켓 할인 정보-->
+                    <div class="row">
+                        <div class="col ps-4 fw-bold">
+                            <span>할인 정보</span>
+                        </div>
+                    </div>
+
+                    <div class="row ps-4 pt-3" th:if="${ticketInfo.discount_id == 0}">
+                        <div class="col" th:if="${ticketInfo.day_type == 'AllDay'}">
+                            <span>등록된 얼리버드 할인 정보가 없습니다.</span>
+                            <span>할인을 등록해 주세요.</span>
+                        </div>
+                        <div class="col" th:unless="${ticketInfo.day_type == 'AllDay'}">
+                            <span>얼리버드 할인은 AllDay 티켓에만 등록 가능합니다.</span>
+                        </div>
+                    </div>
+
+                    <div class="row" th:unless="${ticketInfo.discount_id == 0}">
+                        <div class="col">
+
+                            <div class="row pt-3 text-center align-items-center">
+                                <div class="col ps-4">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <span>티켓 번호</span>
+                                        </div>
+
+                                        <div class="col-1">
+                                            <span>할인율</span>
+                                        </div>
+
+                                        <div class="col-2">
+                                            <span>남은 수량 / 총 수량</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row pt-3 text-center align-items-center">
+                                <div class="col ps-4">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <span id="discountIdSpan" th:text="${ticketInfo.id}">티켓 번호</span>
+                                        </div>
+
+                                        <div class="col-1">
+        <!--                                    ex) 0.2 -> 20 변환-->
+                                            <span id="discountPercentSpan" th:text="${#numbers.formatDecimal(ticketInfo.discount * 100, 0, 0)}"></span>
+                                            <span>%</span>
+                                        </div>
+
+                                        <div class="col-2">
+                                            <span id="discountRemainingQuantitySpan" th:text="${ticketInfo.remaining_quantity}"></span>
+                                            <span> &nbsp; / &nbsp; </span>
+                                            <span id="discountQuantitySpan" class="fw-bold" th:text="${ticketInfo.discount_quantity}"></span>
+                                        </div>
+
+                                        <div class="col-auto" th:onclick="|deleteDiscount(${ticketInfo.discount_id})|">
+                                            <span class="d-flex justify-content-center material-symbols-outlined text-danger">delete</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <!-- /* 푸터 */ -->
+                <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/public/js/ticket/ticketAdmin.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Community</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <style>
+        .border-right{
+            border-right-style: solid; /* 오른쪽 테두리의 스타일 */
+            border-right-width: 2px; /* 오른쪽 테두리의 두께 */
+            border-right-color: rgb(189, 189, 189); /* 오른쪽 테두리의 색상 */
+
+        }
+        .half-width {
+            width:50%;
+        }
+
+        .tab-container {
+            display: flex;
+        }
+        .tab-item {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            padding: 5px;
+            background-color: #fff;
+            
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+        }
+
+        .search-button {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .image-thumbnail {
+            width:100%;
+            height:100%;
+            object-fit:cover;
+        }
+        
+    </style>
+
+    <script>
+    let myId = null;
+   
+        function setSessionUserId(){
+            const url = "/six/user/getSessionUserId";
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                myId= response.data.id;
+                myClubList();
+                mySignUpList();
+            })
+        }
+    
+    function myClubList(){
+        const myClubListBox = document.getElementById("myClubListBox");
+        myClubListBox.innerHTML="";
+
+        if(myId == null){
+            myClubListBox.innerText="로그인 후 확인 가능합니다.";
+            myClubListBox.classList.add("justify-content-center","pt-3","text-secondary","new-fs-9");
+            return;
+        }
+        const url = "/api/club/myClubList?id="+myId;
+        fetch(url)
+        .then(response => response.json())
+        .then((response) => {
+
+            const myClubListBox = document.getElementById("myClubListBox");
+            myClubListBox.innerHTML="";
+
+            const myClubWrapperTemplate = document.querySelector("#template .myClubWrapper");
+            for(e of response.data.myClubList){
+
+
+                if(e.club_activation = 2){
+                    const newMyClubWrapperTemplate = myClubWrapperTemplate.cloneNode(true);
+
+
+                    (function(clubId) {
+
+                        newMyClubWrapperTemplate.addEventListener('click', function() {
+                            // 클릭 시 이동할 링크 설정
+                            window.location.href = `/club/clubDetailPage?id=${clubId}`;
+                        });
+                    })(e.id); // 클로저 내부에서 e.clubBoardDto.id 값을 boardId로 전달
+
+
+                    const myClubName = newMyClubWrapperTemplate.querySelector(".myClubName");
+                    myClubName.innerText = e.club_name;
+
+                    const myClubAuthority = newMyClubWrapperTemplate.querySelector(".myClubAuthority");
+                    myClubAuthority.innerText='운영';
+
+                    const img = document.createElement('img');
+                    img.src = `/images/${e.club_logo}`;
+                    const clubImage = newMyClubWrapperTemplate.querySelector(".clubImage");
+                    clubImage.appendChild(img);
+                    img.style.width=`4.5em`;
+                    img.style.height=`4.5em`;
+                    img.classList.add("img-fluid","image-thumbnail");
+                    img.classList.add("rounded-4");
+
+
+                    myClubListBox.appendChild(newMyClubWrapperTemplate);
+                }
+                
+                
+
+                
+            }
+
+
+        })
+    }
+
+
+    function mySignUpList(){
+        const mySignUpClubBox = document.getElementById("mySignUpClubBox");
+        mySignUpClubBox.innerHTML="";
+
+        const mySignUpWaiteClubBox = document.getElementById("mySignUpWaiteClubBox");
+        mySignUpWaiteClubBox.innerHTML="";
+
+        if(myId == null){
+            mySignUpClubBox.innerText="로그인 후 확인 가능합니다.";
+            mySignUpClubBox.classList.add("justify-content-center","pt-3","text-secondary","new-fs-9");
+            mySignUpWaiteClubBox.innerText="로그인 후 확인 가능합니다.";
+            mySignUpWaiteClubBox.classList.add("justify-content-center","pt-3","text-secondary","new-fs-9");
+            return;
+        }
+        const url = "/api/club/mySignUpList?id="+myId;
+        fetch(url)
+        .then(response => response.json())
+        .then((response) => {
+            const mySignUpClubBox = document.getElementById("mySignUpClubBox");
+            mySignUpClubBox.innerHTML="";
+
+            const mySignUpWaiteClubBox = document.getElementById("mySignUpWaiteClubBox");
+            mySignUpWaiteClubBox.innerHTML="";
+
+            const mySignUpWrapperTemplate = document.querySelector("#signUpTemplate .mySignUpWrapper")
+
+            const mySignUpWaiteWrapperTemplate = document.querySelector("#signUpWaiteTemplate .mySignUpWaiteWrapper")
+
+            for(e of response.data.mySignUpList){
+                const newMySignUpWrapperTemplate = mySignUpWrapperTemplate.cloneNode(true);
+                const newMySignUpWaiteWrapperTemplate = mySignUpWaiteWrapperTemplate.cloneNode(true);
+
+
+                if(e.clubMemberRegistDto.member_activation == "2"){
+                
+                
+                (function(clubId) {
+                    newMySignUpWrapperTemplate.addEventListener('click', function() {
+                            // 클릭 시 이동할 링크 설정
+                            window.location.href = `/club/clubDetailPage?id=${clubId}`;
+                        });
+                    })(e.clubDto.id); // 클로저 내부에서 e.clubBoardDto.id 값을 boardId로 전달
+
+                const img = document.createElement('img');
+                img.src = `/images/${e.clubDto.club_logo}`;
+
+                const clubImage = newMySignUpWrapperTemplate.querySelector(".clubImage");
+                clubImage.appendChild(img);
+                img.style.width=`4.5em`;
+                img.style.height=`4.5em`;
+                img.classList.add("img-fluid","image-thumbnail");
+                img.classList.add("rounded-4");
+
+                const myClubName = newMySignUpWrapperTemplate.querySelector(".myClubName");
+                myClubName.innerText=e.clubDto.club_name;
+
+                mySignUpClubBox.appendChild(newMySignUpWrapperTemplate);
+
+                }
+
+                else if(e.clubMemberRegistDto.member_activation == "0"){
+                
+                
+                (function(clubId) {
+                    newMySignUpWaiteWrapperTemplate.addEventListener('click', function() {
+                            // 클릭 시 이동할 링크 설정
+                            window.location.href = `/club/clubDetailPage?id=${clubId}`;
+                        });
+                    })(e.clubDto.id); // 클로저 내부에서 e.clubBoardDto.id 값을 boardId로 전달
+
+                const waiteImg = document.createElement('img');
+                waiteImg.src = `/images/${e.clubDto.club_logo}`;
+
+                const clubWaiteImage = newMySignUpWaiteWrapperTemplate.querySelector(".clubWaiteImage");
+                clubWaiteImage.appendChild(waiteImg);
+                waiteImg.style.width=`4.5em`;
+                waiteImg.style.height=`4.5em`;
+                waiteImg.classList.add("img-fluid","image-thumbnail");
+                waiteImg.classList.add("rounded-4");
+
+                const myClubWaiteName = newMySignUpWaiteWrapperTemplate.querySelector(".myClubWaiteName");
+                myClubWaiteName.innerText=e.clubDto.club_name;
+
+                mySignUpWaiteClubBox.appendChild(newMySignUpWaiteWrapperTemplate);
+
+                }
+            }
+
+
+        })
+    }
+    
+    function clubRegist(){
+        window.location.href = '/club/clubRegistPage';
+
+    }
+
+    window.addEventListener("DOMContentLoaded",() => {
+        setSessionUserId();
+
+        });
+        function toggleSearch() {
+            const searchContainer = document.getElementById('searchContainer');
+            searchContainer.classList.toggle('active');
+        }
+
+</script>
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{club/clubNavi::topNavi}"></div>
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            
+            <!-- /* 컨텐츠 */ -->
+            <div class="main">
+                <div class="container">
+                    <div class="row pt-4" style="padding-bottom: 30%;">
+                        <div class="col">
+                            
+                            <div th:replace="~{club/clubNavi::clubListTab}"></div>
+
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" >
+                                    <div class="row pt-4 ps-2">
+                                        <div class="col fw-semibold" style="font-size: 17px;">
+                                            등록한 모임
+                                        </div>
+                                    </div>
+                                    <div class="row p-3 pt-1" id="myClubListBox">
+                                        
+                                    </div>
+                                    
+                                    <div class="d-none" id="template">
+                                        <div class="col-3 px-0 py-2 myClubWrapper text-center" >
+                                            <div class="row">
+                                                <div class="col clubImage img-fluid" >
+                                                    <!-- 이미ㅣ지ㅣㅣㅣㅣㅣ -->
+                                                </div>
+                                            </div>
+
+                                            <div class="row pt-2 d-flex justify-content-center">
+                                                <div class="col-10  new-fs-8 myClubName ellipsis-line-two">
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="row pt-1 justify-content-center">
+                                                <div class="col-auto px-2 rounded-5 new-fs-7 myClubAuthority text-light" style="background-color:#ff6d96;">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                    
+                                    <div class="row pt-4 ps-2 border-top">
+                                        <div class="col fw-semibold" style="font-size: 17px;">
+                                            가입한 모임
+                                        </div>
+                                    </div>
+                                    <div class="row p-3 pt-1" id="mySignUpClubBox">
+                                        
+                                    </div>
+                                    
+                                    <div class="d-none" id="signUpTemplate">
+                                        <div class="col-3 px-0 py-2 mySignUpWrapper text-center" >
+                                            <div class="row">
+                                                <div class="col clubImage img-fluid " >
+                                                    
+
+                                                </div>
+                                            </div>
+
+                                            <div class="row pt-2 d-flex justify-content-center">
+                                                <div class="col-10 new-fs-8 myClubName ellipsis-line-two">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+
+
+                                    <!-- 가입 대기중 모임 -->
+                                    <div class="row pt-4 ps-2 border-top">
+                                        <div class="col fw-semibold" style="font-size: 17px;">
+                                            가입 대기중 모임
+                                        </div>
+                                    </div>
+                                    <div class="row p-3 pt-1" id="mySignUpWaiteClubBox">
+                                        
+                                    </div>
+                                    
+                                    <div class="d-none" id="signUpWaiteTemplate">
+                                        <div class="col-3 px-0 py-2 mySignUpWaiteWrapper text-center" >
+                                            <div class="row">
+                                                <div class="col clubWaiteImage img-fluid " >
+                                                    
+
+                                                </div>
+                                            </div>
+
+                                            <div class="row  pt-2 d-flex justify-content-center">
+                                                <div class="col-10 new-fs-8 myClubWaiteName ellipsis-line-two">
+                                                    
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="col" >
+                        <button type="button" onclick="clubRegist()" class="new-fixed-bottom btn btn-primary rounded-0 new-py-25 lh-1" style="margin-bottom: 60px;">소모임 등록</button>
+                    </div>
+                </div>
+
+            </div>
+            <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+            <!-- /* 푸터 */ -->
+            <!-- <div th:replace="~{common/navi::bottomNavi}"></div> -->
+            <div th:replace="~{common/navi::quickNavi}"></div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

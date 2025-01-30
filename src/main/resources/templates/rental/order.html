@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Rental</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <style>
+        .form-check-input:checked {
+            border-color: black !important;
+            background-color: black;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .form-check-input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+<div id="root">
+    <div class="wrapper">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <div class="main">
+            <div class="container">
+                <div class="row mx-0 align-items-center">
+                    <div class="col-auto ps-0">
+                        <a th:href="@{/rental/details(id=${rentalItemInfo.rentalItemDto.id})}" class="text-decoration-none">
+                            <span class="material-symbols-outlined align-middle new-text-black">
+                                arrow_back_ios
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col py-4 text-center new-text-black">
+                        <span class="fw-bold fs-2">대여하기</span>
+                    </div>
+                    <div class="col-auto"></div> <!--빈 열 추가 텍스트 중앙-->
+                </div>
+                <div class="row mx-0 border new-bg-white">
+                    <div class="col">
+
+                        <div class="row py-3">
+                            <div class="col">
+                                <img class="img-fluid" th:src="|/images/${rentalItemInfo.rentalItemDto.image}|"></img>
+                            </div>
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="row fw-medium new-fs-95 ellipsis-line-two">
+                                            <div class="col" th:text="${rentalItemInfo.rentalItemDto.title}"></div>
+                                        </div>
+                                        <div class="row pt-1">
+                                            <div class="col new-fs-9 new-text-light-gray" th:text="'대여 수량: ' + ${count} + '개'"></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col new-fs-9 new-text-light-gray" th:text="'대여 일수: ' + ${rental_days} + '일'"></div>
+                                        </div>
+                                        <div class="row pt-1">
+                                            <div class="col fw-bold font-roboto" th:text="${#numbers.formatDecimal(rentalItemInfo.rentalItemDto.price, 0, 'COMMA', 0, 'POINT')} + '원'"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row py-3 new-border-gray border-top new-text-black">
+                            <div class="col fw-medium" th:text="'총 상품 금액' + ' (' + ${count} + '개)'" style="font-size: 17px;"></div>
+                            <div class="col text-end font-roboto fw-bold" th:text="${#numbers.formatDecimal(total_price, 0, 'COMMA', 0, 'POINT')} + '원'"></div>
+                        </div>
+                        <div class="row pt-3 new-border-gray border-top">
+                            <div class="col pb-3 border-bottom border-1 fw-medium new-text-black" style="font-size: 17px;">
+                                결제 수단
+                            </div>
+                        </div>
+                        <form id="paymentForm" th:action="@{/rental/payment-success}" method="post">
+                            <input type="hidden" name="rental_item_id" th:value="${rentalItemInfo.rentalItemDto.id}">
+                            <input type="hidden" name="count" th:value="${count}">
+                            <input type="hidden" name="rental_days" th:value="${rental_days}">
+                            <input type="hidden" name="total_price" th:value="${total_price}">
+                            <div class="row pt-2 pb-3">
+                                <div class="col-12 pb-1 col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="credit_card" value="1" required checked>
+                                        <label class="form-check-label" for="credit_card">
+                                            신용카드
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 pt-1 col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="2" required>
+                                        <label class="form-check-label" for="bank_transfer">
+                                            계좌이체
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row py-3 new-border-gray border-top">
+                                <div class="col new-text-black fw-medium" style="font-size: 17px;">
+                                    총 결제 금액
+                                </div>
+                                <div class="col text-end font-roboto fw-bold" th:text="${#numbers.formatDecimal(total_price, 0, 'COMMA', 0, 'POINT')} + '원'"></div>
+                            </div>
+                            <div class="row py-3 new-border-gray border-top">
+                                <div class="col new-text-black fw-medium new-fs-9">
+                                    <div class="form-check" style="padding-bottom: 90px;">
+                                        <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                        <label class="form-check-label" for="flexCheckDefault">
+                                            상품 정보를 확인하였으며, 약관 전체에<br>
+                                            동의합니다.
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="new-fixed-bottom new-bg-white">
+                <div class="row px-3 py-3">
+                    <div class="col text-center d-grid gap-2 mx-auto">
+                        <button type="submit" form="paymentForm" class="btn btn-primary w-100 py-2 fw-bold" style="border-radius: 0;" th:text="${#numbers.formatDecimal(total_price, 0, 'COMMA', 0, 'POINT')} + '원 결제하기'"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

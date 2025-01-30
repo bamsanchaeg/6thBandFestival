@@ -1,0 +1,678 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sixthband.festival.goods.mapper.GoodsSqlMapper">
+
+    <select id="goodsCategory" resultType="com.sixthband.festival.goods.dto.GoodsCategoryDto">
+        select * from goods_category
+    </select>
+
+    <insert id="insertGoods">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select MAX(id) from goods
+        </selectKey>
+        insert into goods(
+            category_id, goods_title, image, goods_count, price, detail
+        ) values (
+            #{category_id}, #{goods_title}, #{image}, #{goods_count}, #{price}, #{detail}
+        )
+    </insert>
+
+    <select id="selectDiscountsByGoodsId" parameterType="int" resultType="com.sixthband.festival.goods.dto.GoodsDiscountDto">
+        select * from goods_discount 
+        where goods_id = #{goods_id}
+    </select>
+
+    <select id="selectDisCountAndGoods" resultType="com.sixthband.festival.goods.dto.GoodsDto">
+        select g.*, d.discount
+        from goods g
+        left join goods_discount d ON g.id = d.goods_id
+        order by id desc
+    </select>
+
+    <insert id="insertDiscount">
+        insert into goods_discount(
+            goods_id, discount
+        )values (
+            #{goods_id}, #{discount}
+        )
+    </insert>
+
+    <update id="updateDiscount">
+        update goods_discount
+        set discount = #{discount}
+        where goods_id = #{goods_id}
+    </update>
+
+    <delete id="deleteDiscount">
+        DELETE FROM goods_discount WHERE id = #{id}
+    </delete>
+
+    <insert id="goodsDetailImage">
+        insert into goods_detailImage(
+            goods_id, multiple_image
+        ) values (
+            #{goods_id}, #{multiple_image}
+        )
+    </insert>
+
+    <select id="selectGoodsList" resultType="com.sixthband.festival.goods.dto.GoodsDto">
+        select * from goods
+        order by id desc
+        limit #{pageIndex} , 10
+    </select>
+
+    <!-- user -->
+    <select id="selectGoodsListAll" resultType="com.sixthband.festival.goods.dto.GoodsDto">
+        select * from goods
+        order by id desc
+    </select>
+
+    <select id="getGoodsListTotalCount" resultType="int">
+        select count(*) from goods
+        order by id desc
+    </select>
+
+    <select id="selectIdFromCategory" resultType="com.sixthband.festival.goods.dto.GoodsCategoryDto">
+        select * from goods_category
+        where id = #{id}
+    </select>
+
+    <!-- goodsId로 정보가져오기 -->
+    <select id="getGoodsDetailById" resultType="com.sixthband.festival.goods.dto.GoodsDto">
+        select * from goods 
+        where id = #{id}
+    </select>
+
+    <delete id="deleteGoodsId">
+        delete from goods where id = #{id}
+    </delete>
+
+    <update id="updateGoodsProduct">
+        update goods 
+        set
+            category_id = #{category_id},
+            goods_title = #{goods_title},
+
+            goods_count = #{goods_count},
+            price = #{price},
+            detail = #{detail}
+        where id = #{id}
+    </update>
+
+
+    <select id="selectImageListByGoodsId" resultType="com.sixthband.festival.goods.dto.GoodsDetailImageDto">
+        select * from goods_detailImage
+        where goods_id = #{goods_id}
+    </select>
+
+    <!-- WhisList-->
+    
+    <insert id = "insertWishList">
+        insert into goods_wish(
+            goods_id, user_id
+        ) values(
+            #{goods_id}, #{user_id}
+        )
+    </insert>
+
+    <delete id="deleteWishList">
+        delete from goods_wish
+        where goods_id = #{goods_id}
+        and user_id = #{user_id}
+    </delete>
+
+    <select id="getWishLiked" resultType="int">
+        select count(*) from goods_wish
+        where goods_id = #{goods_id}
+        and user_id = #{user_id}
+    </select>
+
+    <select id="totalWishLikes" resultType="int">
+        select count(*) from goods_wish
+        where goods_id = #{goods_id}
+    </select>
+
+    <select id="getWishListAllByUserId" resultType="com.sixthband.festival.goods.dto.GoodsWishDto">
+        select * from goods_wish
+        where user_id=#{user_id}
+        order by id desc;
+    </select>
+
+    <!--Cart-->
+
+    <insert id="insertGoodsShopperbag">
+        insert into goods_shopperbag(
+            user_id, goods_id, item_count
+        )
+        value(
+            #{user_id}, #{goods_id}, #{item_count}
+        )
+    </insert>
+
+    <select id="selectGoodsCartList" resultType="com.sixthband.festival.goods.dto.GoodsShopperbagDto">
+        select * from goods_shopperbag
+        order by id desc
+    </select>
+
+    <select id="selectGoodsCartListByUserId" resultType="com.sixthband.festival.goods.dto.GoodsShopperbagDto">
+        SELECT gs.id, gs.user_id, gs.goods_id , sum(item_count) as item_count from goods_shopperbag gs 
+        where user_id = #{user_id}
+        GROUP by goods_id 
+    </select>
+
+    <delete id="deleteCartByGoods">
+        delete from goods_shopperbag
+        where goods_id = #{goods_id} 
+        and user_id = #{user_id}
+    </delete>
+
+    <insert id="insertGoodsDiscount">
+        insert into goods_discount(
+            goods_id, discount
+        ) value(
+            #{goods_id}, #{discount}
+        )
+    </insert>
+
+    <!--Order-->
+
+    <insert id="insertGoodsOrder">
+        insert into goods_order(
+            user_id, goods_id, goods_order_count, order_price, receiver,
+            address, phone, request_details
+        ) value(
+            #{user_id}, #{goods_id}, #{goods_order_count}, #{order_price},
+            #{receiver}, #{address}, #{phone}, #{request_details}
+        )
+    </insert>
+
+    <update id="updateOrderStatus">
+        update goods_order
+        set order_status = #{order_status}
+        where id=#{id}
+    </update>
+
+    <select id="countOrdersByStatus" resultType="map">
+        select order_status, count(*) AS status_count
+        from goods_order
+        group by order_status
+    </select>
+
+    <!-- by userId -->
+
+    <select id="countOrdersByStatusByUserId" resultType="map">
+        select order_status, count(*) AS status_count
+        from goods_order
+        where user_id = #{user_id}
+        group by order_status
+    </select>
+
+    <select id="selectGoodsOrderList" resultType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+        select * from goods_order
+        where user_id = #{user_id}
+        order by id desc;
+    </select>
+
+    <select id="selectGoodsOrderDetail" resultType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+        select * from goods_order
+        where id = #{id}
+        and user_id = #{user_id}
+    </select>
+
+    <select id="selectGoodsOrderDetailById" resultType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+        select * from goods_order
+        where id = #{id}
+    </select>
+
+    <!-- Review -->
+    <insert id="insertGoodsReview">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select MAX(id) from goods_review
+        </selectKey>
+        insert into goods_review (
+    	    order_id, content, image, rating
+        ) values (
+            #{order_id}, #{content}, #{image}, #{rating}
+        )
+    </insert>
+
+    <!-- GPT -->
+    <insert id="insertGptReview">
+        insert into goodsGPT_review(
+            comment_id, Gpt_Review
+        ) values(
+            #{comment_id}, #{Gpt_Review}
+        )
+    </insert>
+
+    <select id="goodsGptReview" resultType="com.sixthband.festival.goods.dto.GoodsGptReviewDto">
+        select * from goodsGPT_review where comment_id = #{comment_id}
+    </select>
+
+    <select id="countReviewsByOrderId" resultType="int">
+        select count(*) 
+        from goods_review
+        where order_id = #{order_id}
+    </select>
+
+    <select id="selectGoodsReviewListAll" resultType="com.sixthband.festival.goods.dto.GoodsReviewDto">
+        select * from goods_review
+        order by id desc
+    </select>
+
+    <select id="selectGoodsReviewList" resultType="com.sixthband.festival.goods.dto.GoodsReviewDto">
+        select r.* from goods_review r
+        inner join goods_order o on o.id = r.order_id
+        where o.goods_id = #{goods_id}
+    </select>
+
+    <insert id="insertGoodsReviewDetailImage">
+        insert into goods_review_detailImage(
+            review_id, multiple_image
+        ) values (
+            #{review_id}, #{multiple_image}
+        )
+    </insert>
+
+    <select id="selectImageListByReviewId" resultType="com.sixthband.festival.goods.dto.GoodsReviewDetailImageDto">
+        select * from goods_review_detailImage
+        where review_id = #{review_id}
+    </select>
+
+    <select id="getReviewDetailById" resultType="com.sixthband.festival.goods.dto.GoodsReviewDto">
+        select * from goods_review
+        where id = #{id}
+    </select>
+
+    <select id="countGoodsReviewByGoodsId" resultType="int">
+        select count(*) from goods_review r
+        inner join goods_order o on o.id = r.order_id
+        where o.goods_id = #{goods_id}
+    </select>
+
+    <select id="avgGoodsReviewRatingByGoodsId" resultType="Double">
+        select avg(r.rating) 
+        from goods_review r
+        inner join goods_order o on o.id = r.order_id
+        where o.goods_id = #{goods_id}
+    </select>
+
+    <delete id="deleteReview">
+        delete from goods_review 
+        where id = #{id}
+    </delete>
+
+    <insert id="insertGoodsReviewLike">
+        insert into goods_review_like(
+            user_id, review_id
+        ) values(
+            #{user_id}, #{review_id}
+        )
+    </insert>
+
+    <delete id="deleteGoodsReviewLike">
+        delete from goods_review_like
+        where review_id = #{review_id}
+        and user_id = #{user_id}
+    </delete>
+
+    <select id="getReviewLiked" resultType="int">
+        select count(*) from goods_review_like
+        where review_id = #{review_id}
+        and user_id = #{user_id}
+    </select>
+
+    <select id="totalReviewLikes" resultType="int">
+        select count(*) from goods_review_like
+        where review_id = #{review_id}
+    </select>
+
+    <select id="getUserDetailById" resultType="com.sixthband.festival.dto.UserDto">
+        select * from six_user
+        where id = #{id}
+    </select>
+
+    <!-- Admin -->
+
+    <select id="getGoodsOrderList" resultType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+        select 
+            go2.id, 
+            go2.user_id, 
+            go2.goods_id, 
+            go2.goods_order_count, 
+            go2.order_price, 
+            go2.receiver, 
+            go2.address, 
+            go2.phone, 
+            go2.payment_info, 
+            go2.request_details, 
+            go2.order_status,
+            go2.created_at,
+            su.name as user_name 
+        from goods_order go2
+        inner join six_user su on go2.user_id = su.id
+        order by go2.id desc
+        limit #{pageIndex} , 10
+    </select>
+    
+    <select id="getOrderListTotalCount" resultType="int">
+        select count(*) from goods_order
+        order by id desc
+    </select>
+
+    <select id="getGoodsOrderListByOrderId" resultType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+        select 
+            go2.*, 
+            su.name as user_name, 
+            g.id as "goodsDto.id", 
+            g.category_id as "goodsDto.category_id", 
+            g.goods_title as "goodsDto.goods_title", 
+            g.image as "goodsDto.image", 
+            g.goods_count as "goodsDto.goods_count", 
+            g.price as "goodsDto.price", 
+            g.detail as "goodsDto.detail", 
+            g.created_at as "goodsDto.created_at"
+        from goods_order go2
+        inner join six_user su on go2.user_id = su.id
+        inner join goods g on g.id = go2.goods_id
+        where go2.id = #{order_id}
+    </select>
+
+    <select id="getGoodsReviewListByGoodsAndUser" resultType="com.sixthband.festival.goods.dto.GoodsReviewDto">
+        select 
+            gr.id as id,
+            gr.order_id as order_id,
+            gr.content as content,
+            gr.image as image,
+            gr.rating as rating,
+            gr.created_at as created_at,
+            g.id as "goods.id",
+            g.category_id as "goods.category_id",
+            g.goods_title as "goods.goods_title",
+            g.image as "goods.image",
+            g.goods_count as "goods.goods_count",
+            g.price as "goods.price",
+            g.detail as "goods.detail",
+            g.created_at as "goods.created_at",
+            su.id as "user.id",
+            su.account_name as "user.account_name",
+            su.nickname as "user.nickname",
+            su.name as "user.name",
+            su.email as "user.email",
+            su.gender as "user.gender",
+            su.birth as "user.birth",
+            su.phone as "user.phone",
+            su.is_active as "user.is_active",
+            su.created_at as "user.created_at"
+        from goods_review gr
+        inner join goods_order go2 on go2.id = gr.order_id
+        inner join goods g on g.id = go2.goods_id
+        inner join six_user su on go2.user_id = su.id
+        order by gr.id desc
+        limit #{limitStart}, 10
+    </select>
+
+    <select id="getReviewListTotalCount" resultType="int">
+        select count(*) from goods_review
+        order by id desc
+    </select>
+
+    <!--/* Admin - resultMap 설정*/-->
+    <resultMap id="reviewDetailMap" type="com.sixthband.festival.goods.dto.GoodsReviewDto">
+        <!-- 기본 정보 -->
+        <id property="id" column="review_id"/>
+        <result property="order_id" column="review_order_id"/>
+        <result property="content" column="review_content"/>
+        <result property="image" column="review_image"/>
+        <result property="rating" column="review_rating"/>
+        <result property="created_at" column="review_created_at"/>
+        
+        <!-- 조인된 정보 (상품 정보) -->
+        <association property="goods" javaType="com.sixthband.festival.goods.dto.GoodsDto">
+            <id property="id" column="goods_id"/>
+            <result property="goods_title" column="goods_title"/>
+        </association>
+        
+        <!-- 조인된 정보 (사용자 정보) -->
+        <association property="user" javaType="com.sixthband.festival.dto.UserDto">
+            <id property="id" column="user_id"/>
+            <result property="account_name" column="user_account_name"/>
+            <result property="name" column="user_name"/>
+            <result property="nickname" column="user_nickname"/>
+            <result property="phone" column="user_phone"/>
+            <result property="email" column="user_email"/>
+            <result property="gender" column="user_gender"/>
+            <result property="birth" column="user_birth"/>
+            <result property="created_at" column="user_created_at"/>
+        </association>
+            
+        <!-- 조인된 정보 (주문 정보) -->
+        <association property="order" javaType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+            <id property="id" column="order_id"/>
+            <result property="user_id" column="order_user_id"/>
+            <result property="goods_id" column="order_goods_id"/>
+            <result property="goods_order_count" column="order_goods_order_count"/>
+            <result property="order_price" column="order_price"/>
+            <result property="receiver" column="order_receiver"/>
+            <result property="address" column="order_address"/>
+            <result property="phone" column="order_phone"/>
+            <result property="payment_info" column="order_payment_info"/>
+            <result property="request_details" column="order_request_details"/>
+            <result property="order_status" column="order_status"/>
+            <result property="created_at" column="order_created_at"/>
+        </association>
+        
+        <!-- 조인된 정보 (리뷰 상세 이미지) -->
+        <collection property="reviewDetailImages" ofType="com.sixthband.festival.goods.dto.GoodsReviewDetailImageDto">
+            <id property="id" column="detail_image_id"/>
+            <result property="review_id" column="detail_image_review_id"/>
+            <result property="multiple_image" column="detail_image_multiple_image"/>
+        </collection>
+
+        <!-- 조인된 정보 (리뷰 답글) -->
+        <collection property="reviewRecommends" ofType="com.sixthband.festival.goods.dto.GoodsReviewRecommendDto">
+            <id property="id" column="recommend_id"/>
+            <result property="goods_review_id" column="recommend_goods_review_id"/>
+            <result property="recommend" column="recommend"/>
+            <result property="created_at" column="recommend_created_at"/>
+        </collection>
+        
+        <!-- 조인된 정보 (리뷰 좋아요) -->
+        <collection property="reviewLikes" ofType="com.sixthband.festival.goods.dto.GoodsReviewLikeDto">
+            <id property="id" column="like_id"/>
+            <result property="user_id" column="like_user_id"/>
+            <result property="review_id" column="like_review_id"/>
+            <result property="created_at" column="like_created_at"/>
+        </collection>
+    </resultMap>
+
+    <!--/* admin - row 1줄*/-->
+    <select id="getReviewDetailAll" resultMap="reviewDetailMap">
+        select 
+            gr.id AS review_id, 
+            gr.order_id AS review_order_id,
+            gr.content AS review_content,
+            gr.image AS review_image,
+            gr.rating AS review_rating,
+            gr.created_at AS review_created_at,
+            grdi.id AS detail_image_id,
+            grdi.review_id AS detail_image_review_id,
+            grdi.multiple_image AS detail_image_multiple_image,
+            grr.id AS recommend_id,
+            grr.goods_review_id AS recommend_goods_review_id,
+            grr.recommend AS recommend,
+            grr.created_at AS recommend_created_at,
+            grl.id AS like_id,
+            grl.user_id AS like_user_id,
+            grl.review_id AS like_review_id,
+            grl.created_at AS like_created_at,
+            go2.id AS order_id,
+            go2.user_id AS order_user_id,
+            go2.goods_id AS order_goods_id,
+            go2.goods_order_count AS order_goods_order_count,
+            go2.order_price AS order_price,
+            go2.receiver AS order_receiver,
+            go2.address AS order_address,
+            go2.phone AS order_phone,
+            go2.payment_info AS order_payment_info,
+            go2.request_details AS order_request_details,
+            go2.order_status AS order_status,
+            go2.created_at AS order_created_at,
+            g.id AS goods_id,
+            g.goods_title AS goods_title,
+            su.id AS user_id,
+            su.name AS user_name,
+            su.nickname AS user_nickname,
+            su.phone AS user_phone,
+            su.email as user_email,
+            su.gender as user_gender,
+            su.birth as user_birth,
+            su.account_name as user_account_name,
+            su.created_at as user_created_at
+        from 
+            goods_review gr
+        left join 
+            goods_review_detailImage grdi ON gr.id = grdi.review_id 
+        left join 
+            goods_review_recommend grr ON gr.id = grr.goods_review_id 
+        left join 
+            goods_review_like grl ON gr.id = grl.review_id 
+        left join 
+            goods_order go2 ON gr.order_id = go2.id
+        left join
+            goods g ON go2.goods_id = g.id
+        left join
+            six_user su ON go2.user_id = su.id
+        where
+            gr.id = #{id}
+    </select>
+
+    <select id="countReviewAll" resultType="int">
+        select count(*) from goods_review
+    </select>
+
+    <select id="countOrderAll" resultType="int">
+        select count(*) from goods_order
+    </select>
+
+    <select id="countGoodsAll" resultType="int">
+        select count(*) from goods
+    </select>
+
+    <insert id="insertReviewRecommend">
+        insert into goods_review_recommend(
+            goods_review_id, recommend
+        ) values (
+            #{goods_review_id}, #{recommend}
+        )
+    </insert>
+
+    <!-- Admin ReviewRecommend -->
+    <delete id="deleteReviewRecommend">
+        delete from goods_review_recommend
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteReviewRecommendationsByReviewId">
+        delete from goods_review_recommend
+        where goods_review_id = #{goodsReviewId}
+    </delete>
+
+    <!-- AdminGoodsDetail GoodsResultMap -->
+    <resultMap id="GoodsResultMap" type="com.sixthband.festival.goods.dto.GoodsDto">
+        <id property="id" column="g_id"/>
+        <result property="category_id" column="g_category_id"/>
+        <result property="goods_title" column="goods_title"/>
+        <result property="image" column="image"/>
+        <result property="goods_count" column="goods_count"/>
+        <result property="price" column="price"/>
+        <result property="detail" column="detail"/>
+        <result property="created_at" column="goods_created_at"/>
+
+        <association property="goodsCategoryDto" javaType="com.sixthband.festival.goods.dto.GoodsCategoryDto">
+            <id property="id" column="gc_id"/>
+            <result property="name" column="gc_name"/>
+        </association>
+
+        <collection property="goodsDetailImageDtoList" ofType="com.sixthband.festival.goods.dto.GoodsDetailImageDto">
+            <id property="id" column="gd_id"/>
+            <result property="goods_id" column="goods_id"/>
+            <result property="multiple_image" column="multiple_image"/>
+        </collection>
+
+        <collection property="goodsOrderDtoList" ofType="com.sixthband.festival.goods.dto.GoodsOrderDto">
+            <id property="id" column="go2_id"/>
+            <result property="user_id" column="user_id"/>
+            <result property="goods_id" column="goods_id"/>
+            <result property="goods_order_count" column="goods_order_count"/>
+            <result property="order_price" column="order_price"/>
+            <result property="receiver" column="receiver"/>
+            <result property="address" column="address"/>
+            <result property="phone" column="phone"/>
+            <result property="payment_info" column="payment_info"/>
+            <result property="request_details" column="request_details"/>
+            <result property="order_status" column="order_status"/>
+            <result property="created_at" column="go2_created_at"/>
+            <result property="user_name" column="go2_user_name"/>
+        </collection>
+    </resultMap>
+
+    <select id="getGoodsDetailAll" resultMap="GoodsResultMap">
+        select 
+            g.id as g_id,
+            g.category_id as g_category_id,
+            g.goods_title,
+            g.image,
+            g.goods_count,
+            g.price,
+            g.detail,
+            g.created_at as goods_created_at,
+
+            gd.id as gd_id,
+            gd.goods_id as gd_goods_id,
+            gd.multiple_image,
+
+            go2.id as go2_id,
+            go2.user_id,
+            go2.goods_id as go2_goods_id,
+            go2.goods_order_count,
+            go2.order_price,
+            go2.receiver,
+            go2.address,
+            go2.phone,
+            go2.payment_info,
+            go2.request_details,
+            go2.order_status,
+            go2.created_at as go2_created_at,
+            u.name,
+
+            gc.id as gc_id,
+            gc.name as gc_name
+    
+        from goods g
+            left join goods_detailImage gd on g.id = gd.goods_id
+            left join goods_order go2 on g.id = go2.goods_id
+            left join goods_category gc on g.category_id = gc.id
+            left join six_user u on go2.user_id = u.id
+        where g.id=#{id}
+    </select>
+
+    <!-- Top4 -->
+    <select id="selectOrderTop4" resultType="com.sixthband.festival.goods.dto.GoodsDto">
+        select g.id, g.goods_title ,g.image, g.price, g.created_at, sum(go2.goods_order_count) as total_order_count
+        from goods g 
+        inner join goods_order go2 on g.id = go2.goods_id
+        group by g.id
+        order by total_order_count desc
+        limit 4
+    </select>
+
+    <!-- New6 -->
+    <select id="selectNewItem6" resultType="com.sixthband.festival.goods.dto.GoodsDto">
+        select *
+        from goods
+        order by created_at DESC
+        limit 6
+    </select>
+
+</mapper>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - ServiceTeam</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
+
+    <style>
+
+    </style>
+</head>
+<body class="new-bg-darkgray">
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="d-flex">
+            <!--/* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */-->
+            <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                <div th:replace="~{common/stNavi::leftMenuNavi}"></div>
+            </div>
+
+            <!--/* 우측 컨텐츠 */-->
+            <div class="page-right flex-grow-1">
+                <!--/* 헤더 */-->
+                <div th:replace="~{common/stNavi::topNavi}"></div>
+
+                <!--/* 컨텐츠 */-->
+                <div class="main py-4 px-4">
+                    <div class="row pb-4 align-items-center">
+                        <div class="col fs-5 fw-medium">
+                            <span>Q & A 상세보기</span>
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 py-2 new-fs-9 align-items-center new-bg-darkgray2">
+                        <div class="col-auto pe-0">
+                            <span>작성자 : </span>
+                        </div>
+                        <div class="col-auto">
+                            <span th:text="${serviceQnaDetail.nickname}"></span>
+                        </div>
+                        <div class="col-auto px-0">
+                            <span> | </span>
+                        </div>
+                        <div class="col-auto pe-0">
+                            <span>접수 상태 : </span>
+                        </div>
+                        <div class="col-auto">
+                            <span id="qnaStatusSpan" th:text="${serviceQnaDetail.status}"></span>
+                        </div>
+                        <div class="col-auto px-0">
+                            <span> | </span>
+                        </div>
+                        <div class="col-auto pe-0">
+                            <span>접수일 : </span>
+                        </div>
+                        <div class="col">
+                            <span th:text="${#dates.format(serviceQnaDetail.created_at, 'yyyy-MM-dd HH:mm')}"></span>
+                        </div>
+                    </div>
+
+                    <div class="row pt-3 pb-2">
+                        <div class="col fw-medium">
+                            <span>문의사항 상세</span>
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 new-fs-9 border-top border-black">
+                        <div class="col">
+
+                            <div class="row border-bottom new-border-gray">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">카테고리</div>
+                                <div class="col py-2" th:text="|[${serviceQnaDetail.category_title}]|"></div>
+                            </div>
+
+                            <div class="row border-bottom new-border-gray">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">제목</div>
+                                <div class="col py-2" th:text="${serviceQnaDetail.title}"></div>
+                            </div>
+
+                            <div class="row border-bottom new-border-gray">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">이미지</div>
+                                <div class="col-1 py-2" th:each="e : ${serviceQnaImages}">
+                                    <img class="img-fluid image-thumbnail" th:src="|/images/${e.url}|">
+                                </div>
+                                <div class="col new-text-gray2 py-2" th:if="${serviceQnaImages.size() == 0}">
+                                    <span>이미지가 존재하지 않습니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom border-black">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">내용</div>
+                                <div id="qnaContentDiv" class="col py-2" th:text="${serviceQnaDetail.content}"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row pt-3 pb-2">
+                        <div class="col fw-medium">
+                            <span>답변 상세</span>
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 new-fs-9 border-top border-black" th:if="${isQna == 0}">
+                        <div class="col">
+
+                            <div class="row new-bg-darkgray2">
+                                <div class="col-auto py-1">
+                                    <span>- 등록된 답변이 없습니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row new-bg-darkgray2">
+                                <div class="col-auto py-1">
+                                    <span>- 문의사항에 대해 적절한 답변을 준비해 주시기 바랍니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom new-bg-darkgray2">
+                                <div class="col-auto py-1">
+                                    <span>- 답변을 작성하기 전에 문의 내용을 꼼꼼히 확인해 주세요.</span>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-auto ms-auto text-end py-1 px-0" onclick="answerModalOpen()">
+                                    <span class="btn btn-dark new-fs-9 rounded-0">답변 등록하기</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 new-fs-9 border-top border-black" th:unless="${isQna == 0}">
+                        <div class="col">
+
+                            <div class="row border-bottom new-border-gray">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">답변 내용</div>
+                                <div id="answerDiv" class="col py-2" th:text="${answer.content}"></div>
+                            </div>
+
+                            <div class="row border-bottom new-border-gray">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">이미지</div>
+                                <div class="col-1 py-2" th:each="e : ${answerImages}">
+                                    <img class="img-fluid image-thumbnail" th:src="|/images/${e.url}|">
+                                </div>
+                                <div class="col new-text-gray2 py-2" th:if="${answerImages.size() == 0}">
+                                    <span>이미지가 존재하지 않습니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom border-black">
+                                <div class="col-2 fw-medium py-2 new-bg-darkgray2">작성일</div>
+                                <div class="col py-2" th:text="${#dates.format(answer.created_at, 'yyyy-MM-dd HH:mm')}"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row pt-5">
+                        <div class="col text-center">
+                            <a onclick="history.back()">
+                                <span class="border new-px-25 new-py-25 border-black">목록으로</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!--/* 푸터 */-->
+                <div th:replace="~{common/stNavi::bottomNavi}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--/* 리스트 템플릿 */-->
+<div id="serviceTeamQnAListTemplate" class="d-none">>
+    <div class="serviceTeamQnAListWrapper row py-2 border-bottom new-border-gray new-fs-9 align-items-center">
+        <div class="col-1 text-center new-text-gray2">
+            <span class="qnaIdSpan"></span>
+        </div>
+
+        <div class="col-1 text-center new-text-gray2">
+            <span class="qnaCategoryTitleSpan"></span>
+        </div>
+
+        <div class="col-5">
+            <a class="qnaDetailPageA">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="qnaTitleSpan"></span>
+                    </div>
+                    <div class="qnaIsImageSpan col-auto px-0 d-none">
+                        <span class="d-flex justify-content-center material-symbols-outlined new-fw-thin fs-6 new-text-gray">image</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-2 text-center new-text-gray2">
+            <span class="qnaNameSpan"></span>
+        </div>
+
+        <div class="col-2 text-center new-text-gray2">
+            <span class="qnaCreatedAtSpan"></span>
+        </div>
+
+        <div class="col-1 text-center">
+            <span class="qnaStatusSpan"></span>
+        </div>
+
+    </div>
+</div>
+
+<!--/* 답변 등록 Modal */-->
+<div class="modal fade" id="serviceTeamQnAAnswerInsertModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span class="fs-5 fw-bold">답변 등록</span>
+                </div>
+            </div>
+
+            <form id="qnaAnswerRegisterForm" method="post" enctype="multipart/form-data">
+                <div class="modal-body pt-0">
+
+                    <input type="hidden" name="board_id" id="inputBoardId">
+                    <div class="row pt-2 align-items-center">
+                        <div class="col-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto pe-0 new-text-red">
+                                    <span class="new-fs-75 material-symbols-outlined d-flex justify-content-center">emergency</span>
+                                </div>
+                                <div class="col ps-1">
+                                    <span>답변</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <textarea id="inputContent" name="content" class="form-control" type="text" placeholder="답변을 입력하세요." style="height: 30em;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row pt-2 align-items-center">
+                        <div class="col-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto pe-0 new-text-red">
+<!--                                    <span class="new-fs-75 material-symbols-outlined d-flex justify-content-center">emergency</span>-->
+                                </div>
+                                <div class="col ps-3">
+                                    <span>이미지</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <input id="inputImages" name="inputImages" class="form-control" type="file" multiple accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="row pt-2 align-items-center new-fs-9">
+                        <div class="col new-text-gray">
+                            <span>- 답변을 등록하기 전에 한 번 더 검토해 주시기 바랍니다.</span>
+                        </div>
+                    </div>
+                    <div class="row pt-1 align-items-center new-fs-9">
+                        <div class="col new-text-gray">
+                            <span>- 명확하고 도움이 되는 답변을 제공해 주세요.</span>
+                        </div>
+                    </div>
+                    <div class="row pt-1 align-items-center new-fs-9">
+                        <div class="col fw-semibold new-text-gray">
+                            <span>- 답변을 등록하면 더 이상 수정할 수 없습니다. 작성 전에 최종 검토를 부탁드립니다.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <input onclick="answerModalClose()" type="button" class="btn new-btn-gray px-3" value="취소">
+                    <input onclick="answerSubmit()" type="button" class="btn btn-dark px-3" value="등록하기">
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!--/* 알림 모달... */-->
+<div class="modal fade" id="reviewUpdateDoneModal" tabindex="-1" aria-labelledby="reviewUpdateDoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-center">
+        <div class="modal-content new-text-black" style="width: 20em;">
+
+            <div class="modal-body">
+                <div class="row py-2 align-items-center">
+                    <div class="col fw-bold text-center">
+                        <span id="testAlert"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/public/js/serviceTeam/serviceQnaDetail.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

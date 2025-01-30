@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sixthband.festival.admin.mapper.AdminSqlMapper">
+
+    <select id="selectUserListAll" resultType="com.sixthband.festival.dto.UserDto">
+        select * from six_user
+        where id <![CDATA[>]]>  0
+        order by id desc
+        limit 15 offset #{page};
+    </select>
+
+    <update id="updateUserIsActiveById">
+        update six_user
+        set is_active = 'N'
+        where id = #{id};
+    </update>
+
+    <update id="updateUserIsActiveYById">
+        update six_user
+        set is_active = 'Y'
+        where id = #{id};
+    </update>
+
+    <select id="userCount" resultType="int">
+        select count(*) from six_user;
+    </select>
+
+    <select id="findUserListForDashboard" resultType="com.sixthband.festival.dto.UserDto">
+        SELECT * FROM six_user su 
+        WHERE id <![CDATA[>]]>  0
+        AND is_active = 'Y'
+        ORDER BY id DESC
+        LIMIT 5
+    </select>
+
+    <select id="findSuspendedUserCount" resultType="int">
+        SELECT COUNT(*) FROM six_user
+        WHERE is_active = 'N'
+    </select>
+
+    <select id="findWeeklySalesForDashboard" resultType="map">
+        WITH RECURSIVE DateRange AS (
+            SELECT CURDATE() AS `date`
+            UNION ALL
+            SELECT `date` - INTERVAL 1 DAY
+            FROM DateRange
+            WHERE `date` - INTERVAL 1 DAY <![CDATA[>=]]> CURDATE() - INTERVAL 6 DAY
+        )
+        SELECT 
+            d.`date`,
+            COALESCE(rental.rental_price, 0) AS rental_price,
+            COALESCE(goods.order_price, 0) AS order_price,
+            COALESCE(ticket.ticket_price, 0) AS ticket_price,
+            COALESCE(funding.funding_fee, 0) AS funding_fee,
+            COALESCE(rental.rental_price, 0) + COALESCE(goods.order_price, 0) + COALESCE(ticket.ticket_price, 0) + COALESCE(funding.funding_fee, 0) AS total_price
+        FROM DateRange d
+        LEFT JOIN (
+            SELECT
+                DATE(ro.created_at) AS `date`,
+                SUM(ri.price * ro.count) AS rental_price
+            FROM rental_order ro
+            INNER JOIN rental_item ri ON ro.rental_item_id = ri.id
+            GROUP BY DATE(ro.created_at)
+        ) rental ON d.`date` = rental.`date`
+        LEFT JOIN (
+            SELECT
+                DATE(go.created_at) AS `date`,
+                SUM(go.order_price * go.goods_order_count) AS order_price
+            FROM goods_order go
+            GROUP BY DATE(go.created_at)
+        ) goods ON d.`date` = goods.`date`
+        LEFT JOIN (
+            SELECT 
+                DATE(tb.created_at) AS `date`,
+                SUM(tb.total_price) AS ticket_price
+            FROM ticket_booking tb
+            WHERE tb.payment_status = 'Y'
+            GROUP BY DATE(tb.created_at)
+        ) ticket ON d.`date` = ticket.`date`
+        LEFT JOIN (
+            SELECT
+                DATE(fsd.settlement_date) AS `date`,
+                SUM(fsd.settlement_fee) AS funding_fee
+            FROM funding_settlement_details fsd
+            WHERE settlement_status = '정산완료'
+            GROUP BY DATE(fsd.settlement_date)
+        ) funding ON d.`date` = funding.`date`
+        ORDER BY d.`date`
+    </select>
+
+    <select id="findShopReviewListForDashboard" resultType="map">
+        SELECT 
+            *
+        FROM (
+            SELECT
+                su.nickname, gr.id, gr.content, gr.created_at, '굿즈샵' AS shop_type
+            FROM goods_review gr
+            INNER JOIN goods_order go2 ON gr.order_id = go2.id
+            INNER JOIN six_user su ON go2.user_id = su.id
+        UNION ALL
+            SELECT 
+                su.nickname, rr.id, rr.content, rr.created_at, '대여샵' AS shop_type
+            FROM rental_review rr
+            INNER JOIN six_user su ON rr.user_id = su.id
+        ) AS combined_reviews
+        ORDER BY created_at DESC
+        LIMIT 5
+    </select>
+</mapper>

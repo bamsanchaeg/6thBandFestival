@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th BAND - Admin</title>
+    <link rel="icon" href="/public/img/favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="admin-container">
+            <div class="d-flex">
+                <!--/* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */-->
+                <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                    <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+                </div>
+
+                <!--/* 우측 컨텐츠 */-->
+                <div class="page-right flex-grow-1">
+                    <!--/* 헤더 */-->
+                    <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                    <!--/* 컨텐츠 */-->
+                    <div class="main py-4 px-4">
+                        <!--/* 상품 수정 */-->
+                        <div class="row pb-4">
+                            <div class="col fs-5 fw-bold"><span>굿즈 상품수정</span></div>
+                            <div class="col text-end"><a href="/admin/goods" class="button btn btn-dark">목록</a></div>
+                        </div>
+
+                        <form action="./adminProductModificationProcess" method="post" enctype="multipart/form-data">
+                            <input type="hidden" th:value="${goodsDataMap.goodsDto.id}" name="id">
+                            <div class="row">
+                                <div class="col-1">
+                                    상품명
+                                </div>
+                                <div class="col-11 pb-2">
+                                    <input th:value="${goodsDataMap.goodsDto.goods_title}" type="text" name="goods_title" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-1">
+                                    카테고리
+                                </div>
+                                <div class="col-11 pb-2">
+                                    <select class="form-select" aria-label="Default select example" name="category_id">
+                                        <option th:each="goodsCategory : ${categoryListData}" th:value="${goodsCategory.id}" th:text="${goodsCategory.name}" 
+                                        th:selected="${goodsCategory.id} == ${goodsDataMap.goodsDto.category_id}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-1">
+                                    대표이미지
+                                </div>
+                                <div class="col-11 pb-2">
+                                    <input th:value="${goodsDataMap.goodsDto.image}" type="file" name="mainImage" accept="image/*" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-1">
+                                    상세이미지
+                                </div>
+                                <div class="col-11 pb-2">
+                                    <input type="file" name="uploadImage" multiple accept="image/*" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-1">
+                                    수량
+                                </div>
+                                <div class="col-11 pb-2">
+                                    <input th:value="${goodsDataMap.goodsDto.goods_count}" type="text" name="goods_count" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-1">
+                                    가격
+                                </div>
+                                <div class="col-11 pb-2">
+                                    <input th:value="${goodsDataMap.goodsDto.price}" type="text" name="price" class="form-control">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-1">
+                                    상품설명
+                                </div>
+                                <div class="col-11">
+                                    <textarea th:text="${goodsDataMap.goodsDto.detail}" name="detail" class="form-control new-h-150"></textarea>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col text-end py-3">
+                                    <button class="btn btn-dark">상품수정</button>
+                                </div>
+                            </div>
+                        </form>
+
+                    </div>
+
+                    </div>
+
+                    <!--/* 푸터 */-->
+                    <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

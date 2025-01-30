@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+
+    <style>
+        .form-check-input:checked {
+            background-color: black;
+            border-color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="d-flex">
+            <!-- /* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */ -->
+            <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+            </div>
+
+            <!-- /* 우측 컨텐츠 */ -->
+            <div class="page-right flex-grow-1">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                <!-- /* 컨텐츠 */ -->
+                <div class="main py-4 px-4">
+                    <div class="row pb-4">
+                        <div class="col fs-5 fw-medium">
+                            <span>회원 관리</span>
+                        </div>
+                    </div>
+
+                    <!--/* 검색 가라 */-->
+                    <form action="" method="get">
+                        <div class="row new-py-25 new-bg-gray border new-fs-9">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col-1">
+                                        <div class="new-px-25 fw-medium">활동 여부</div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="d-flex flex-wrap">
+                                            <div class="form-check me-4">
+                                                <input type="radio" name="is_active" value="Y" class="form-check-input">
+                                                <label class="form-check-label">
+                                                    <span class="new-fs-9">활동</span>
+                                                </label>
+                                            </div>
+                                            <div class="form-check me-4">
+                                                <input type="radio" name="is_active" value="N" class="form-check-input">
+                                                <label class="form-check-label">
+                                                    <span class="new-fs-9">활동 정지</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pt-2">
+                                    <div class="col-1">
+                                        <div class="new-px-25 fw-medium">검색</div>
+                                    </div>
+                                    <div class="col-1 pe-0">
+                                        <div class="">
+                                            <select name="searchOption" class="form-select new-w-150 py-1 rounded-0 new-fs-8">
+                                                <option value="nickname">아이디</option>
+                                                <option value="title">닉네임</option>
+                                                <option value="title">이메일</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-9 d-grid">
+                                        <input name="searchWord" type="text" class="form-control py-1 rounded-0 new-fs-8">
+                                    </div>
+                                    <div class="col-1 ps-0">
+                                        <button class="btn new-bg-dark new-w-150 py-1 px-4 rounded-0 new-fs-8 text-white">검색하기</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <div class="row py-2">
+                        <div class="col new-fs-9">
+                            총 <span class="fs-6 new-text-black fw-bold" th:text="${userCount}">0</span>명
+                        </div>
+
+                        <div class="col-auto ms-auto text-end">
+                            <div class="list-sort">
+                                <button type="button" class="new-btn-none d-flex align-items-center ps-2" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="fw-medium new-fs-9 lh-1">최신순</span>
+                                    <span class="material-symbols-outlined ps-2 fs-5">arrow_drop_down</span>
+                                </button>
+                                <div class="dropdown">
+                                    <ul class="dropdown-menu custom-shadow new-fs-9" >
+                                        <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start">번호순</button></li>
+                                        <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start">가입일순</button></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row fw-medium text-center py-2 border-top border-black new-fs-9 new-bg-gray">
+                        <div class="col-1">번호</div>
+
+                        <div class="col-2">아이디</div>
+
+                        <div class="col-1">닉네임</div>
+
+                        <div class="col-1">생년월일</div>
+
+                        <div class="col-2">이메일</div>
+
+                        <div class="col-2">핸드폰 번호</div>
+
+                        <div class="col-1">가입일</div>
+
+                        <div class="col-1">활동여부</div>
+
+                        <div class="col-1">관리</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+
+                            <div id="userListBox">
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination justify-content-center">
+                                    <li class="page-item">
+                                        <a class="page-link new-text-black rounded-0" id="backPageButton" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="page-item">
+                                        <a class="page-link new-text-black rounded-0" id="nextPageButton" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- /* 푸터 */ -->
+                <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 회원리스트 템플릿 -->
+<div id="userListTemplate" class="d-none">
+    <div class="userListWrapper row py-2 border-bottom new-fs-9">
+        <div class="col-1 text-center new-text-gray">
+            <span class="userIdSpan">회원번호</span>
+        </div>
+
+        <div class="col-2">
+            <span class="userAccountNameSpan">회원아이디</span>
+        </div>
+
+        <div class="col-1">
+            <span class="userNickNameSpan ellipsis-line-one">회원닉네임</span>
+        </div>
+
+        <div class="col-1 text-center new-text-gray">
+            <span class="userBirthSpan">생년월일</span>
+        </div>
+
+        <div class="col-2">
+            <span class="userEmailSpan">회원이메일</span>
+        </div>
+
+        <div class="col-2">
+            <span class="userPhoneNumberSpan">회원휴대폰번호</span>
+        </div>
+
+        <div class="col-1 text-center new-text-gray">
+            <span class="userCreatedAtSpan">회원가입일</span>
+        </div>
+
+        <div class="col-1 text-center">
+            <span class="userIsActiveSpan"></span>
+        </div>
+        <div class="col">
+            <span class="d-flex justify-content-center material-symbols-outlined text-danger userDisabledSpan"></span>
+        </div>
+    </div>
+</div>
+
+<!-- 알림 모달... -->
+<div class="modal fade" id="reviewUpdateDoneModal" tabindex="-1" aria-labelledby="reviewUpdateDoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-center">
+        <div class="modal-content new-text-black" style="width: 20em;">
+
+            <div class="modal-body">
+                <div class="row py-2 align-items-center">
+                    <div class="col fw-bold text-center">
+                        <span id="testAlert"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/public/js/admin/userControl.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

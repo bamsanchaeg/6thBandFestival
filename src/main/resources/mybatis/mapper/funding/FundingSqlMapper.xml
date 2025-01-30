@@ -1,0 +1,1488 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sixthband.festival.funding.mapper.FundingSqlMapper">
+<!-- 카테고리 -->
+    <select id="findProjectCategoryList" resultType="com.sixthband.festival.funding.dto.FundingProjectCategoryDto">
+        SELECT * FROM funding_project_category
+        ORDER BY id ASC
+    </select>
+
+<!-- 프로젝트 -->
+    <insert id="createFundingProjectDto">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            SELECT MAX(id) FROM funding_project
+        </selectKey>
+        INSERT INTO funding_project(
+            user_id, category_id, project_desc
+        ) VALUES(
+            #{user_id}, #{category_id}, #{project_desc}
+        )
+    </insert>
+    <update id="updateFundingProjectDto">
+        UPDATE funding_project
+        <set>
+            <if test="category_id != null and category_id != 0">category_id = #{category_id},</if>
+            <if test="project_title != null">project_title = #{project_title},</if>
+            <if test="project_desc != null">project_desc = #{project_desc},</if>
+            <if test="thumbnail_location != null">thumbnail_location = #{thumbnail_location},</if>
+            <if test="youtube_url != null">youtube_url = #{youtube_url},</if>
+            <if test="expect_amount != null and expect_amount != 0">expect_amount = #{expect_amount},</if>
+            <if test="start_at != null">start_at = #{start_at},</if>
+            <if test="end_at != null">end_at = #{end_at},</if>
+            <if test="project_introduce != null and project_introduce != ''">project_introduce = #{project_introduce},</if>
+            <if test="budget_desc != null and budget_desc != ''">budget_desc = #{budget_desc},</if>
+            <if test="schedule_desc != null and schedule_desc != ''">schedule_desc = #{schedule_desc},</if>
+            <if test="team_desc != null and team_desc != ''">team_desc = #{team_desc},</if>
+            <if test="reward_desc != null and reward_desc != ''">reward_desc = #{reward_desc},</if>
+            <if test="status != null">status = #{status}</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <!-- 단일 찾기 -->
+    <select id="findFundingProjectDto" resultType="com.sixthband.festival.funding.dto.FundingProjectDto">
+        SELECT * FROM funding_project
+        WHERE id = #{id}
+    </select>
+    <!-- id, 마감일만 가져오기 -->
+    <select id="findFundingProjectEndAt" resultType="map">
+        SELECT id, end_at FROM funding_project
+        WHERE id = #{id}
+    </select>
+    <!-- 프로젝트 썸네일만 가져오기 -->
+    <select id="findFundingProjectThumbnailLocation" resultType="java.lang.String">
+        SELECT 
+            thumbnail_location 
+        FROM funding_project fp
+        WHERE id = #{id}
+    </select>
+    <!-- 목록 : 회원별 -->
+    <select id="findProjectCreatedByUserId" resultType="com.sixthband.festival.funding.dto.FundingProjectDto">
+        SELECT * FROM funding_project
+        WHERE user_id = #{user_id}
+        <if test="status != null and status != ''">
+            <choose>
+                <when test="status != '종료'">AND status = #{status}</when>
+                <when test="status == '종료'">AND status IN ('성공', '무산')</when>
+            </choose>
+        </if>
+        ORDER BY id DESC
+    </select>
+    <select id="findProjectCreatedCountByUserId" resultType="int">
+        SELECT COUNT(*) FROM funding_project
+        WHERE user_id = #{user_id}
+        <if test="status != null and status != ''">
+            <choose>
+                <when test="status != '종료'">AND status = #{status}</when>
+                <when test="status == '종료'">AND status IN ('성공', '무산')</when>
+            </choose>
+        </if>
+    </select>
+    <!-- 프로젝트 기획별 작성 진행 상황 가져오기 -->
+    <select id="findProjectStatus" resultType="map">
+        SELECT 
+            fp.id,
+            fp.status AS projectStatus,
+            CASE
+                WHEN fp.category_id IS NULL 
+                    AND fp.project_title IS NULL
+                    AND fp.project_desc IS NULL
+                    AND fp.thumbnail_location IS NULL
+                    THEN '작성전'
+                WHEN fp.category_id IS NOT NULL 
+                    AND fp.project_title IS NOT NULL
+                    AND fp.project_desc IS NOT NULL
+                    AND fp.thumbnail_location IS NOT NULL
+                    THEN '작성완료'
+                ELSE '작성중'
+            END AS defaultStatus,
+            CASE
+                WHEN fp.expect_amount IS NULL 
+                    AND fp.start_at IS NULL
+                    AND fp.end_at IS NULL
+                    THEN '작성전'
+                WHEN fp.expect_amount IS NOT NULL 
+                    AND fp.start_at IS NOT NULL
+                    AND fp.end_at IS NOT NULL
+                    THEN '작성완료'
+                ELSE '작성중'
+            END AS fundingStatus,
+            CASE
+                WHEN fp.project_introduce IS NULL 
+                    AND fp.budget_desc IS NULL
+                    AND fp.schedule_desc IS NULL
+                    AND fp.team_desc IS NULL
+                    AND fp.reward_desc IS NULL
+                    THEN '작성전'
+                WHEN fp.project_introduce IS NOT NULL 
+                    AND fp.budget_desc IS NOT NULL
+                    AND fp.schedule_desc IS NOT NULL
+                    AND fp.team_desc IS NOT NULL
+                    AND fp.reward_desc IS NOT NULL
+                    THEN '작성완료'
+                ELSE '작성중'
+            END AS storyStatus,
+            CASE
+                WHEN fpc.creator_name IS NULL 
+                    AND fpc.profile_location IS NULL
+                    AND fpc.introduce IS NULL
+                    AND fpc.bank_name IS NULL
+                    AND fpc.account_holder IS NULL
+                    AND fpc.account_number IS NULL
+                    AND fpc.account_birth IS NULL
+                    THEN '작성전'
+                WHEN fpc.creator_name IS NOT NULL 
+                    AND fpc.profile_location IS NOT NULL
+                    AND fpc.introduce IS NOT NULL
+                    AND fpc.bank_name IS NOT NULL
+                    AND fpc.account_holder IS NOT NULL
+                    AND fpc.account_number IS NOT NULL
+                    AND fpc.account_birth IS NOT NULL
+                    THEN '작성완료'
+                ELSE '작성중'
+            END AS creatorStatus,
+            CASE
+                WHEN COALESCE(fpi.item_count, 0) &gt; 0 AND COALESCE(fpr.reward_count, 0) &gt; 0 THEN '작성완료'
+                WHEN COALESCE(fpi.item_count, 0) &gt; 0 OR COALESCE(fpr.reward_count, 0) &gt; 0 THEN '작성중'
+                ELSE '작성전'
+            END AS rewardStatus
+        FROM funding_project fp
+        LEFT JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        LEFT JOIN (
+            SELECT project_id, COUNT(*) AS item_count FROM funding_project_item GROUP BY project_id
+        ) fpi
+        ON fp.id = fpi.project_id
+        LEFT JOIN (
+            SELECT project_id, COUNT(*) AS reward_count FROM funding_project_reward GROUP BY project_id
+        ) fpr
+        ON fp.id = fpr.project_id
+        WHERE fp.id = #{id}
+        ORDER BY fp.id DESC
+    </select>
+    <delete id="deleteProjectDto">
+        DELETE FROM funding_project WHERE id = #{id}
+    </delete>
+    <!-- 상태 변경 -->
+    <update id="updateProjectStatus">
+        UPDATE funding_project
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+    <!-- 프로젝트 단일 : 카테고리명, 회원 id 포함 -->
+    <select id="findProjectData" resultType="map">
+        SELECT 
+            fp.*,
+            DATEDIFF(fp.end_at, CURDATE()) AS rest_day,
+            TIMESTAMPDIFF(HOUR, NOW(), fp.end_at) AS rest_hour,
+            TIMESTAMPDIFF(MINUTE, NOW(), fp.end_at) AS rest_minutes,
+            fpc.name AS category_name,
+            su.account_name AS user_account
+        FROM funding_project fp
+        INNER JOIN funding_project_category fpc ON fp.category_id = fpc.id
+        INNER JOIN six_user su ON fp.user_id = su.id
+        WHERE fp.id = #{id}
+    </select>
+    <!-- 프로젝트 일부 : 타이틀, 카테고리명, 창작자명, 썸네일 -->
+    <select id="findProjectDataForPledge" resultType="map">
+        SELECT 
+            fp.id, fp.project_title, fp.thumbnail_location, fp.status AS project_status, fp.user_id,
+            fpc.name AS category_name,
+            fpc2.creator_name,
+            su.account_name AS user_account, su.nickname AS user_nickname
+        FROM funding_project fp
+        INNER JOIN funding_project_category fpc ON fp.category_id = fpc.id
+        INNER JOIN funding_project_creator fpc2 ON fp.user_id = fpc2.user_id
+        INNER JOIN six_user su ON fp.user_id = su.id
+        WHERE fp.id = #{id}
+    </select>
+    <!-- 프로젝트 일부 by support_id : 타이틀, 카테고리명, 창작자명, 썸네일 + 마감일 -->
+    <select id="findProjectDataForPledgeBySupportId" resultType="map">
+        SELECT
+            fp.id, fp.project_title, fp.thumbnail_location, fp.end_at, fp.status AS project_status,
+            DATEDIFF(fp.end_at, CURDATE()) AS rest_day,
+            TIMESTAMPDIFF(HOUR, NOW(), fp.end_at) AS rest_hour,
+            TIMESTAMPDIFF(MINUTE, NOW(), fp.end_at) AS rest_minutes,
+            fpc.name AS category_name,
+            fpc2.creator_name
+        FROM funding_project fp
+        INNER JOIN funding_project_category fpc ON fp.category_id = fpc.id
+        INNER JOIN funding_project_creator fpc2 ON fp.user_id = fpc2.user_id
+        WHERE fp.id = (
+            SELECT fpr.project_id FROM funding_project_reward fpr
+            WHERE id IN (
+                SELECT fsr.reward_id FROM funding_support_reward fsr
+                WHERE fsr.support_id = #{supportId}
+            )
+            GROUP BY fpr.project_id
+        )
+    </select>
+    <!-- 프로젝트 : 작성중인 프로젝트의 최대 키값 -->
+    <select id="findDraftProjectMaxId" resultType="int">
+        SELECT COALESCE(MAX(id), 0) AS max_id FROM funding_project
+        WHERE user_id = #{user_id} 
+        AND status = '작성중'
+    </select>
+    <!-- 프로젝트 첨부파일 : 공용 -->
+    <insert id="createProjectDescFile">
+        INSERT INTO ${file_table} (
+            project_id, location
+        ) VALUES(
+            #{projectDescFileDto.project_id}, #{projectDescFileDto.location}
+        )
+    </insert>
+    <select id="findProjectDescFileList" resultType="com.sixthband.festival.funding.dto.FundingProjectDescFileDto">
+        SELECT * From ${file_table}
+        WHERE project_id = #{project_id}
+        ORDER BY id ASC
+    </select>
+    <delete id="deleteProjectDescFile">
+        DELETE FROM ${file_table}
+        WHERE project_id = #{project_id}
+    </delete>
+
+<!-- 프로젝트 관리 : 대시보드 -->
+    <!-- 일일 누적 후원금 -->
+    <select id="findDailyAmountByProjectId" resultType="map">
+        WITH RECURSIVE DateRange AS (
+            SELECT DATE(fp.start_at) AS support_date, 0 AS day_num
+            FROM funding_project fp
+            WHERE fp.id = #{project_id}
+            UNION ALL
+            SELECT DATE_ADD(support_date, INTERVAL 1 DAY), day_num + 1
+            FROM DateRange
+            WHERE support_date <![CDATA[<]]> LEAST(CURDATE(), (SELECT DATE(fp.end_at) FROM funding_project fp WHERE fp.id = #{project_id}))
+        )
+        SELECT
+            dr.support_date,
+            CONCAT(day_num, '일차') AS day_label,
+            COALESCE(rt1.project_id, #{project_id}) AS project_id,
+            COALESCE(SUM(rt1.reward_total), 0) AS daily_amount,
+            SUM(COALESCE(SUM(rt1.reward_total), 0)) OVER (PARTITION BY COALESCE(rt1.project_id, #{project_id}) ORDER BY dr.support_date) AS cumulative_amount
+        FROM DateRange dr
+        LEFT JOIN (
+            SELECT 
+                fp.id AS project_id, 
+                fsr.support_id,
+                (fsr.quantity * fpr.amount) AS reward_total,
+                DATE(fs.created_at) AS support_date
+            FROM funding_project fp 
+            INNER JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+            INNER JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+            INNER JOIN funding_support fs ON fsr.support_id = fs.id
+            WHERE fs.status IN ('예약', '무산')
+            AND fp.id = #{project_id}
+        ) rt1 ON dr.support_date = rt1.support_date
+        GROUP BY dr.support_date, day_num, rt1.project_id
+        ORDER BY dr.support_date
+    </select>
+    <!-- 후원자 성별 비율 -->
+    <select id="findSupportCountByGender" resultType="map">
+        SELECT
+            su.gender, 
+            COUNT(DISTINCT fs.id) AS gender_count,
+            ROUND(COUNT(DISTINCT fs.id)/t1.total_count * 100, 2) as gender_percentage 
+        FROM funding_support fs 
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id 
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN six_user su ON fs.user_id = su.id 
+        INNER JOIN (
+            SELECT
+                fpr.project_id,
+                COUNT(DISTINCT fs.id) AS total_count
+            FROM funding_support fs 
+            INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id 
+            INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+            INNER JOIN six_user su ON fs.user_id = su.id 
+            WHERE fs.status IN ('예약', '무산')
+            AND fpr.project_id = #{project_id}
+        ) t1 ON fpr.project_id = t1.project_id
+        WHERE fs.status IN ('예약', '무산')
+        AND fpr.project_id = #{project_id}
+        GROUP BY su.gender, t1.total_count
+        ORDER BY su.gender
+    </select>
+    <!-- 후원자 나이대 비율 -->
+    <select id="findSupportCountByAgeGroup" resultType="map">
+        SELECT
+            CASE 
+                WHEN (YEAR(CURDATE()) - YEAR(su.birth)) <![CDATA[<]]> 10 THEN '10대 이하'
+                ELSE CONCAT(FLOOR((YEAR(CURDATE()) - YEAR(su.birth)) / 10) * 10, '대')
+            END AS age_group,
+            COUNT(DISTINCT fs.id) AS age_group_count,
+            ROUND(COUNT(DISTINCT fs.id) / t1.total_count * 100, 2) AS age_group_percentage
+        FROM funding_support fs 
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id 
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN six_user su ON fs.user_id = su.id 
+        INNER JOIN (
+            SELECT
+                fpr.project_id,
+                COUNT(DISTINCT fs.id) AS total_count
+            FROM funding_support fs 
+            INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id 
+            INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+            INNER JOIN six_user su ON fs.user_id = su.id 
+            WHERE fs.status IN ('예약', '무산')
+            AND fpr.project_id = #{project_id}
+        ) t1 ON fpr.project_id = t1.project_id
+        WHERE fs.status IN ('예약', '무산')
+        AND fpr.project_id = #{project_id}
+        GROUP BY age_group, t1.total_count
+        ORDER BY 
+            CASE 
+                WHEN (YEAR(CURDATE()) - YEAR(su.birth)) <![CDATA[<]]> 10 THEN 0
+                ELSE FLOOR((YEAR(CURDATE()) - YEAR(su.birth)) / 10)
+            END;
+    </select>
+
+    <!-- 프로젝트 목록 - 상품리스트 : 정렬 추가 -->
+    <select id="findProjectDataList" resultType="com.sixthband.festival.funding.dto.ProjectListDataDto">
+        SELECT
+            fp.id, fp.category_id, fp.project_title, fp.thumbnail_location, fp.expect_amount, fp.start_at, fp.status, fp.read_count, fp.end_at, 
+            DATEDIFF(fp.end_at, CURDATE()) AS rest_day,
+            TIMESTAMPDIFF(HOUR, NOW(), fp.end_at) AS rest_hour,
+            TIMESTAMPDIFF(MINUTE, NOW(), fp.end_at) AS rest_minutes,
+            fpc.creator_name, 
+            fpc2.name AS category_name,
+            COALESCE(fs_counts.total_support_count, 0) AS total_support_count,
+            COALESCE(fs_counts.total_amount, 0) AS total_amount
+        FROM funding_project fp
+        INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        INNER JOIN funding_project_category fpc2 ON fp.category_id = fpc2.id
+        LEFT JOIN (
+            SELECT 
+                rt1.project_id,
+                COUNT(DISTINCT CASE WHEN fs.status IN ('예약', '무산') THEN fs.id END) AS total_support_count,
+                SUM(rt1.reward_total) AS total_amount
+            FROM (
+                SELECT 
+                    fp.id AS project_id, fsr.support_id, 
+                    (fsr.quantity * fpr.amount) AS reward_total
+                FROM funding_project fp 
+                INNER JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+                INNER JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+            ) rt1
+            INNER JOIN funding_support fs ON rt1.support_id = fs.id
+            WHERE fs.status IN ('예약', '무산')
+            GROUP BY rt1.project_id
+        ) fs_counts ON fp.id = fs_counts.project_id
+        <where>
+            fp.status IN ('진행중', '성공', '무산')
+            <if test="category_id != null ">AND fp.category_id = #{category_id}</if>
+        </where>
+        ORDER BY 
+        CASE 
+            WHEN fp.status = '진행중' THEN 1
+            WHEN fp.status = '성공' THEN 2
+            WHEN fp.status = '무산' THEN 3
+            ELSE 4
+        END,
+        <if test="sort == 2">total_support_count DESC,</if>
+        <if test="sort == 3">total_amount DESC,</if>
+        <if test="sort == 4">fp.end_at ASC,</if>
+        fp.id DESC
+        LIMIT #{pageIndex}, 10
+    </select>
+    <!-- 프로젝트 목록 - 상품리스트 개수 : 정렬 무관한 테이블로만 적용 -->
+    <select id="findProjectDataListCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM funding_project fp
+        INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        INNER JOIN funding_project_category fpc2 ON fp.category_id = fpc2.id 
+        <where>
+            fp.status IN ('진행중', '성공', '무산')
+            <if test="category_id != null ">AND fp.category_id = #{category_id}</if>
+        </where>
+    </select>
+    <!-- 프로젝트 후원 상태 출력 -->
+    <select id="findProjectPledgeStatusByProjectId" resultType="com.sixthband.festival.funding.dto.ProjectPledgeStatusDto">
+        SELECT
+            rt1.project_id, rt1.expect_amount,
+            COUNT(DISTINCT CASE WHEN fs.status IN ('예약', '무산') THEN fs.id END) AS fs_count,
+            SUM(rt1.reward_total) AS total_amount,
+            FLOOR((SUM(rt1.reward_total) / rt1.expect_amount)*100) AS percentage
+        FROM (
+            SELECT 
+                fp.id AS project_id, fp.project_title, fp.expect_amount, 
+                fsr.support_id, (fsr.quantity * fpr.amount) AS reward_total
+            FROM funding_project fp 
+            INNER JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+            INNER JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+        ) rt1
+        INNER JOIN funding_support fs ON rt1.support_id = fs.id
+        WHERE fs.status IN ('예약', '무산')
+        AND rt1.project_id = #{project_id}
+        GROUP BY rt1.project_id
+    </select>
+    <!-- 프로젝트 : 조회수 증가 -->
+    <update id="increaseReadCount">
+        UPDATE funding_project
+        SET read_count = read_count + 1
+        WHERE id = #{id}
+    </update>
+
+<!-- 관심 프로젝트 -->
+    <insert id="createProjectLike">
+        INSERT INTO funding_project_like(
+            project_id, user_id
+        ) VALUES(
+            #{project_id}, #{user_id}
+        );
+    </insert>
+    <delete id="deleteProjectLike">
+        DELETE FROM funding_project_like
+        WHERE project_id = #{project_id}
+        AND user_id = #{user_id}
+    </delete>
+    <!-- 관심 유무 -->
+    <select id="findProjectLikeByProjectIdAndUserId">
+        SELECT COUNT(*) FROM funding_project_like
+        WHERE project_id = #{project_id}
+        AND user_id = #{user_id}
+    </select>
+    <!-- 관심 개수 : 프로젝트 별 -->
+    <select id="findProjectLikeCountByProjectId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_like
+        WHERE project_id = #{project_id}
+    </select>
+    <!-- 관심 프로젝트 : 정보 포함 -->
+    <select id="findProjectLikeDataListByUserId" resultType="com.sixthband.festival.funding.dto.ProjectListDataDto">
+        SELECT
+            fp.id, fp.category_id, fp.project_title, fp.thumbnail_location, fp.expect_amount, fp.start_at, fp.status, fp.read_count, fp.end_at, 
+            DATEDIFF(fp.end_at, CURDATE()) AS rest_day,
+            TIMESTAMPDIFF(HOUR, NOW(), fp.end_at) AS rest_hour,
+            TIMESTAMPDIFF(MINUTE, NOW(), fp.end_at) AS rest_minutes,
+            fpc.creator_name, 
+            fpc2.name AS category_name
+        FROM funding_project fp
+        INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        INNER JOIN funding_project_category fpc2 ON fp.category_id = fpc2.id 
+        WHERE fp.status IN ('진행중', '성공', '무산')
+        AND fp.id IN (
+            SELECT project_id FROM funding_project_like WHERE user_id = #{user_id}
+        )
+        ORDER BY 
+        CASE 
+            WHEN fp.status = '진행중' THEN 1
+            WHEN fp.status = '성공' THEN 2
+            WHEN fp.status = '무산' THEN 3
+            ELSE 4
+        END,
+        fp.id DESC
+    </select>
+    <!-- 관심 프로젝트 : 개수 -->
+    <select id="findProjectLikeDataListCountByUserId" resultType="int">
+        SELECT
+            COUNT(*) 
+        FROM funding_project fp
+        INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        INNER JOIN funding_project_category fpc2 ON fp.category_id = fpc2.id 
+        WHERE fp.status IN ('진행중', '성공', '무산')
+        AND fp.id IN (
+            SELECT project_id FROM funding_project_like WHERE user_id = #{user_ic}
+        )
+    </select>
+    <!-- 추천 프로젝트 : 후원 완료 페이지 -->
+    <select id="findRecommendProjectDataList" resultType="com.sixthband.festival.funding.dto.ProjectListDataDto">
+        SELECT
+            fp.id, fp.category_id, fp.project_title, fp.thumbnail_location, fp.expect_amount, fp.start_at, fp.status, fp.read_count, fp.end_at, 
+            DATEDIFF(fp.end_at, CURDATE()) AS rest_day,
+            TIMESTAMPDIFF(HOUR, NOW(), fp.end_at) AS rest_hour,
+            TIMESTAMPDIFF(MINUTE, NOW(), fp.end_at) AS rest_minutes,
+            fpc.creator_name, 
+            fpc2.name AS category_name
+        FROM funding_project fp
+        INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        INNER JOIN funding_project_category fpc2 ON fp.category_id = fpc2.id
+        WHERE fp.status = '진행중'
+        ORDER BY
+            CASE 
+                WHEN fp.category_id = #{category_id} THEN 1
+                ELSE 2
+            END,
+            fp.category_id ASC
+        LIMIT 10
+    </select>
+
+<!-- 창작자 -->
+    <insert id="createProjectCreatorDto">
+        INSERT INTO funding_project_creator(
+            user_id, creator_name, profile_location, introduce, bank_name, account_number, account_holder, account_birth
+        ) values(
+            #{user_id}, #{creator_name}, #{profile_location}, #{introduce}, #{bank_name}, #{account_number}, #{account_holder}, #{account_birth}
+        )
+    </insert>
+    <update id="updateProjectCreatorDto">
+        UPDATE funding_project_creator
+        <set>
+            <if test="creator_name != null and creator_name != ''">creator_name = #{creator_name},</if>
+            <if test="profile_location != null and profile_location != ''">profile_location = #{profile_location},</if>
+            <if test="introduce != null and introduce != ''">introduce = #{introduce},</if>
+            <if test="bank_name != null and bank_name != ''">bank_name = #{bank_name},</if>
+            <if test="account_number != null and account_number != ''">account_number = #{account_number},</if>
+            <if test="account_holder != null and account_holder != ''">account_holder = #{account_holder},</if>
+            <if test="account_birth != null and account_birth != ''">account_birth = #{account_birth}</if>
+        </set>
+        WHERE user_id = #{user_id}
+    </update>
+    <!-- 창작자 : 확인 -->
+    <select id="findProjectCreatorByUserId">
+        SELECT COUNT(*) FROM funding_project_creator WHERE user_id = #{user_id}
+    </select>
+    <!-- 창작자 : 단일 정보 -->
+    <select id="findProjectCreatorDto" resultType="com.sixthband.festival.funding.dto.FundingProjectCreatorDto">
+        SELECT * FROM funding_project_creator WHERE user_id = #{user_id}
+    </select>
+    <!-- 프로젝트 창작자 확인 -->
+    <select id="findProjectCreatorByIdAndUserId" resultType="int">
+        SELECT COUNT(*) FROM funding_project fp
+        WHERE id = #{id}
+        AND user_id = #{user_id}
+    </select>
+
+<!-- 아이템 -->
+    <insert id="createProjectItemDto">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            SELECT MAX(id) FROM funding_project_item
+        </selectKey>
+        INSERT INTO funding_project_item(
+            project_id, name, option_type
+        ) VALUES(
+            #{project_id}, #{name}, #{option_type}
+        )
+    </insert>
+    <!-- 아이템 개수 -->
+    <select id="findProjectItemCountByProjectId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_item WHERE project_id = #{project_id}
+    </select>
+    <!-- 아이템 출력 : 프로젝트별 -->
+    <select id="findProjectItemByProjectId" resultType="com.sixthband.festival.funding.dto.FundingProjectItemDto">
+        SELECT * FROM funding_project_item 
+        WHERE project_id = #{project_id}
+        ORDER BY id ASC
+    </select>
+    <!-- 아이템 출력 : 선택한 항목 -->
+    <select id="findProjectItemById" resultType="com.sixthband.festival.funding.dto.FundingProjectItemDto">
+        SELECT * FROM funding_project_item
+        WHERE id IN
+        <foreach collection="idList" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <!-- 아이템 출력 : 선물에 포함된 아이템 목록 -->
+    <select id="findProjectItemByRewardId" resultType="com.sixthband.festival.funding.dto.FundingProjectItemDto">
+        SELECT * FROM funding_project_item 
+        WHERE id IN (
+            SELECT item_id FROM funding_project_reward_item
+            WHERE reward_id = #{reward_id}
+        )
+    </select>
+    <!-- 아이템 출력 : option_id 로 단일값 정보 가져오기 -->
+    <select id="findProjectItemByOptionId" resultType="com.sixthband.festival.funding.dto.FundingProjectItemDto">
+        SELECT * FROM funding_project_item
+        WHERE id = (
+            SELECT item_id FROM funding_project_item_option
+            WHERE id = #{option_id}
+        )
+    </select>
+    <delete id="deleteProjectItem">
+        DELETE FROM funding_project_item WHERE id = #{id}
+    </delete>
+    <delete id="deleteProjectItemByProjectId">
+        DELETE FROM funding_project_item WHERE project_id = #{project_id}
+    </delete>
+<!-- 아이템 옵션 -->
+    <insert id="createProjectItemOptionDto">
+        INSERT INTO funding_project_item_option(
+            item_id, option_name
+        ) VALUES(
+            #{item_id}, #{option_name}
+        )
+    </insert>
+    <!-- 아이템 옵션 출력 : 단일 -->
+    <select id="findProjectItemOptionDto" resultType="com.sixthband.festival.funding.dto.FundingProjectItemOptionDto">
+        SELECT * FROM funding_project_item_option WHERE id = #{id};
+    </select>
+    <!-- 아이템 옵션 출력 : 아이템별 -->
+    <select id="findProjectItemOptionByItemId" resultType="com.sixthband.festival.funding.dto.FundingProjectItemOptionDto">
+        SELECT * FROM funding_project_item_option 
+        WHERE item_id = #{item_id}
+        ORDER BY id ASC
+    </select>
+    <select id="findProjectItemOptionCountByItemId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_item_option WHERE item_id = #{item_id}
+    </select>
+    <!-- 아이템 옵션 : 선택한 아이템의 선택한 옵션 -->
+    <select id="findProjectItemOptionByItemIdAndInId" resultType="com.sixthband.festival.funding.dto.FundingProjectItemOptionDto">
+        SELECT * FROM funding_project_item_option 
+        WHERE item_id = #{item_id}
+        AND id IN
+        <foreach collection="optionIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <!-- 아이템 옵션 : 후원한 아이템 옵션 -->
+    <select id="findProjectItemOptionByItemIdAndSupportRewardId" resultType="com.sixthband.festival.funding.dto.ProjectPledgeItemOptionDto">
+        SELECT
+            fsip.*,
+            fpio.option_name, fpio.item_id
+        FROM funding_support_item_option fsip
+        INNER JOIN funding_project_item_option fpio ON fsip.option_id = fpio.id
+        WHERE fsip.support_reward_id = #{support_reward_id}
+        AND fpio.item_id = #{item_id}
+    </select>
+    <delete id="deleteProjectItemOptionByItemId">
+        DELETE FROM funding_project_item_option WHERE item_id = #{item_id}
+    </delete>
+    <delete id="deleteProjectItemOptionByProjectId">
+        DELETE FROM funding_project_item_option 
+        WHERE item_id IN (
+            SELECT id FROM funding_project_item WHERE project_id = #{project_id}
+        )
+    </delete>
+
+<!-- 선물 -->
+    <insert id="createProjectRewardDto">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            SELECT MAX(id) FROM funding_project_reward
+        </selectKey>
+        INSERT INTO funding_project_reward(
+            project_id, title, amount, count_limit, expect_date, is_delivery
+        ) VALUES(
+            #{project_id}, #{title}, #{amount}, #{count_limit}, #{expect_date}, #{is_delivery}
+        )
+    </insert>
+    <!-- 선물 출력 : 프로젝트 별 -->
+    <select id="findProjectRewardByProjectId" resultType="com.sixthband.festival.funding.dto.FundingProjectRewardDto">
+        SELECT * FROM funding_project_reward
+        WHERE project_id = #{project_id}
+    </select>
+    <select id="findProjectRewardCountByProjectId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_reward
+        WHERE project_id = #{project_id}
+    </select>
+    <!-- 선물 단일 -->
+    <select id="findProjectRewardDto" resultType="com.sixthband.festival.funding.dto.FundingProjectRewardDto">
+        SELECT * FROM funding_project_reward
+        WHERE id = #{id}
+    </select>
+    <!-- 선물 출력 : 선택한 선물 목록 -->
+    <select id="findSeletedProjectRewardList" resultType="com.sixthband.festival.funding.dto.FundingProjectRewardDto">
+        SELECT * FROM funding_project_reward
+        WHERE id IN
+        <foreach collection="rewardIds" item="reward_id" open="(" close=")" separator=",">
+            #{reward_id}
+        </foreach>
+    </select>
+    <!-- 선물 단일 출력 : 예상 전달일 포함 -->
+    <select id="findProjectRewardAndExpectedDate" resultType="map">
+        SELECT 
+            fpr.*, fp.end_at,
+            DATE_ADD(fp.end_at, INTERVAL fpr.expect_date DAY) AS expected_date
+        FROM funding_project_reward fpr
+        INNER JOIN (
+            SELECT id, end_at FROM funding_project
+        ) fp ON fpr.project_id = fp.id
+        WHERE fpr.id = #{id}
+    </select>
+    <!-- 후원 선물 리스트 -->
+    <select id="findSupportRewardList" resultType="map">
+        SELECT fpr.*, fsr.id as support_reward_id
+        FROM funding_project_reward fpr
+        JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+        WHERE fsr.support_id = #{support_id}
+    </select>
+    <delete id="deleteProjectReward">
+        DELETE FROM funding_project_reward WHERE id = #{id}
+    </delete>
+    <delete id="deleteProjectRewardByProjectId">
+        DELETE FROM funding_project_reward WHERE project_id = #{project_id}
+    </delete>
+    <!-- 선물의 구매 개수 -->
+    <select id="findSupportRewardQuantityByRewardId" resultType="int">
+        SELECT
+            COALESCE(SUM(quantity), 0) AS qty
+        FROM funding_support_reward fsr
+        INNER JOIN funding_support fs ON fsr.support_id = fs.id
+        WHERE fsr.reward_id = #{reward_id}
+        AND fs.status IN ('예약', '무산')
+    </select>
+<!-- 선물 아이템 -->
+    <insert id="createProjectRewardItemDto">
+        INSERT INTO funding_project_reward_item(
+            reward_id, item_id
+        ) VALUES(
+            #{reward_id}, #{item_id}
+        )
+    </insert>
+    <delete id="deleteProjectRewardItemByRewardId">
+        DELETE FROM funding_project_reward_item WHERE reward_id = #{reward_id}
+    </delete>
+    <delete id="deleteProjectRewardItemByProjectId">
+        DELETE FROM funding_project_reward_item 
+        WHERE reward_id IN (
+            SELECT id FROM funding_project_reward WHERE project_id = #{project_id}
+        )
+    </delete>
+    <delete id="deleteProjectRewardItemByItemId">
+        DELETE FROM funding_project_reward_item
+        WHERE item_id = #{item_id}
+    </delete>
+
+<!-- 후원하기 -->
+    <insert id="createFundingSupport">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT MAX(id) FROM funding_support
+        </selectKey>
+        INSERT INTO funding_support(
+            user_id, status	
+        ) VALUES(
+            #{user_id}, '대기'
+        )
+    </insert>
+    <insert id="createFundingSupportReward">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT MAX(id) FROM funding_support_reward
+        </selectKey>
+        INSERT INTO funding_support_reward(
+            support_id, reward_id, quantity
+        ) VALUES(
+            #{support_id}, #{reward_id}, #{quantity}
+        )
+    </insert>
+    <insert id="createFundingSupportItemOption">
+        INSERT INTO funding_support_item_option(
+            support_reward_id, option_id, option_content 
+        ) VALUES(
+            #{support_reward_id}, #{option_id}, #{option_content}
+        )
+    </insert>
+    <!-- 후원하기 : 실 후원(주문) 진행 -->
+    <update id="pledgeFundingSupport">
+        UPDATE funding_support
+        SET payment_type = '카카오페이',
+            status = #{status},
+            pay_status = #{pay_status},
+            delivery_status = '대기중',
+            support_at = NOW()
+        WHERE id = #{id};
+    </update>
+    <insert id="createFundingSupportDelivery">
+        INSERT INTO funding_support_delivery(
+            support_id, zip_code, address, address_detail, recipient_name, recipient_phone
+        ) VALUES(
+            #{support_id}, #{zip_code}, #{address}, #{address_detail}, #{recipient_name}, #{recipient_phone}
+        )
+    </insert>
+
+    <!-- 후원 프로젝트 선물 -->
+    <select id="findSupportRewardDto" resultType="com.sixthband.festival.funding.dto.FundingSupportRewardDto">
+        SELECT * FROM funding_support_reward
+        WHERE id = #{support_reward_id};
+    </select>
+    <!-- 후원 선물 금액 -->
+    <select id="findSupportTotalPrice" resultType="int">
+        SELECT
+            SUM(fsr.quantity * fpr.amount) AS totalPrice
+        FROM funding_support_reward fsr
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        WHERE fsr.support_id = #{support_id}
+    </select>
+<!-- 후원 정보 -->
+    <select id="findFundingSupport" resultType="com.sixthband.festival.funding.dto.FundingSupportDto">
+        SELECT * FROM funding_support
+        WHERE id = #{id}
+    </select>
+    <select id="findFundingSupportDeliveryBySupportId" resultType="com.sixthband.festival.funding.dto.FundingSupportDeliveryDto">
+        SELECT * FROM funding_support_delivery
+        WHERE support_id = #{support_id}
+    </select>
+    <!-- 후원 선물의 배송여부 개수 -->
+    <select id="findIsDeliveryCountBySupportReward" resultType="int">
+        SELECT 
+            COUNT(*)
+        FROM funding_project_reward fpr
+        WHERE id IN (
+            SELECT reward_id FROM funding_support_reward fsr
+            WHERE support_id = #{support_id}
+        ) AND fpr.is_delivery = 'T'
+    </select>
+    <!-- 후원자 수 : 후원 완료 페이지 -->
+    <select id="findBackersCountBySupportId" resultType="int">
+        SELECT 
+            COUNT(DISTINCT fs.id) AS total_count
+        FROM funding_support fs 
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status IN ('예약', '무산')
+        AND fp.id IN (
+            SELECT fp.id
+            FROM funding_project fp
+            INNER JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+            INNER JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+            WHERE fsr.support_id = #{support_id}
+        )
+    </select>
+    <!-- 후원id 로 프로젝트id 찾기 -->
+    <select id="findProjectIdBySupportId" resultType="int">
+        SELECT 
+            DISTINCT fp.id AS project_id
+        FROM funding_support fs 
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.id = #{support_id}
+    </select>
+    <!-- 후원id 로 카테고리id 찾기 -->
+    <select id="findCategoryIdBySupportId" resultType="int">
+        SELECT 
+            DISTINCT fp.category_id
+        FROM funding_support fs 
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.id = #{support_id}
+    </select>
+    <!-- 후원 목록 : 단순 목록 값 -->
+    <select id="findFundingSupportListByUserId" resultType="com.sixthband.festival.funding.dto.SupportDataDto">
+        SELECT 
+            fs.*, fs.delivery_status, fsd.recipient_at,
+            fpt1.id AS project_id, fpt1.project_title, fpt1.thumbnail_location, fpt1.end_at, fpt1.status AS funding_status
+        FROM funding_support fs
+        INNER JOIN funding_support_delivery fsd ON fs.id = fsd.support_id
+        INNER JOIN (
+            SELECT
+                fp.id, fp.project_title, fp.thumbnail_location, fp.end_at, fp.status,
+                fsr2.support_id
+            FROM funding_project fp
+            INNER JOIN funding_project_reward fpr2 ON fp.id = fpr2.project_id
+            INNER JOIN funding_support_reward fsr2 ON fpr2.id = fsr2.reward_id
+            GROUP BY fsr2.support_id
+        )fpt1 ON fs.id = fpt1.support_id
+        WHERE fs.status != '대기'
+        <if test="status != null and status != ''">
+            <choose>
+                <when test="status == '예약'">AND fs.status = '예약' AND fpt1.status = '진행중'</when>
+                <when test="status == '성공'">AND fs.status = '예약' AND fpt1.status = '성공'</when>
+                <when test="status == '무산'">AND fs.status IN ('취소', '무산') </when>
+            </choose>
+        </if>
+        AND fs.user_id = #{user_id}
+        ORDER BY fs.support_at DESC
+    </select>
+    <select id="findFudingSupportListCountByUserId" resultType="int">
+        SELECT COUNT(*) FROM funding_support fs
+        INNER JOIN funding_support_delivery fsd ON fs.id = fsd.support_id
+        INNER JOIN (
+            SELECT
+                fsr2.support_id
+            FROM funding_project fp
+            INNER JOIN funding_project_reward fpr2 ON fp.id = fpr2.project_id
+            INNER JOIN funding_support_reward fsr2 ON fpr2.id = fsr2.reward_id
+            GROUP BY fsr2.support_id
+        )fpt1 ON fs.id = fpt1.support_id
+        WHERE fs.status != '대기'
+        AND fs.user_id = #{user_id}
+    </select>
+    <!-- 후원자 목록 -->
+    <select id="findBackersListByProjectUserId" resultType="map">
+        SELECT
+            fs.id AS support_id, fs.user_id, fs.status AS support_status, fs.pay_status, fs.support_at, fs.delivery_status,
+            su.account_name,
+            fpr.id AS reward_id, fpr.project_id,
+            SUM(fsr.quantity * fpr.amount) AS total_amount,
+            IF(COUNT(*) <![CDATA[>]]> 1, CONCAT(fpr.title, ' 외 ', (COUNT(*) - 1), ' 개'), fpr.title) AS reward_title,
+            fp.project_title 
+        FROM funding_support fs
+        INNER JOIN funding_support_delivery fsd ON fs.id = fsd.support_id
+        INNER JOIN six_user su ON fs.user_id = su.id
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status != '대기'
+        AND fp.user_id = #{user_id}
+        AND fpr.project_id = #{project_id}
+        GROUP BY fs.id
+        ORDER BY fs.id DESC
+    </select>
+    <select id="findBackersListCountByProjectUserId" resultType="int">
+        SELECT 
+            COUNT(*) AS total_count
+        FROM(
+            SELECT
+                fs.id AS support_id
+            FROM funding_support fs
+            INNER JOIN funding_support_delivery fsd ON fs.id = fsd.support_id
+            INNER JOIN six_user su ON fs.user_id = su.id
+            INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+            INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+            INNER JOIN funding_project fp ON fpr.project_id = fp.id
+            WHERE fs.status != '대기'
+            AND fp.user_id = #{user_id}
+            AND fpr.project_id = #{project_id}
+            GROUP BY fs.id
+        ) AS t1
+    </select>
+    <!-- 후원자 선물 전달 상태관리 -->
+    <update id="updateSupportDeliveryStatus">
+        UPDATE funding_support
+        SET delivery_status = #{delivery_status},
+            delivery_at = NOW()
+        WHERE id = #{id}
+    </update>
+    <!-- 후원 유저 id 가져오기 : 단일값 -->
+    <select id="findSupportUserId" resultType="int">
+        SELECT
+            fs.user_id
+        FROM funding_support fs
+        WHERE fs.id = #{id}
+    </select>
+    <!-- 해당 프로젝트 후원 유무 확인 -->
+    <select id="findSupportCountByProjectIdAndUserId" resultType="int">
+        SELECT
+            COUNT(DISTINCT fs.id)
+        FROM funding_support fs
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status IN ('예약', '무산')
+        AND fpr.project_id = #{project_id}
+        AND fs.user_id = #{user_id}
+    </select>
+    <!-- 해당 프로젝트 후원 id 가져오기 -->
+    <select id="findSupportIdByProjectIdAndUserId" resultType="int">
+        SELECT
+            DISTINCT fs.id AS support_id
+        FROM funding_support fs
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status IN ('예약', '무산')
+        AND fpr.project_id = #{project_id}
+        AND fs.user_id = #{user_id}
+    </select>
+
+<!-- 후기 -->
+    <!-- 후기 : 키워드 -->
+    <select id="findProjectReviewKeywordList" resultType="com.sixthband.festival.funding.dto.FundingProjectReviewKeywordDto">
+        SELECT * FROM funding_project_review_keyword
+        ORDER BY id ASC
+    </select>
+    <select id="findProjectReviewKeywordDto" resultType="com.sixthband.festival.funding.dto.FundingProjectReviewKeywordDto">
+        SELECT * FROM funding_project_review_keyword
+        WHERE id = #{id}
+    </select>
+    <!-- 후기 : 선택 키워드 -->
+    <select id="findProjectReviewSelectedKeywordByReviewId" resultType="map">
+        SELECT
+            fprsk.*, fprk.keyword 
+        FROM funding_project_review_selected_keyword fprsk 
+        INNER JOIN funding_project_review_keyword fprk ON fprsk.keyword_id = fprk.id
+        WHERE review_id = #{review_id}
+        ORDER BY keyword_id ASC
+    </select>
+    <!-- 후기 작성 -->
+    <insert id="createProjectReview">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            SELECT MAX(id) FROM funding_project_review
+        </selectKey>
+        INSERT INTO funding_project_review(
+            support_id, content
+        ) VALUES(
+            #{support_id}, #{content}
+        )
+    </insert>
+    <!-- 후기 작성 여부 : 개수로 확인 -->
+    <select id="findProjectReviewCountBySupportId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_review fpr
+        WHERE support_id = #{support_id}
+    </select>
+    <!-- 후기 목록 -->
+    <select id="findProjectReviewByProjectId" resultType="com.sixthband.festival.funding.dto.FundingProjectReviewDto">
+        SELECT 
+            fpr.*
+        FROM funding_project_review fpr
+        INNER JOIN funding_support fs ON fpr.support_id = fs.id
+        WHERE fs.id IN (
+            SELECT fs.id
+            FROM funding_support fs
+            INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+            INNER JOIN funding_project_reward fpr2 ON fsr.reward_id = fpr2.id
+            WHERE fpr2.project_id = #{project_id}
+        )
+        ORDER BY fpr.id DESC
+    </select>
+    <!-- 후기 목록 : 개수 -->
+    <select id="findProjectReviewCountByProjectId" resultType="int">
+        SELECT 
+            COUNT(DISTINCT fpr.id) AS total_count
+        FROM funding_project_review fpr
+        INNER JOIN funding_support fs ON fpr.support_id = fs.id
+        WHERE fs.id IN (
+            SELECT fs.id
+            FROM funding_support fs
+            INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+            INNER JOIN funding_project_reward fpr2 ON fsr.reward_id = fpr2.id
+            WHERE fpr2.project_id = #{project_id}
+        )
+        ORDER BY fpr.id DESC
+    </select>
+    <!-- 후기 키워드 작성 -->
+    <insert id="createProjectReviewSelectedKeyword">
+        INSERT INTO funding_project_review_selected_keyword(
+            review_id, keyword_id
+        ) VALUES(
+            #{review_id}, #{keyword_id}
+        )
+    </insert>
+    <!-- 후기 파일 작성 -->
+    <insert id="createProjectReviewFile">
+        INSERT INTO funding_project_review_file(
+            review_id, location
+        ) VALUES(
+            #{review_id}, #{location}
+        )
+    </insert>
+    <select id="findProjectReviewFileByReviewId" resultType="com.sixthband.festival.funding.dto.FundingProjectReviewFileDto">
+        SELECT * FROM funding_project_review_file
+        WHERE review_id = #{review_id}
+        ORDER BY id ASC
+    </select>
+    <!-- 단일 후기 -->
+    <select id="findProjectReviewDto" resultType="com.sixthband.festival.funding.dto.FundingProjectReviewDto">
+        SELECT * FROM funding_project_review fpr
+        WHERE id = #{id}
+    </select>
+<!-- GPT 후기 요약 -->
+    <insert id="createProjectReviewGpt">
+        INSERT INTO funding_project_review_chatGPT(
+            review_id, gpt_content
+        ) VALUES(
+            #{review_id}, #{gpt_content}
+        )
+    </insert>
+    <select id="findProjectReviewGptByReviewId" resultType="com.sixthband.festival.funding.dto.FundingProjectReviewGptDto">
+        SELECT * FROM funding_project_review_chatGPT
+        WHERE review_id = #{review_id}
+    </select>
+    <select id="findProjectReviewGptCountByReviewId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_review_chatGPT
+        WHERE review_id = #{review_id}
+    </select>
+
+<!-- 상세 : 커뮤니티 게시판 -->
+    <insert id="createProjectCommunity">
+        INSERT INTO funding_project_community(
+            project_id, user_id, content
+        ) VALUES(
+            #{project_id}, #{user_id}, #{content}
+        )
+    </insert>
+    <!-- 커뮤니티 목록 -->
+    <select id="findProjectCommunityListByProjectId" resultType="com.sixthband.festival.funding.dto.FundingProjectCommunityDto">
+        SELECT * FROM funding_project_community
+        WHERE project_id = #{project_id}
+        ORDER BY id DESC
+    </select>
+    <select id="findProjectCommunityListCountByProjectId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_community
+        WHERE project_id = #{project_id}
+    </select>
+    <!-- 댓글 작성 -->
+    <insert id="createProjectCommunityComment">
+        INSERT INTO funding_project_community_comment(
+            community_id, user_id, content
+        ) VALUES(
+            #{community_id}, #{user_id}, #{content}
+        )
+    </insert>
+    <!-- 댓글 목록 -->
+    <select id="findCommunityCommentListByCommunityId" resultType="com.sixthband.festival.funding.dto.FundingProjectCommunityCommentDto">
+        SELECT * FROM funding_project_community_comment
+        WHERE community_id = #{community_id}
+        ORDER BY id DESC
+    </select>
+
+<!-- 상세 : 업데이트 게시판 -->
+    <insert id="createProjectUpdate">
+        INSERT INTO funding_project_update(
+            project_id, user_id, content
+        ) VALUES(
+            #{project_id}, #{user_id}, #{content}
+        )
+    </insert>
+    <!-- 글 목록 : 프로젝트 별 -->
+    <select id="findProjectUpdateListByProjectId" resultType="com.sixthband.festival.funding.dto.FundingProjectUpdateDto">
+        SELECT * FROM funding_project_update
+        WHERE project_id = #{project_id}
+        ORDER BY id DESC
+    </select>
+    <select id="findProjectUpdateListCountByProjectId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_update
+        WHERE project_id = #{project_id}
+    </select>
+    <!-- 게시물 : 단일 -->
+    <select id="findProjectUpdateDto" resultType="com.sixthband.festival.funding.dto.FundingProjectUpdateDto">
+        SELECT * FROM funding_project_update
+        WHERE id = #{id}
+    </select>
+    <!-- 댓글 : 작성 -->
+    <insert id="createProjectUpdateComment">
+        INSERT INTO funding_project_update_comment(
+            update_id, user_id, content
+        ) VALUES(
+            #{update_id}, #{user_id}, #{content}
+        )
+    </insert>
+    <!-- 댓글 : 게시물 단일의 -->
+    <select id="findProjectUpdateCommentListByUpdateId" resultType="com.sixthband.festival.funding.dto.FundingProjectUpdateCommentDto">
+        SELECT * FROM funding_project_update_comment
+        WHERE update_id = #{update_id}
+    </select>
+    <select id="findProjectUpdateCommentListCountByUpdateId" resultType="int">
+        SELECT COUNT(*) FROM funding_project_update_comment
+        WHERE update_id = #{update_id}
+    </select>
+
+<!-- 메인 -->
+    <!-- 신규/마감 프로젝트 -->
+    <select id="findProjectDataListForMain" resultType="com.sixthband.festival.funding.dto.ProjectListDataDto">
+        SELECT
+            fp.id, fp.category_id, fp.project_title, fp.thumbnail_location, fp.expect_amount, fp.start_at, fp.status, fp.read_count, fp.end_at, 
+            fpc.creator_name
+        FROM funding_project fp
+        INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+        WHERE fp.status IN ('진행중')
+        <if test="sortBy == 'endAt'">
+            AND DATE(fp.end_at) = CURDATE()
+            ORDER BY fp.end_at ASC
+        </if>
+        <if test="sortBy == 'new'">ORDER BY fp.start_at DESC, fp.id DESC</if>
+        <if test="sortBy == 'rand'">ORDER BY RAND()</if>
+        LIMIT 10
+    </select>
+    <!-- 인기 프로젝트 -->
+    <select id="findPopularProjectDataListForMain" resultType="map">
+        SELECT
+            subquery.project_id, subquery.project_title, subquery.thumbnail_location, subquery.expect_amount, subquery.creator_name,
+            subquery.fs_count, subquery.total_amount, subquery.percentage,
+            (
+                (subquery.fs_count / max_values.max_fs_count) * 40 +
+                (subquery.percentage / max_values.max_percentage) * 30 +
+                ((subquery.total_amount / subquery.expect_amount) / max_values.max_amount_percentage) * 30
+            ) AS popularity_score
+        FROM (
+            SELECT 
+                rt1.project_id, rt1.project_title, rt1.thumbnail_location, rt1.expect_amount, rt1.creator_name,
+                COUNT(DISTINCT CASE WHEN fs.status IN ('예약', '무산') THEN fs.id END) AS fs_count,
+                SUM(rt1.reward_total) AS total_amount,
+                FLOOR((SUM(rt1.reward_total) / rt1.expect_amount) * 100) AS percentage
+            FROM (
+                SELECT 
+                    fp.id AS project_id, fp.project_title, fp.thumbnail_location, fp.expect_amount, fp.end_at, fsr.support_id, 
+                    (fsr.quantity * fpr.amount) AS reward_total, fpc.creator_name
+                FROM funding_project fp 
+                INNER JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+                INNER JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+                INNER JOIN funding_project_creator fpc ON fp.user_id = fpc.user_id
+                WHERE fp.status = '진행중'
+            ) rt1
+            INNER JOIN funding_support fs ON rt1.support_id = fs.id
+            WHERE fs.status IN ('예약', '무산')
+            GROUP BY rt1.project_id
+        ) subquery
+        CROSS JOIN (
+            SELECT 
+                MAX(fs_count) AS max_fs_count,
+                MAX(percentage) AS max_percentage,
+                MAX(total_amount / expect_amount) AS max_amount_percentage
+            FROM (
+                SELECT 
+                    COUNT(DISTINCT CASE WHEN fs.status IN ('예약', '무산') THEN fs.id END) AS fs_count,
+                    SUM(rt1.reward_total) AS total_amount,
+                    FLOOR((SUM(rt1.reward_total) / rt1.expect_amount) * 100) AS percentage,
+                    rt1.expect_amount
+                FROM (
+                    SELECT 
+                        fp.id AS project_id, fp.expect_amount, fsr.support_id, 
+                        (fsr.quantity * fpr.amount) AS reward_total
+                    FROM funding_project fp 
+                    INNER JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+                    INNER JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+                    WHERE fp.status = '진행중'
+                ) rt1
+                INNER JOIN funding_support fs ON rt1.support_id = fs.id
+                WHERE fs.status IN ('예약', '무산')
+                GROUP BY rt1.project_id
+            ) max_subquery
+        ) max_values
+        ORDER BY popularity_score DESC
+        LIMIT 7
+    </select>
+
+<!-- 프로젝트 상태 스케줄링 -->
+    <!-- 스케줄 로그 남기기 -->
+    <insert id="createFundingScheduleLog">
+        INSERT INTO funding_schedule_log(
+            project_id, old_status, new_status
+        ) VALUES(
+            #{project_id}, #{old_status}, #{new_status}
+        )
+    </insert>
+    <!-- 진행중인 프로젝트 리스트 -->
+    <select id="findOngoingProjectList" resultType="com.sixthband.festival.funding.dto.FundingProjectDto">
+        SELECT
+            id, user_id, expect_amount, start_at, end_at, status
+        FROM funding_project fp
+        WHERE status = #{status}
+    </select>
+    <!-- 프로젝트 달성금액 -->
+    <select id="findProjectTotalAmountByProjectId" resultType="int">
+        SELECT
+            COALESCE(SUM(fsr.quantity * fpr.amount), 0) AS total_amount
+        FROM funding_project fp 
+        LEFT JOIN funding_project_reward fpr ON fp.id = fpr.project_id
+        LEFT JOIN funding_support_reward fsr ON fpr.id = fsr.reward_id
+        LEFT JOIN funding_support fs ON fsr.support_id = fs.id
+        AND fs.status IN ('예약', '무산')
+        WHERE fp.id = #{project_id}
+        GROUP BY fp.id, fp.expect_amount
+    </select>
+    <!-- 진행중인 프로젝트의 주문건 -->
+    <select id="findSupportListByProjectId" resultType="com.sixthband.festival.funding.dto.FundingSupportDto">
+        SELECT
+            fs.*
+        FROM funding_support fs
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status = '예약'
+        AND fp.id = #{project_id}
+        GROUP BY fs.id
+    </select>
+    <!-- 후원 상태 업데이트 -->
+    <update id="updateSupportStatus">
+        UPDATE funding_support
+        SET status = #{status},
+            pay_status = #{pay_status},
+            cancel_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+<!-- 관리자페이지 용 -->
+    <!-- 프로젝트 목록 -->
+    <select id="findAdminProjectList" resultType="map">
+        SELECT
+            fp.id, fp.project_title, fp.thumbnail_location, fp.start_at, fp.end_at, fp.status,
+            su.account_name,
+            fpc.name AS category_name
+        FROM funding_project fp
+        INNER JOIN six_user su ON su.id = fp.user_id
+        INNER JOIN funding_project_category fpc ON fpc.id = fp.category_id
+        <where>
+            fp.status != '작성중'
+            <if test="categoryId != null and categoryId != 0">AND fp.category_id = #{categoryId}</if>
+            <if test="fromStartDate != null and fromStartDate != '' and toStartDate != null and toStartDate != ''">
+                AND fp.start_at BETWEEN DATE_FORMAT(#{fromStartDate}, '%Y-%m-%d 00:00:00') and DATE_FORMAT(#{toStartDate}, '%Y-%m-%d 23:59:59')
+            </if>
+            <if test="statusList != null and statusList.length > 0">
+                AND fp.status IN
+                <foreach collection="statusList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="fromEndDate != null and fromEndDate != '' and toEndDate != null and toEndDate != ''">
+                AND fp.end_at BETWEEN DATE_FORMAT(#{fromEndDate}, '%Y-%m-%d 00:00:00') and DATE_FORMAT(#{toEndDate}, '%Y-%m-%d 23:59:59')
+            </if>
+            <if test="searchOption != null and searchOption != '' and searchWord != null and searchWord != ''">
+                <choose>
+                    <when test="searchOption == 'project_title'">AND fp.project_title LIKE CONCAT('%', #{searchWord}, '%')</when>
+                    <when test="searchOption == 'account_name'">AND su.account_name LIKE CONCAT('%', #{searchWord}, '%')</when>
+                </choose>
+            </if>
+        </where>
+        ORDER BY fp.id DESC
+        LIMIT #{pageIndex}, 10
+    </select>
+    <select id="findAdminProjectListCount" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM funding_project fp
+        INNER JOIN six_user su ON su.id = fp.user_id
+        INNER JOIN funding_project_category fpc ON fpc.id = fp.category_id
+        <where>
+            fp.status != '작성중'
+            <if test="categoryId != null and categoryId != 0">AND fp.category_id = #{categoryId}</if>
+            <if test="fromStartDate != null and fromStartDate != '' and toStartDate != null and toStartDate != ''">
+                AND fp.start_at BETWEEN DATE_FORMAT(#{fromStartDate}, '%Y-%m-%d 00:00:00') and DATE_FORMAT(#{toStartDate}, '%Y-%m-%d 23:59:59')
+            </if>
+            <if test="statusList != null and statusList.length > 0">
+                AND fp.status IN
+                <foreach collection="statusList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="fromEndDate != null and fromEndDate != '' and toEndDate != null and toEndDate != ''">
+                AND fp.end_at BETWEEN DATE_FORMAT(#{fromEndDate}, '%Y-%m-%d 00:00:00') and DATE_FORMAT(#{toEndDate}, '%Y-%m-%d 23:59:59')
+            </if>
+            <if test="searchOption != null and searchOption != '' and searchWord != null and searchWord != ''">
+                <choose>
+                    <when test="searchOption == 'project_title'">AND fp.project_title LIKE CONCAT('%', #{searchWord}, '%')</when>
+                    <when test="searchOption == 'account_name'">AND su.account_name LIKE CONCAT('%', #{searchWord}, '%')</when>
+                </choose>
+            </if>
+        </where>
+    </select>
+    <!-- 후원자 목록 -->
+    <select id="findAdminBackersList" resultType="map">
+        SELECT
+            fs.id AS support_id, fs.user_id, fs.status AS support_status, fs.pay_status, fs.support_at, fs.delivery_status,
+            su.account_name,
+            fpr.id AS reward_id, fpr.project_id,
+            SUM(fsr.quantity * fpr.amount) AS total_amount,
+            IF(COUNT(*) <![CDATA[>]]> 1, CONCAT(fpr.title, ' 외 ', (COUNT(*) - 1), ' 개'), fpr.title) AS reward_title,
+            fp.project_title 
+        FROM funding_support fs
+        INNER JOIN funding_support_delivery fsd ON fs.id = fsd.support_id
+        INNER JOIN six_user su ON fs.user_id = su.id
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status != '대기'
+        GROUP BY fs.id
+        ORDER BY fs.id DESC
+        LIMIT #{pageIndex}, 10
+    </select>
+    <select id="findAdminBackersListCount" resultType="int">
+        SELECT 
+            COUNT(*) AS total_count
+        FROM(
+            SELECT
+                fs.id AS support_id
+            FROM funding_support fs
+            INNER JOIN funding_support_delivery fsd ON fs.id = fsd.support_id
+            INNER JOIN six_user su ON fs.user_id = su.id
+            INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+            INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+            INNER JOIN funding_project fp ON fpr.project_id = fp.id
+            WHERE fs.status != '대기'
+            GROUP BY fs.id
+        ) AS t1
+    </select>
+
+<!-- 정산 관리 -->
+    <!-- 정산 추가 : 스케줄러로 자동 처리 -->
+    <insert id="createSettlementDetails">
+        INSERT INTO funding_settlement_details(
+            project_id, settlement_amount, settlement_fee, settlement_status
+        ) VALUES(
+            #{project_id}, #{settlement_amount}, #{settlement_fee}, '미정산'
+        )
+    </insert>
+    <!-- 목록 -->
+    <select id="findSettlementDetailsList" resultType="com.sixthband.festival.funding.dto.FundingSettlementDetailsDto">
+        SELECT * FROM funding_settlement_details 
+        ORDER BY id DESC
+        LIMIT #{pageIndex}, 10
+    </select>
+    <select id="findSettlementDetailListCount" resultType="int">
+        SELECT COUNT(*) FROM funding_settlement_details
+    </select>
+    <select id="findSettlementDetailCountByProjectId" resultType="int">
+        SELECT COUNT(*) FROM funding_settlement_details
+        WHERE project_id = #{project_id}
+    </select>
+    <!-- 단일 -->
+    <select id="findSettlementDetails" resultType="com.sixthband.festival.funding.dto.FundingSettlementDetailsDto">
+        SELECT * FROM funding_settlement_details
+        WHERE id = #{id}
+    </select>
+    <select id="findSettlementDetailsByProjectId" resultType="com.sixthband.festival.funding.dto.FundingSettlementDetailsDto">
+        SELECT * FROM funding_settlement_details
+        WHERE project_id = #{id}
+    </select>
+    <!-- 정산 : 상태 업데이트 -->
+    <update id="updateSettlementStatus">
+        UPDATE funding_settlement_details
+        <set>
+            <if test="settlement_status != null">settlement_status = #{settlement_status},</if>
+            <if test="settlement_status != null and settlement_status == '정산완료'">settlement_date = now()</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    <!-- 정산 내역 내 후원 내역 리스트 -->
+    <select id="findSettlementBackersList" resultType="map">
+        SELECT
+            fs.id AS support_id, fs.user_id, fs.status AS support_status, fs.pay_status, fs.payment_type, fs.support_at,
+            su.account_name,
+            SUM(fsr.quantity * fpr.amount) AS total_amount,
+            FLOOR(SUM(fsr.quantity * fpr.amount) * 8 / 100) AS fee_amount,
+            FLOOR(SUM(fsr.quantity * fpr.amount) - (SUM(fsr.quantity * fpr.amount) * 8 / 100)) AS settlement_amount
+        FROM funding_support fs
+        INNER JOIN six_user su ON fs.user_id = su.id
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status = '예약'
+          AND fp.id = #{project_id}
+        GROUP BY fs.id
+        ORDER BY fs.id DESC
+    </select>
+    <select id="findSettlementBackersListCount" resultType="int">
+        SELECT
+            COUNT(DISTINCT fs.id) AS total_count
+        FROM funding_support fs
+        INNER JOIN funding_support_reward fsr ON fs.id = fsr.support_id
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        WHERE fs.status = '예약'
+        AND fp.id = #{project_id}
+    </select>
+
+<!-- 심사 이력 -->
+    <insert id="createApprovalHistory">
+        INSERT INTO funding_approval_history(
+            project_id, result, content
+        ) VALUES(
+            #{project_id}, #{result}, #{content}
+        )
+    </insert>
+    <!-- 목록 : 프로젝트별 -->
+    <select id="findApprovalHistoryByProjectId" resultType="com.sixthband.festival.funding.dto.FundingApprovalHistory">
+        SELECT * FROM funding_approval_history
+        WHERE project_id = #{project_id}
+        ORDER BY id DESC
+    </select>
+    <!-- 공용 관리자 대시보드 : 펀딩 상태 카운팅 -->
+    <select id="findProjectStatusCount" resultType="map">
+        SELECT
+            COALESCE(SUM(CASE WHEN fp.status = '심사중' THEN 1 ELSE 0 END), 0) AS review_status,
+            COALESCE(SUM(CASE WHEN fp.status = '진행중' THEN 1 ELSE 0 END), 0) AS ongoing_status,
+            COALESCE((SELECT COUNT(*) FROM funding_settlement_details fsd WHERE settlement_status = '미정산'), 0) AS settlement_status
+        FROM funding_project fp
+    </select>
+
+<!-- 카카오페이 -->
+    <!-- // 확인하기 : CONCAT(fpr.title, ' 외 ', (COUNT(*) - 1), ' 개') AS item_name, -->
+    <select id="findRequestKakaoPayDto" resultType="com.sixthband.festival.funding.dto.RequestKakaoPayDto">
+        SELECT
+            fsr.support_id AS partner_order_id,
+            su.id AS partner_user_id,
+            IF(COUNT(*) <![CDATA[>]]> 1, CONCAT(fpr.title, ' 외 ', (COUNT(*) - 1), ' 개'), fpr.title) AS item_name,
+            SUM(fsr.quantity) AS total_quantity,
+            SUM(fsr.quantity * fpr.amount) AS total_amount
+        FROM funding_support_reward fsr
+        INNER JOIN funding_project_reward fpr ON fsr.reward_id = fpr.id
+        INNER JOIN funding_project fp ON fpr.project_id = fp.id
+        INNER JOIN six_user su ON fp.user_id = su.id
+        WHERE fsr.support_id = #{support_id}
+    </select>
+    <insert id="createFundingPayment">
+        INSERT INTO funding_payment(
+            support_id, tid, cid
+        ) VALUES(
+            #{support_id}, #{tid}, #{cid}
+        )
+    </insert>
+</mapper>

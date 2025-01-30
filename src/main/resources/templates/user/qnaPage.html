@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - QnA</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+
+    <style>
+        .form-check-input:checked {
+            background-color: black;
+            border-color: black;
+        }
+    </style>
+
+</head>
+<body>
+<div id="root">
+    <div class="wrapper">
+        <!--/* 헤더 */-->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!--/* 컨텐츠 */-->
+        <div class="main new-text-black">
+            <div class="container">
+
+                <div class="row mx-0 py-2 align-items-center">
+                    <div class="col-1 px-0" onclick="history.back()">
+                        <span class="material-symbols-outlined fs-6 fw-bold d-flex justify-content-start">arrow_back_ios</span>
+                    </div>
+                    <div class="col ps-0 text-center">
+                        <span class="fs-5 fw-bold">내 문의사항</span>
+                    </div>
+                    <div class="col-1 px-0"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col px-0">
+                        <img class="img-fluid image-thumbnail" src="/public/img/serviceTeam/qna3.jpg">
+                    </div>
+                </div>
+
+                <div class="row pt-1">
+                    <div class="col">
+
+                        <div id="QnAListBox">
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+<!--/*                글쓰기 버튼 */-->
+                <div class="row pb-4 new-fixed-bottom" th:if="${session.loginUser != null}">
+                    <div class="col-auto ms-auto px-1 me-2 mb-5">
+                        <button onclick="writeQnAModalOpen()" class="btn pe-0 new-text-black">
+                            <i class="bi bi-patch-plus-fill" style="font-size: 2.5em;"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!--/* 푸터 */-->
+<!--        <div th:replace="~{common/navi::bottomNavi_bk}"></div>-->
+        <!-- /* 퀵바 */ -->
+        <div th:replace="~{common/navi::quickNavi}"></div>
+    </div>
+</div>
+
+<!--/* qna 글쓰기 모달 */-->
+<div class="modal fade" id="qnaModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black">
+        <div class="modal-content new-text-black">
+
+            <div class="modal-header fs-5">
+                <div class="row align-items-center">
+                    <div class="col-auto pe-0">
+                        <span class="material-symbols-outlined pt-1 fs-4 d-flex justify-content-center">help</span>
+                    </div>
+                    <div class="col fw-bold">
+                        <span>문의하기</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body pt-0">
+                <div class="row pt-2">
+                    <div class="col fw-semibold">
+                        고객 동의
+                    </div>
+                </div>
+
+                <div class="row pt-1">
+                    <div class="col new-text-gray new-fs-85">
+                        <div class="row">
+                            <div class="col">
+                                <span>- 보내주신 문의를 확인 후 최대한 빠르게 답변해 드리겠습니다.</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <span>- [제목]과 [내용]란에는 절대 개인정보를 입력하지 마세요.</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <span>- [제목]과 [내용]란에 개인정보가 포함되어 있거나, 중복 문의인 경우에는 삭제될 수 있습니다.</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col fw-semibold">
+                                <span>- 문의에 욕설, 인격침해, 성희롱 등 수치심을 유발하는 표현이 있다면 상담이 중단될 수 있습니다.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row pt-2">
+                    <div class="col text-end new-text-gray new-fs-85">
+                        <input id="qnaCheckInput" type="checkbox" class="form-check-input" onclick="checkQnAInfo()"> 모든 항목에 동의합니다.
+                    </div>
+                </div>
+
+                <form id="writeQnaForm">
+                    <div class="row pt-3 pb-2 align-items-center">
+                        <div class="col-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto pe-0 new-text-red">
+                                    <span class="new-fs-75 material-symbols-outlined d-flex justify-content-center">emergency</span>
+                                </div>
+                                <div class="col ps-1 new-fs-9">
+                                    <span>카테고리</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col new-fs-9">
+                            <select id="selectCategory" name="category_id" class="form-select form-select-sm">
+                                <option class="defaultSelect" value="0" selected style="display: none;">카테고리를 선택해주세요.</option>
+                                <option th:each="e: ${qnaCategory}" th:value="${e.id}" th:text="${e.category_title}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row py-2 align-items-center">
+                        <div class="col-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto pe-0 new-text-red">
+                                    <span class="new-fs-75 material-symbols-outlined d-flex justify-content-center">emergency</span>
+                                </div>
+                                <div class="col ps-1 new-fs-9">
+                                    <span>제목</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <input id="inputTitle" name="title" class="form-control form-control-sm" type="text" placeholder="제목을 입력하세요.">
+                        </div>
+                    </div>
+
+                    <div class="row py-2 align-items-center">
+                        <div class="col-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto pe-0 new-text-red">
+                                    <span class="new-fs-75 material-symbols-outlined d-flex justify-content-center">emergency</span>
+                                </div>
+                                <div class="col ps-1 new-fs-9">
+                                    <span>내용</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <textarea id="textareaContent" name="content" class="form-control form-control-sm" placeholder="내용을 입력하세요."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row pt-3">
+                        <div class="col">
+                            <input id="inputQnaImages" name="inputImages" class="form-control form-control-sm" type="file" multiple accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="row pt-2">
+                        <div class="col overflow-x-auto custom-scroll">
+                            <div id="previewBox" class="row pt-2 align-items-center flex-nowrap">
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <input onclick="writeQnAModalClose()" type="button" class="btn new-btn-gray px-3" value="취소">
+                <input id="qnaInsertButton" onclick="submitQnaWrite()" type="button" class="btn btn-dark px-3" disabled value="문의하기">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--/* 미리보기 템플릿 */-->
+<div id="previewTemplate" class="d-none">
+    <div class="col-3 pe-0 previewWrapper" style="height: 4em;">
+        <img class="image-thumbnail previewImg px-1 py-1 rounded border new-border-darkgray">
+    </div>
+</div>
+
+<!--/* 알림 모달... */-->
+<div class="modal fade" id="reviewUpdateDoneModal" tabindex="-1" aria-labelledby="reviewUpdateDoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-center">
+        <div class="modal-content new-text-black" style="width: 20em;">
+
+            <div class="modal-body">
+                <div class="row py-2 align-items-center">
+                    <div class="col fw-bold text-center">
+                        <span id="testAlert"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--/* QnA 리스트 템플릿 */-->
+<div id="QnAListTemplate" class="d-none">
+    <div class="row new-py-25 border-bottom align-items-center QnAListWrapper">
+        <a class="qnaDetailLinkA">
+            <div class="col">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col-auto pe-2 new-text-gray new-fs-85">
+                                <span class="qnaCategorySpan"></span>
+                            </div>
+                            <div class="col ps-0 ellipsis-line-one new-fs-9">
+                                <span class="qnaTitleSpan"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 new-text-gray new-fs-8 text-end">
+                        <span class="px-2 py-1 border new-border-gray qnaStatusSpan"></span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script type="text/javascript" src="/public/js/user/userQna.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

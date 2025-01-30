@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Rental</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <style>
+        .favorite-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .offcanvas.offcanvas-bottom {
+            height: 78vh;
+        }
+
+        .nav-link{
+            color: #2e2e2e;
+        }
+
+        .nav-link:hover {
+            color: #2e2e2e;
+        }
+
+        .nav-underline {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .material-symbols-outlined {
+            vertical-align: middle;
+        }
+
+        .like-count {
+            cursor: pointer;
+        }
+
+        .no-image .review-content {
+            margin-top: -15px;
+            padding-top: 0px;
+            margin-bottom: 0px;
+        }
+
+        .reviewWrapper {
+            border-bottom: 1px solid #DEE2E6;
+        }
+
+        .btn-outline-secondary {
+            background-color: transparent !important;
+            color: #5d5d5d !important;
+            border-color: #afafaf !important;
+            transition: background-color 0.3s ease;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .sticky-nav {
+            position: sticky;
+            top: 80px;
+            z-index: 100;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        html {
+            --header-height: 60px;
+        }
+
+        .scrollToTop {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            right: 15px;
+            z-index: 1300;
+            background-color: #fff;
+            color: #5f6368;
+            border: none;
+            padding: 4px 4px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .3), 0 2px 6px 2px rgba(60, 64, 67, .15);
+        }
+
+        .scrollToTop:hover {
+            background-color: #fff;
+        }
+
+        .material-symbols-outlined {
+            font-size: 30px;
+            vertical-align: middle;
+        }
+
+        .sort-button {
+            cursor: pointer;
+        }
+
+        .active-sort {
+            font-weight: 600;
+            color: #000;
+        }
+
+        .tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-icon {
+            color: #2e2e2e;
+            cursor: pointer;
+            font-weight: normal;
+            margin-left: 3px;
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #fff;
+            color: #656565;
+            text-align: left;
+            padding: 8px 8px;
+            border-radius: 5px;
+            border: 1px solid #f8f8f8;
+
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+
+            /* Positioning */
+            position: absolute;
+            z-index: 100;
+            bottom: 145%;
+            left: 50%;
+            transform: translateX(-50%);
+
+            /* Arrow */
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+        }
+
+        .tooltip-text::after {
+            display: none;
+        }
+
+        .tooltip-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    </style>
+    <script>
+
+        let myId = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const header = document.querySelector('.row.mx-0.align-items-center');
+            const navTabs = document.getElementById("nav-tabs");
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            const rentalOffcanvas = document.getElementById('rentalOffcanvas');
+            let headerHeight = header.offsetHeight;
+            let navTabsOffset = navTabs.offsetTop - headerHeight;
+
+            // URL에서 rental_item_id 가져오기
+            const urlParams = new URL(window.location.href).searchParams;
+            const rentalItemId = urlParams.get("id");
+
+            setSessionId(rentalItemId);
+            updateReviewSection(rentalItemId);
+
+            // 리뷰 개수 클릭 시 리뷰 탭으로 이동
+            const reviewSummary = document.getElementById("review-count-summary");
+            reviewSummary.addEventListener('click', function () {
+                const reviewTab = document.getElementById("nav-review-tab");
+                const reviewTabContent = document.getElementById("nav-review");
+
+                if (reviewTab) {
+                    // 탭 전환
+                    reviewTab.click();
+                    // 스크롤로 탭 콘텐츠에 이동
+                    reviewTabContent.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+            // 정렬 버튼 클릭 시 리뷰 목록 업데이트
+            document.querySelectorAll(".sort-button").forEach(button => {
+                button.addEventListener("click", () => {
+                    const sortOrder = button.getAttribute("data-sort-order");
+                    getReviewList(rentalItemId, myId, sortOrder);
+
+                    // 모든 버튼에서 active-sort 클래스 제거
+                    document.querySelectorAll(".sort-button").forEach(btn => {
+                        btn.classList.remove("active-sort");
+                    });
+
+                    // 클릭된 버튼에만 active-sort 클래스 추가
+                    button.classList.add("active-sort");
+                });
+            });
+
+            // 툴팁 이벤트 추가
+            document.querySelectorAll(".tooltip-wrapper").forEach(wrapper => {
+                // 데스크탑 환경에서는 마우스 호버로 툴팁 표시
+                wrapper.addEventListener("mouseenter", function(event) {
+                    event.stopPropagation();
+                    const tooltipText = wrapper.querySelector(".tooltip-text");
+                    if(tooltipText) {
+                        tooltipText.style.visibility = "visible";
+                        tooltipText.style.opacity = "1";
+                    }
+                });
+
+                wrapper.addEventListener("mouseleave", function () {
+                    const tooltipText = wrapper.querySelector(".tooltip-text");
+                    if(tooltipText) {
+                        tooltipText.style.visibility = "hidden";
+                        tooltipText.style.opacity = "0";
+                    }
+                });
+
+                // 모바일 환경에서는 클릭으로 툴팁 표시
+                wrapper.addEventListener("click", function(event) {
+                    event.stopPropagation();
+                    const tooltipText = wrapper.querySelector(".tooltip-text");
+                    if(tooltipText) {
+                        const isVisible = tooltipText.style.visibility === "visible";
+                        tooltipText.style.visibility = isVisible ? "hidden" : "visible";
+                        tooltipText.style.opacity = isVisible ? "0" : "1";
+                    }
+                });
+            });
+
+            // 다른 곳 클릭 시 툴팁 숨기기
+            document.addEventListener("click", function() {
+                document.querySelectorAll(".tooltip-text").forEach(tooltip => {
+                    tooltip.style.visibility = "hidden";
+                    tooltip.style.opacity = "0";
+                });
+            });
+
+            // like-container 클래스가 적용된 모든 요소에 이벤트 핸들러 설정
+            document.querySelectorAll(".like-container").forEach(container => {
+                //console.log("Found like-container:", container);
+                container.addEventListener("click", (event) => {
+                    //console.log("Like container clicked", event.target);
+                    const targetElement = event.target;
+
+                    if(targetElement.classList.contains('material-symbols-outlined') ||
+                        targetElement.classList.contains('like-count') ||
+                        targetElement.closest(".review-like-button")) {
+
+                        const review_id = container.getAttribute("data-review-id");
+                        console.log("Attempting to toggle like for review:", review_id);
+                        toggleReviewLike(review_id);
+                    }
+                });
+            });
+
+            // 오프캔버스 열릴 때 scrollToTop 버튼 숨기기
+            rentalOffcanvas.addEventListener('show.bs.offcanvas', function () {
+                scrollToTopBtn.style.display = 'none';
+            });
+
+            // 오프캔버스 닫힐 때 scrollToTop 버튼 다시 보이기
+            rentalOffcanvas.addEventListener('hide.bs.offcanvas', function () {
+                if (window.scrollY > 200) { // 스크롤 위치가 200px 이상일 때만 보이기
+                    scrollToTopBtn.style.display = 'block';
+                }
+            });
+
+            // Top 버튼 관련 기능
+            window.addEventListener('scroll', function () {
+                if (window.scrollY > 200) {
+                    scrollToTopBtn.style.display = 'block';
+                } else {
+                    scrollToTopBtn.style.display = 'none';
+                }
+            });
+
+            scrollToTopBtn.addEventListener('click', function () {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth' // 부드럽게 스크롤
+                });
+            });
+        });
+
+        function setSessionId(rentalItemId){
+            const url = "/api/rental/getSessionUserId";
+            fetch(url)
+                .then(response => response.json())
+                .then((response) => {
+                    if (response.result === "success" && response.data && response.data.userInfo) {
+                        myId = response.data.userInfo.id;
+                        updateReviewSection(rentalItemId, myId);
+                    } else {
+                        // 로그인하지 않은 경우에도 리뷰 목록을 가져옴
+                        updateReviewSection(rentalItemId, null);
+                    }
+                });
+        }
+
+        function updateReviewSection(rentalItemId) {
+            let avgRatingPromise = fetch(`/api/rental/getAverageRating?rental_item_id=${rentalItemId}`)
+                .then(response => response.json())
+                .then(response => {
+                    if (response.result === "success") {
+                        return parseFloat(response.data.avgRating); // 평균 별점 반환
+                    } else {
+                        console.log("평균 별점을 불러오는 데 실패했습니다.");
+                        return NaN;
+                    }
+                })
+                .catch(error => {
+                    console.error("평균 별점 요청 중 오류 발생:", error);
+                    return NaN;
+                });
+
+            // 리뷰 개수 가져오기
+            let reviewCountPromise = fetch(`/api/rental/getReviewCount?rental_item_id=${rentalItemId}`)
+                .then(response => response.json())
+                .then(response => {
+                    if(response.result === "success") {
+                        return response.data.reviewCount; // 리뷰 개수 반환
+                    } else {
+                        console.error("리뷰 개수를 불러오는 데 실패했습니다:", response.reason);
+                        return 0;  // 오류 발생 시 0 반환
+                    }
+                })
+                .catch(error => {
+                    console.error("리뷰 개수 요청 중 오류 발생:", error);
+                    return 0;
+                });
+
+            Promise.all([avgRatingPromise, reviewCountPromise]).then(value => {
+                let [avgRating, reviewCount] = value;
+
+                const reviewSection = document.getElementById("review-section");
+                const noReviewMessage = document.getElementById("noReviewMessage");
+                const sortOptionRow = document.querySelector(".row.new-fs-8.py-3");
+                const averageRatingElement = document.getElementById("average-rating-stars");
+                const reviewCountSummary = document.getElementById("review-count-summary");
+
+                // 리뷰가 없는 경우
+                if (reviewCount === 0) {
+                    reviewSection.style.display = "block";  // 리뷰 섹션을 보이게 함
+                    noReviewMessage.style.display = "block";  // "작성된 리뷰가 없습니다" 메시지를 표시
+                    sortOptionRow.style.display = "none";  // 정렬 옵션 숨기기
+                    averageRatingElement.style.display = "none";  // 평균 별점 숨기기
+                    reviewCountSummary.style.display = "none";  // 리뷰 개수 숨기기
+                } else {
+                    // 리뷰가 있는 경우
+                    reviewSection.style.display = "block";
+                    noReviewMessage.style.display = "none";
+                    sortOptionRow.style.display = "flex";
+                    averageRatingElement.style.display = "inline-block";
+                    reviewCountSummary.style.display = "inline-block";
+
+
+                    // 평균 별점 업데이트
+                    const roundedRating = Math.round(avgRating);
+                    averageRatingElement.textContent = '';
+
+                    // ★ 표시 업데이트
+                    for (let i = 1; i <= 5; i++) {
+                        const avgRatingStars = document.createElement("span");
+                        avgRatingStars.className = "avgRatingStars";
+                        avgRatingStars.textContent = i <= roundedRating ? "★" : "☆";
+                        averageRatingElement.appendChild(avgRatingStars);
+                    }
+
+                    // 평점 숫자 표시
+                    const avgCount = document.createElement("span");
+                    avgCount.className = "avgCount";
+                    avgCount.textContent = ` ${avgRating.toFixed(1)}`; // 소수점 첫째 자리까지 표기
+                    avgCount.style.fontWeight = "500";
+                    averageRatingElement.appendChild(avgCount);
+
+                    // 리뷰 개수 표시 업데이트
+                    reviewCountSummary.textContent = `${reviewCount}개 리뷰`;
+                    const iconElement = document.createElement("span");
+                    iconElement.id = "review-icon";
+                    iconElement.className = "material-symbols-outlined";
+                    iconElement.style.cursor = "pointer";
+                    iconElement.textContent = "chevron_right";
+                    reviewCountSummary.appendChild(iconElement);
+
+                    // 리뷰 목록 가져오기
+                    getReviewList(rentalItemId, myId);
+
+                }
+
+                // 리뷰 탭의 텍스트 업데이트
+                const reviewTabElement = document.getElementById("nav-review-tab");
+                if (reviewTabElement) {
+                    reviewTabElement.textContent = `리뷰(${reviewCount})`;
+                }
+            });
+        }
+
+        function getReviewList(rentalItemId, userId, sortOrder = 'latest') {
+            fetch(`/api/rental/getReviewList?rental_item_id=${rentalItemId}&user_id=${userId}&sortOrder=${sortOrder}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === "success") {
+                        const reviewList = data.data.rentalReviewList;
+                        //console.log("리뷰 목록 데이터:", reviewList);
+
+                        const reviewListContainer = document.getElementById("reviewList");
+                        const reviewWrapper = document.querySelector("#reviewTemplate .reviewWrapper");
+                        reviewListContainer.innerHTML = "";
+
+                        reviewList.forEach((review) => {
+                            //console.log("리뷰 데이터:", review);
+                            const reviewClone = reviewWrapper.cloneNode(true);
+                            reviewClone.classList.remove("d-none");
+
+                            // 데이터 바인딩
+                            const reviewDto = review.rentalReviewDto;
+                            if (reviewDto && reviewDto.id) {
+                                reviewClone.setAttribute("data-review-id", reviewDto.id);
+
+                                if (userId) {
+                                    // 로그인된 경우에만 좋아요 상태 확인
+                                    checkReviewLikeStatus(reviewDto.id, userId, reviewClone);
+                                }
+
+                                const reviewRating = reviewClone.querySelector(".review-rating");
+                                reviewRating.innerHTML = '★'.repeat(reviewDto.rating) + '☆'.repeat(5 - reviewDto.rating);
+
+                                const reviewUser = reviewClone.querySelector(".review-user");
+                                reviewUser.textContent = review.nickName;
+
+                                const userImage = reviewClone.querySelector(".userImage");
+                                userImage.src = `/images/${review.profileImg}`;
+
+                                const reviewDate = reviewClone.querySelector('.review-date');
+                                reviewDate.textContent = new Date(reviewDto.created_at).toLocaleDateString();
+
+                                const reviewTitle = reviewClone.querySelector('.review-title');
+                                reviewTitle.textContent = review.rentalTitle;
+
+                                const reviewCondition = reviewClone.querySelector('.review-condition');
+                                reviewCondition.textContent = reviewDto.item_condition;
+
+                                const reviewContent = reviewClone.querySelector('.review-content');
+                                reviewContent.textContent = reviewDto.content;
+
+                                const reviewChatGpt = reviewClone.querySelector('.reviewChatGpt');
+                                if (review.rentalChatGptReviewDto && review.rentalChatGptReviewDto.gpt_Review) {
+                                    reviewChatGpt.textContent = review.rentalChatGptReviewDto.gpt_Review;
+                                } else {
+                                    reviewChatGpt.textContent = "GPT 요약 내용이 없습니다.";
+                                }
+
+                                const reviewImageContainer = reviewClone.querySelector(".review-image");
+                                if (reviewDto.image) {
+                                    const imageUrl = `/images/${reviewDto.image}`;
+                                    reviewImageContainer.src = imageUrl;
+                                    reviewImageContainer.alt = "리뷰 이미지";
+                                    reviewImageContainer.style.display = 'block';
+                                } else {
+                                    reviewImageContainer.style.display = 'none';
+                                    reviewClone.classList.add('no-image');
+                                }
+
+                                // 좋아요 카운트 업데이트
+                                const likeCount = reviewClone.querySelector('.like-count');
+                                if (likeCount) {
+                                    likeCount.textContent = review.likeCount || '0';
+                                } else {
+                                    console.warn("like-count 요소를 찾을 수 없습니다.");
+                                }
+
+                                reviewListContainer.appendChild(reviewClone);
+
+                            } else {
+                                console.warn("리뷰 데이터가 불완전합니다:", review);
+                            }
+                        });
+
+
+                    } else {
+                        console.error("리뷰 목록을 불러오는 데 실패했습니다:", data.reason);
+                    }
+                })
+                .catch(error => {
+                    console.error('리뷰 데이터를 불러오는 동안 오류가 발생했습니다:', error);
+                });
+        }
+
+
+        function checkReviewLikeStatus(review_id, user_id, reviewElement) {
+            const likeButton = reviewElement.querySelector(".review-like-button");
+
+            if (!likeButton) {
+                console.error("좋아요 버튼을 찾을 수 없습니다.");
+                return;
+            }
+
+            if (!user_id) {
+                //console.log("사용자가 로그인하지 않았습니다.");
+                likeButton.onclick = () => {
+                    alert("로그인 하셔야 이용 가능합니다. 로그인 페이지로 이동하시겠습니까?");
+                    window.location.href = '/user/loginPage';
+                };
+                return;
+            }
+
+            fetch(`/api/rental/checkReviewLikeStatus?review_id=${review_id}&user_id=${user_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === "success") {
+                        const isReviewLiked = data.data.isReviewLiked;
+
+                        reviewElement.setAttribute("data-is-review-liked", isReviewLiked.toString());
+
+                        if (isReviewLiked) {
+                            likeButton.classList.add("fill-1", "text-dark");
+                        } else {
+                            likeButton.classList.remove("fill-1", "text-dark");
+                        }
+
+                        likeButton.onclick = () => {
+                            toggleReviewLike(review_id);
+                        };
+                    } else {
+                        console.error("좋아요 상태를 확인하는 데 실패했습니다:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("좋아요 상태 확인 중 오류가 발생했습니다:", error);
+                });
+        }
+
+
+        // 리뷰 좋아요
+            function toggleReviewLike(review_id) {
+                console.log('toggleReviewLike called');
+                console.log('myId:', myId);
+                const reviewElement = document.querySelector(`[data-review-id="${review_id}"]`);
+
+                if (!reviewElement) {
+                    console.error(`리뷰 요소 없음 ${review_id}`);
+                    return;
+                }
+
+                const likeButton = reviewElement.querySelector(".review-like-button");
+                // 현재 좋아요 상태 확인
+
+                const url = "/api/rental/toggleReviewLike"
+
+                fetch(url, {
+                    method: "post",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({review_id: review_id}),
+                    credentials: 'include'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("서버 응답:", data);
+                        if (data.result === "success") {
+                            const isReviewLiked = data.data.isReviewLiked;
+                            reviewElement.setAttribute("data-is-review-liked", isReviewLiked.toString());
+
+                            if (isReviewLiked) {
+                                likeButton.classList.add("fill-1", "text-dark");
+                            } else {
+                                likeButton.classList.remove("fill-1", "text-dark");
+                            }
+
+                            // 총 좋아요 수 업데이트
+                            reviewTotalLikes(review_id);
+                        } else {
+                            console.error("좋아요 처리 실패:", data.data.message);
+                            alert(data.data.message || "좋아요 처리 중 오류가 발생했습니다.");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("좋아요 처리 중 오류가 발생했습니다:", error);
+                        alert("좋아요 처리 중 오류가 발생했습니다.");
+                    });
+            }
+
+
+        // 총 리뷰 좋아요 수 업데이트
+        function reviewTotalLikes(review_id) {
+            fetch(`/api/rental/reviewTotalLikes?review_id=${review_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === "success") {
+                        const totalLikes = data.data.reviewTotalLikes;
+                        const likeCountElement = document.querySelector(`[data-review-id="${review_id}"] .like-count`);
+                        if (likeCountElement) {
+                            likeCountElement.textContent = totalLikes;
+                        }
+                    } else {
+                        console.error("총 리뷰 좋아요 수를 가져오는 데 실패했습니다:", data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error("총 리뷰 좋아요 수를 가져오는 중 오류가 발생했습니다:", error);
+                });
+        }
+
+        // 상품 찜하기
+        function toggleLike(item_id) {
+            const heart = document.getElementById(`itemLike-${item_id}`);
+
+            // fetch 호출 -> 비동기 네트워크 요청 보냄
+            fetch("/api/rental/toggleLike", {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ item_id: item_id })
+            })
+                .then(response => response.json()) // response.json() 메서드를 호출하여 응답 본문을 JSON으로 파싱
+                .then(data => { // 파싱된 JSON 데이터를 처리
+                    if (data.result === "fail") {
+                        alert(data.reason || "로그인 하셔야 이용 가능합니다.");
+                        window.location.href = "/user/loginPage";
+                    } else {
+                        const isLiked = data.data.isLiked;
+                        heart.textContent = isLiked ? 'favorite' : 'favorite_border';
+
+                        if(isLiked) {
+                            heart.classList.add("fill-1", "text-danger");
+                        } else {
+                            heart.classList.remove("fill-1", "text-danger");
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('찜하기 처리 중 오류가 발생했습니다.');
+                });
+        }
+    </script>
+</head>
+<body>
+<div id="root">
+    <div class="wrapper">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <div class="main">
+
+                <div class="row mx-0 align-items-center sticky-header">
+                    <div class="col-auto">
+                        <a th:href="@{/rental/list}" class="text-decoration-none">
+                        <span class="material-symbols-outlined align-middle new-text-black">
+                            arrow_back_ios
+                        </span>
+                        </a>
+                    </div>
+                    <div class="col py-4 text-center new-text-black">
+                        <span class="fw-bold fs-2">대여하기</span>
+                    </div>
+                    <div class="col-auto"></div> <!--빈 열 추가 텍스트 중앙-->
+                </div>
+
+            <div class="container">
+                <div class="row mx-0 border new-bg-white">
+                    <div class="col-12 overflow-hidden px-3 py-3">
+                        <div class="row">
+                            <div class="col">
+                                <img class="img-fluid" th:src="@{/images/{image}(image=${rentalItemInfo.rentalItemDto.image})}" />
+                            </div>
+                        </div>
+                        <!--삼항 연산자: 조건에 따라 두 개의 값 중 하나를 선택
+                        조건 ? 참일 때 값 : 거짓일 때 값
+                        isLiked가 true일 때 'favorited' 문자열을 반환
+                        isLiked가 false일 때 `''`빈 문자열 반환-->
+                        <div class="row pt-3 justify-content-end">
+                            <div class="col-auto pe-0">
+                                <span class="material-symbols-outlined new-fw-thin fs-3" style="cursor: pointer;"
+                                      th:id="'itemLike-' + ${rentalItemInfo.rentalItemDto.id}"
+                                      th:onclick="'toggleLike(' + ${rentalItemInfo.rentalItemDto.id} + ')'"
+                                      th:text="${isLiked} ? 'favorite' : 'favorite_border'"
+                                      th:classappend="${isLiked} ? 'fill-1 text-danger' : 'new-fw-thin'">
+                                </span>
+                            </div>
+                            <div class="col-auto ps-1">
+                                <span class="material-symbols-outlined new-fw-thin fs-3">
+                                    share
+                                </span>
+                            </div>
+                        </div>
+                        <div class="row pt-1">
+                            <div class="col" style="font-size: 17px;" th:text="${rentalItemInfo.rentalItemDto.title}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col pt-2 fw-bold fs-5 font-roboto" th:text="${#numbers.formatDecimal(rentalItemInfo.rentalItemDto.price, 0, 'COMMA', 0, 'POINT')} + '원'"></div>
+                        </div>
+                        <div id="review-section" class="row pt-1 pb-3 border-bottom new-border-gray">
+                            <div class="col-auto pe-0">
+                                <span id="average-rating-stars"></span>
+                                <span id="review-count-summary" class="new-fs-85 new-text-gray ps-1" style="cursor: pointer;  vertical-align: middle;">
+                                    0개 리뷰
+                                    <span id="review-icon" class="material-symbols-outlined new-fw-thin" style="font-size: 24px; cursor: pointer;  vertical-align: middle;">
+                                        chevron_right
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="row py-4">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col-auto pe-1">
+                                <span class="material-symbols-outlined">
+                                    info
+                                </span>
+                                    </div>
+                                    <div class="col ps-1 fw-semibold new-text-black">
+                                        해당 상품은 페스티벌 기간에만 대여 가능한 상품입니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row py-3 mb-4 new-border-gray border border-2" style="width: 320px; margin: 0 auto;">
+                            <div class="col">
+                                <div class="row pb-2">
+                                    <div class="col fw-semibold new-text-black">
+                                        <span>
+                                            [대여 안내]
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col new-fs-95 new-text-black">
+                                        • 대여 일수에 상관없이 대여비는 상품 가격으로 고정됩니다.
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col new-fs-95 new-text-black">
+                                        • 여러 개의 상품을 대여할 경우, 각 상품의 가격에 따라 대여비가 계산됩니다.
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col new-fs-95">
+                                        • 대여 기간이 만료되기 전에 반납하셔도 최초 대여 금액에서 비용이 환불되지 않습니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row py-3 new-border-gray border border-2" style="width: 320px; margin: 0 auto;">
+                            <div class="col">
+                                <div class="row pb-2">
+                                    <div class="col fw-semibold new-text-black">
+                                        <span>
+                                            [보증금 안내]
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col new-fs-95 new-text-black">
+                                        • 대여 시 보증금이 부과됩니다.
+                                    </div>
+                                </div>
+                                <div class="row pb-1">
+                                    <div class="col new-fs-95">
+                                        • 보증금은 결제 금액에 포함되지 않으며, 대여 기간 종료 후 상품이 정상 반납되면 환불됩니다.
+                                    </div>
+                                </div>
+                                <div class="row pb-1">
+                                    <div class="col new-fs-95">
+                                        • 보증금은 현장에서 결제해 주시기 바랍니다.
+                                    </div>
+                                </div>
+                                <div class="row pb-1">
+                                    <div class="col new-fs-95">
+                                        • 대여 기간 동안 물품의 파손, 분실 시 보증금에서 차감됩니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="">
+                <nav id="nav-tabs" class="sticky-nav">
+                    <ul class="nav nav-underline py-2 justify-content-around" style="cursor: pointer;" id="detail-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">상품설명</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="nav-review-tab" data-bs-toggle="tab" data-bs-target="#nav-review" role="tab" aria-controls="nav-review" aria-selected="false">
+                                리뷰(<span id="review-count-display">0</span>)
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">상품 Q&A</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="container">
+                    <div class="tab-content" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+                            <div class="row pt-3">
+                                <div class="col">
+                                    <div th:each="image : ${detailImages}">
+                                        <img class="img-fluid" th:src="@{/images/{image}(image=${image.detail_image})}" alt="상세 이미지">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-review" role="tabpanel" aria-labelledby="nav-review-tab" tabindex="0">
+                            <!--리뷰 정렬 옵션-->
+                            <div class="row new-fs-8 py-3 border-bottom">
+                                <div class="col-auto pe-2 sort-button" data-sort-order="latest">최신순</div>
+                                <div class="col-auto ps-0 pe-0">|</div>
+                                <div class="col-auto ps-2 pe-2 sort-button" data-sort-order="highRated">평점 높은순</div>
+                                <div class="col-auto ps-0 pe-0">|</div>
+                                <div class="col-auto ps-2 pe-2 sort-button" data-sort-order="lowRated">평점 낮은순</div>
+                                <div class="col-auto ps-0 pe-0">|</div>
+                                <div class="col-auto ps-2 sort-button d-flex justify-content-end align-items-center" data-sort-order="topRated">
+                                    추천순
+                                    <div class="tooltip-wrapper d-flex align-items-center">
+                                        <span class="material-symbols-outlined fs-6 tooltip-icon" style="margin-top: 1px;">help</span>
+                                        <div class="tooltip-text new-fs-7">
+                                            리뷰 텍스트 및 사진, 좋아요 수, 작성일 등을 점수화하여 정렬됩니다.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="review-list" id="reviewList">
+                                <!--리뷰 목록 나오는 곳-->
+                            </div>
+                            <div class="new-fs-85" id="noReviewMessage" style="display: none; text-align: center; padding: 70px;">
+                                작성된 리뷰가 없습니다.<br>
+                                첫 리뷰어가 되어 보세요!
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab" tabindex="0">
+                            <div class="row pt-5">
+                                <div class="col new-fs-85 text-center">
+                                    등록된 상품 Q&A가 없습니다.<br>
+                                    궁금한 점은 언제든지 물어보세요.
+                                </div>
+                            </div>
+                            <div class="row pt-2 pb-5">
+                                <div class="col text-center">
+                                    <button type="submit" class="btn btn-outline-secondary new-fs-85" style="border-radius: 0;">상품문의 하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 버튼 -->
+            <button id="scrollToTopBtn" class="scrollToTop">
+                <span class="material-symbols-outlined new-fw-thin">keyboard_arrow_up</span>
+            </button>
+
+            <!--대여하기 버튼-->
+            <div class="new-fixed-bottom new-bg-white" style="z-index: 200;">
+                <div class="row px-3 py-3">
+                    <div class="col text-center d-grid gap-2 mx-auto">
+                        <button class="btn btn-primary py-2" data-bs-toggle="offcanvas" data-bs-target="#rentalOffcanvas" style="border-radius: 0;">
+                            대여하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 오프캔버스 -->
+        <div class="offcanvas offcanvas-bottom" tabindex="-1" id="rentalOffcanvas" aria-labelledby="rentalOffcanvasLabel">
+            <div class="offcanvas-body">
+                <div class="container">
+                    <div class="row pt-1 pe-1">
+                        <div class="col text-end pe-0">
+                            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="row pt-3">
+                        <div class="col text-start offcanvas-title" style="font-size: 17px;" th:text="${rentalItemInfo.rentalItemDto.title}"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <form th:action="@{/rental/order}" method="get">
+                                <div class="row pb-2">
+                                    <div class="col">
+                                        <div class="row">
+                                            <div class="col pt-2 fw-bold" style="font-size: 19px;">
+                                                <div th:text="${#numbers.formatDecimal(rentalItemInfo.rentalItemDto.price, 0, 'COMMA', 0, 'POINT')} + '원'"></div>
+                                                <input type="text" id="price" name="price" class="form-control" th:value="${rentalItemInfo.rentalItemDto.price}" style="display:none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row py-2">
+                                    <div class="col">
+                                        <div class="row pb-2">
+                                            <div class="col">
+                                                대여 수량
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col">
+                                                <select name="count" id="count" class="form-select" aria-label="Default select example">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col">
+                                        <div class="row pb-2">
+                                            <div class="col">
+                                                대여 일수
+                                            </div>
+                                        </div>
+                                        <div class="row pb-5">
+                                            <div class="col">
+                                                <select name="rental_days" id="rental_days" class="form-select" aria-label="Default select example">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pt-5">
+                                    <div class="col-auto pe-0 new-text-gray">
+                                        <span class="material-symbols-outlined">
+                                            error
+                                        </span>
+                                    </div>
+                                    <div class="col ps-2">최대 3개까지 대여 가능합니다.</div>
+                                </div>
+                                <div class="row py-3">
+                                    <div class="col text-center d-grid gap-2 mx-auto">
+                                        <button type="submit" class="btn btn-primary py-2" style="border-radius: 0;">대여하기</button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="rental_item_id" th:value="${rentalItemInfo.rentalItemDto.id}" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--리뷰 템플릿-->
+        <div id="reviewTemplate" class="d-none">
+            <div class="reviewWrapper row py-3" data-review-id="" data-is-review-liked="false">
+                <div class="col">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row justify-content-between">
+                                <div class="col-auto new-fs-95">
+                                    <div class="review-rating"></div>
+                                    <div class="row pt-1 align-items-center">
+                                        <div class="col-auto pe-0">
+                                            <img class="userImage img-fluid" style="width: 45px; height: 45px; border-radius: 50%">
+                                        </div>
+                                        <div class="col-auto new-fs-8 ps-2">
+                                            <div class="review-user"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-auto text-end new-fs-8">
+                                    <div class="review-date"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pt-3 new-fs-85">
+                        <div class="col-4">상품명</div>
+                        <div class="col-8 ps-0 ellipsis-line-one">
+                            <div class="review-title"></div>
+                        </div>
+                    </div>
+                    <div class="row new-fs-85">
+                        <div class="col-4">상품상태</div>
+                        <div class="col-8 ps-0">
+                            <div class="review-condition">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row py-3">
+                        <div class="col">
+                            <img class="review-image img-fluid">
+                        </div>
+                    </div>
+                    <div class="row py-1 new-fs-9">
+                        <div class="col">
+                            <div class="review-content"></div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center pt-1 new-text-gray">
+                        <div class="col-auto pe-0">
+                            <span class="material-symbols-outlined fs-4 new-fw-thin d-flex justify-content-center">
+                                robot_2
+                            </span>
+                        </div>
+                        <div class="col ps-0 new-fs-8">
+                            <span style="
+                            color: #ffffff;
+                            font-weight: bold;
+                            background: #ff9191;
+                            " class="px-2 rounded-3 bg-primary1 new-text-white fw-bold">Chat GPT</span>
+                            <span>의 한 줄 요약</span>
+                        </div>
+                    </div>
+                    <div class="row new-fs-8 align-items-center new-text-gray">
+                        <div class="col-auto ps-3 pe-0">
+                            <span class="material-symbols-outlined fs-5 new-fw-thin d-flex justify-content-center">
+                                subdirectory_arrow_right
+                            </span>
+                        </div>
+                        <div class="col ps-0">
+                            <div class="reviewChatGpt"></div>
+                        </div>
+                    </div>
+                    <div class="row pt-2">
+                        <div class="col text-end d-flex justify-content-end align-items-center like-container">
+                            <button class="review-like-button btn btn-link p-0" style="line-height: 1; color: black;">
+                                <span class="material-symbols-outlined new-fw-thin" style="font-size: 18px;">
+                                    thumb_up
+                                </span>
+                            </button>
+                            <span class="like-count new-fs-85 font-roboto ms-1"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNavi}"></div>
+        <!--/* 퀵바 */-->
+        <div th:replace="~{common/navi::quickNavi}"></div>
+    </div>
+</div>
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

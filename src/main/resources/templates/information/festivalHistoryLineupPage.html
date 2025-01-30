@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th band</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/information/information.css">
+
+</head>
+<script>
+
+    const urlParams = new URL(window.location.href).searchParams;
+    const festivalId = urlParams.get("id");
+    const lineUpUrlByFestivalId = "/api/information/getLineupListByFestivalId?id=" + festivalId;
+    console.log("페스티벌아이디",festivalId);
+
+    //날짜 카테고리화 하기
+    function getLineUpListByFestivalId(){
+        //사용자 페이지임 관리자페이지랑 헷갈리지말기
+        fetch(lineUpUrlByFestivalId)
+            .then(response => response.json())
+            .then(response =>{
+
+                const artistListBox = document.getElementById("artistListBox");
+                artistListBox.innerHTML="";
+
+                const artistWrapperTemplete = document.querySelector("#templete .artistListWrapper");
+
+
+                /** 날짜 골라내는 코드였는데 썼다가 사용안해서 교체
+                 *  if(response.data.lineUpList.length > 0){
+                 *     const performanceDateContainer = document.getElementById("performanceDateContainer");
+                 *     performanceDateContainer.innerHTML = "";
+                 *     const performanceDate = document.createElement("div");
+                 *     performanceDate.innerText = formDate(response.data.lineUpList[0].performance_date);
+                 *     performanceDateContainer.appendChild(performanceDate);
+                 *   }
+                 * **/
+
+                /**
+                 * 날짜별로 아티스트를 그룹화
+                 * 첫 번째 매개변수 acc는 누적기(accumulator)로, 그룹화된 아티스트 객체들을 저장하는 객체입니다.
+                 * 두 번째 매개변수 artist는 현재 처리 중인 아티스트 객체입니다.
+                 * 날짜를 변환해서 해당 리스트에 아티스트를 넣음
+                 * **/
+
+                const groupedByDate = response.data.lineUpList.reduce((acc, artist) => {
+                    const date = formDate(artist.performance_date);
+                    if (!acc[date]) acc[date] = [];
+                    acc[date].push(artist);
+                    return acc;
+                }, {});
+
+
+                for(const date in groupedByDate){
+
+                    //날짜 출력
+                    const dateHeader = document.createElement("div");
+                    dateHeader.className = "date-header";
+                    dateHeader.innerText = date;
+                    artistListBox.appendChild(dateHeader);
+
+                    groupedByDate[date].forEach(artist =>{
+
+                        const newArtistWrapper = artistWrapperTemplete.cloneNode(true);
+
+                        const artistName = newArtistWrapper.querySelector(".artistName");
+                        artistName.innerText = artist.artist_name;
+
+                        const artistThumbnail = newArtistWrapper.querySelector(".artistThumbnail");
+                        artistThumbnail.src = '/images/' + artist.thumbnail;
+
+                        const artistDetail = newArtistWrapper.querySelector(".artistDetail");
+                        artistDetail.innerText= artist.artist_detail;
+
+                        //반복문을 돌렸는데 템플릿 복사 중 클래스가 고정되어  변경이 되지 않아 똑같은 친구가 계속 열림..
+                        //그래서 클래스가 반복이 되면서 id를 다르게 넣어주는 방법을 아래 두 방법에서 진행하게됨. class와 id에 대한 이해 필요
+                        const collapseDiv = newArtistWrapper.querySelector(".collapse");
+                        collapseDiv.id = "artistId" + artist.artist_id;
+
+                        //setAttribute로 값 지정
+                        const artistInformation = newArtistWrapper.querySelector(".artistInformation");
+                        artistInformation.setAttribute("data-bs-target", `#artistId${artist.artist_id}`);
+
+
+                        const artistDetailPage = newArtistWrapper.querySelector(".artistDetailPage");
+                        artistDetailPage.href = "/information/artistDetailPage?id=" + artist.artist_id;
+
+
+                        //특정요소인 festivalListBox 내에 NewFestivalWrapper 요소들로 값을 추가해주겠다는 이야기이다.
+                        //for 문 안에 들어와야함.. Wrapper안에 싸여있는 아래 요소들을 바꿔준다는 이야기이다.
+                        artistListBox.appendChild(newArtistWrapper);
+
+
+                    })
+
+                }
+            })
+            .catch(error => console.error('Error fetching artist data:', error));
+
+    }
+
+    //날짜 하나에만 해당하는 아티스트를 어떻게 출력할지에 대해서도 고민해야할듯..
+    //날짜변환함수..
+    function formDate(dateString){
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        return `${year}/${month}/${day}`;
+    }
+
+
+    window.addEventListener("DOMContentLoaded",() =>{
+        getLineUpListByFestivalId();
+    })
+
+</script>
+<style>
+    /*	bolder: 부모 요소의 글자 두께보다 더 굵은 글자*/
+    .date-header {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 500;
+        margin-top: 10px;
+        color: #f8f8f8;
+    }
+</style>
+<body>
+<div id="root">
+    <div class="wrapper bgPatternBlackAndWhite">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <!--공연정보 시작 공연정보 / 예매정보/ 주의사항 / 연령제한 / 공연위치-->
+        <div class="main">
+            <div class="container">
+                <div class="row mx-0 new-py-45 align-items-center">
+                    <div class="col-1 ps-0 d-flex align-items-center">
+                        <span class="material-symbols-outlined new-text-white"
+                              onclick="backToPreviousPage()">
+                            arrow_back_ios
+                        </span>
+                    </div>
+                    <div class="col new-text-white text-center">
+                        <h2 onclick="reloadPage()">Line-Up</h2>
+                    </div>
+                    <div class="col-1"></div>
+                </div>
+
+
+                <!--반복될 row-->
+                <div class="row">
+                    <!--일차별 정보-->
+                    <div class="col new-text-white text-center" id="performanceDateContainer"></div>
+                </div>
+                <div class="row mx-0">
+                    <div class="g-col-10 overflow-hidden bg-boxColor-festival" id="artistListBox"></div>
+                </div>
+                <!--아티스트 정보 하나 묶어줌, 반복될 틀-->
+                <div class="grid d-none" id="templete">
+                    <div class="g-col-10 overflow-hidden bg-boxColor-festival">
+                        <div class="row artistListWrapper">
+                            <div class="col py-2">
+                                <!--아티스트 사진 및 정보-->
+                                <div class="division-shortest-line-user"></div>
+                                <div class="row">
+                                    <!--이미지 영역-->
+                                    <div class="col text-center m-3">
+                                        <image class="img-fluid artistThumbnail"></image>
+                                    </div>
+                                </div>
+                                <!--아티스트 이름-->
+                                <div class="row">
+                                    <div class="col h5 artistName new-text-white text-center"></div>
+                                </div>
+                                <!--상세정보.. -->
+                                <div class="row">
+                                    <!--상세정보 한번 감싸주는 것-->
+                                    <div class="col">
+                                        <!--아티스트 사진-->
+                                        <!--세부정보.. 이 부분에 대해서 이해가 필요할듯-->
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col text-center">
+                                                        <!--아래 디테일을 불러오는 버튼-->
+                                                        <!--d-inline-flex-->
+                                                        <p class="gap-1 new-text-white d-grid">
+                                                            <button class="artistInformation new-text-white rounded-0 btn btn-dark"
+                                                                    type="button" data-bs-toggle="collapse"
+                                                                    aria-expanded="false" aria-controls="collapseExample">
+                                                                아티스트 정보
+                                                            </button>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <!--아티스트 디테일-->
+                                                        <div class="collapse p-2" id="collapseExample">
+                                                            <div class="card card-body artistDetail rounded-0">
+                                                            </div>
+                                                            <a class="new-text-white artistDetailPage">
+                                                                <div class="col"> >자세히 보기</div>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNaviWhite}"></div>
+        <!--/* 퀵바 */-->
+        <div th:replace="~{common/navi::quickNavi}"></div>
+        </div>
+    </div>
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script src="/public/js/information/informationUser.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

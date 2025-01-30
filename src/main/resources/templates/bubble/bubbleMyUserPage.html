@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th band</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .limited-size-image {
+        width: 40%;
+        max-width: 300px; /* 최대 너비를 설정, 필요에 따라 조정 */
+        height: auto; /* 자동으로 높이를 설정 */
+    }
+
+
+    /* Flexbox 컨테이너 설정 */
+    #postBox {
+        display: flex;
+        flex-wrap: wrap; /* 항목이 한 줄을 넘을 경우 다음 줄로 배치 */
+        gap: 0; /* 요소들 간격 없음 */
+    }
+
+    /* 개별 이미지 래퍼 설정 */
+    .postListWrapper {
+        position: relative;
+        padding-top: calc(33.333% - 10px); /* 정방형 비율 유지 */
+        overflow: hidden; /* 넘치는 부분 숨김 */
+        box-sizing: border-box; /* 패딩과 보더를 포함한 크기 계산 */
+    }
+
+    /* 이미지 설정 */
+    .postThumbnail {
+        position: absolute; /* 부모에 맞춰서 절대 위치 */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 이미지 커버 (잘리게 함) */
+    }
+
+    .dropdown-menu-fit-content {
+        width: auto;
+        min-width: 0; /* 필요에 따라 최소 너비를 재설정 */
+    }
+
+    .no-posts-message{
+        text-align: center;
+    }
+
+
+    .blue-background {
+        color: #2196F3;
+    }
+
+    .profilePic{
+        height: 50px;
+        width: auto;
+        border-radius: 50%;
+        object-fit: cover; /* 이미지가 잘리지 않고 잘 맞도록 설정 */
+    }
+
+</style>
+<body>
+<!--버블유저페이지, 마이페이지와 다름, 이름과 헷갈리지 말것... 이름좀 잘 지었어야지..-->
+<div id="root">
+    <div class="wrapper">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{bubble/bubbleNavigation::topBubbleNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+        <!-- /* 컨텐츠 */ -->
+        <!-- /* 로그인 분기처리 */ -->
+        <div class="main">
+            <div class="container-fluid">
+                <div class="row " style="padding-top: 60px">
+                    <div class="col">
+                        <!--헤더-->
+                        <div class="row d-grid mb-3">
+                            <div class="col">
+                                <div class="row mb-2">
+                                    <div class="col-2">
+                                        <img class="img-fluid profilePic" id="userProfileImg" src="/public/img/user/user_icon.png/">
+                                    </div>
+                                    <div class="col-auto fw-bold" id="userName">
+                                        유저 아이디
+                                    </div>
+                                    <div class="col ps-0 blue-background" id="Artist"></div>
+                                    <!--더보기 버튼-->
+                                    <div class="col-auto text-end" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <span class="colIcon material-symbols-outlined">
+                                            more_horiz
+                                        </span>
+                                    </div>
+                                    <div class="dropdown-menu dropdown-menu-fit-content" aria-labelledby="dropdownMenuButton">
+
+                                        <a class="dropdown-item" href="#">계정 관리</a>
+                                    </div>
+                                </div>
+                            </div>
+                                <!--팔로우 정보 및 포스트 들어갈 예정-->
+                                <div class="row  mx-2 mb-4 text-center">
+                                    <div class="col">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col" id="postCount"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">포스트</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col" id="follower"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">팔로워</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col" >
+                                        <div class="row">
+                                            <div class="col">
+                                                <div class="row">
+                                                    <div class="col" id="following"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col">팔로잉</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <div class="row ms-1">
+                                <div class="col">
+                                    <a class="btn btn-primary w-100" href="/bubble/artistApplyPage">아티스트 신청하기</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--유저가 작성한 사진들 들어갈 곳-->
+                        <!--유저가 작성한 사진들 들어갈 곳-->
+                        <div class="row" id="postBox"></div>
+                        <div class="container d-none" id="templete">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col-4 postListWrapper">
+                                            <a class="postDetail">
+                                                <img class="img-fluid postThumbnail">
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNavi}"></div>
+        <div th:replace="~{bubble/bubbleNavigation::bottomBubbleNavi}"></div>
+    </div>
+</div>
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script type="text/javascript" src="/public/js/bubble/bubbleUserPage.js"></script>
+</body>
+</html>

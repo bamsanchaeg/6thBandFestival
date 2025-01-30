@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<body>
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="d-flex">
+            <!-- /* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */ -->
+            <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+            </div>
+
+            <!-- /* 우측 컨텐츠 */ -->
+            <div class="page-right flex-grow-1">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                <!-- /* 컨텐츠 */ -->
+                <div class="main py-4 px-4">
+                    <div class="row pb-3">
+                        <div class="col fs-5 fw-medium">
+                            <span>페스티벌 후기 상세 정보</span>
+                        </div>
+
+                        <div class="col-1 text-end">
+<!--                            <a th:href="@{/admin/ticket/deleteReview(id=${reviewInfo.id})}">-->
+                                <span onclick="deleteReview()" class="text-danger">후기 삭제</span>
+<!--                            </a>-->
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 py-2 new-fs-9 align-items-center new-bg-gray">
+                        <div class="col-auto pe-0">
+                            <span>작성자 : </span>
+                        </div>
+                        <div class="col-auto">
+                            <span th:text="${reviewInfo.nickname}"></span>
+                        </div>
+
+                        <div class="col-auto px-0">
+                            <span> | </span>
+                        </div>
+                        <div class="col-auto pe-0">
+                            <span>작성일 : </span>
+                        </div>
+                        <div class="col-1">
+                            <span th:text="${#dates.format(reviewInfo.created_at, 'yy-MM-dd HH:mm')}"></span>
+                        </div>
+                    </div>
+
+                    <div class="row pt-3 pb-2">
+                        <div class="col fw-medium">
+                            <span>관련된 티켓 정보</span>
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 border-top border-black ">
+                        <div class="col-2">
+                            <div class="row border-bottom fw-medium py-2 new-fs-9 new-bg-gray">
+                                <div class="col">
+                                    <span>페스티벌</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom fw-medium py-2 new-fs-9 new-bg-gray">
+                                <div class="col">
+                                    <span>티켓 종류</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom fw-medium py-2 new-fs-9 new-bg-gray">
+                                <div class="col">
+                                    <span>입장 날짜</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom fw-medium py-2 new-fs-9 new-bg-gray">
+                                <div class="col">
+                                    <span>수량</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom fw-medium py-2 new-fs-9 new-bg-gray">
+                                <div class="col">
+                                    <span>가격</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="row border-bottom py-2 new-fs-9">
+                                <div class="col">
+                                    <span th:text="${reviewInfo.festival_name}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom py-2 new-fs-9">
+                                <div class="col">
+                                    <span th:text="${reviewInfo.day_type}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom py-2 new-fs-9">
+                                <div class="col">
+                                    <span th:text="${#dates.format(reviewInfo.booking_day, 'yy-MM-dd')}"></span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom py-2 new-fs-9">
+                                <div class="col-auto">
+                                    <span>성인 </span>
+                                    <span th:text="${reviewInfo.adult_quantity}"></span>장
+                                </div>
+                                <div class="col-1 ps-0">
+                                    <span>청소년 </span>
+                                    <span th:text="${reviewInfo.youth_quantity}"></span>장
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom py-2 new-fs-9">
+                                <div class="col">
+                                    <span th:text="${#numbers.formatInteger(reviewInfo.total_price,  3, 'COMMA')}"></span>
+                                    <span>원</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row pt-3 pb-2">
+                        <div class="col fw-medium">
+                            <span>후기 내용</span>
+                        </div>
+                    </div>
+
+                    <div class="row mx-0 new-fs-9 border-top border-black">
+                        <div class="col">
+
+                            <div class="row border-bottom">
+                                <div class="col-2 fw-medium py-2 new-bg-gray">제목</div>
+                                <div class="col py-2" th:text="${reviewInfo.title}"></div>
+                            </div>
+
+                            <div class="row border-bottom">
+                                <div class="col-2 fw-medium py-2 new-bg-gray">이미지</div>
+                                <div class="col-1 py-2" th:each="e : ${reviewImages}">
+                                    <img class="img-fluid image-thumbnail" th:src="|/images/${e.url}|">
+                                </div>
+                                <div class="col new-text-gray2 py-2" th:if="${reviewImages.size() == 0}">
+                                    <span>이미지가 존재하지 않습니다.</span>
+                                </div>
+                            </div>
+
+                            <div class="row border-bottom">
+                                <div class="col-2 fw-medium py-2 new-bg-gray">내용</div>
+                                <div id="reviewContentSpan" class="col py-2" th:text="${reviewInfo.content}"></div>
+                            </div>
+
+                            <div class="row border-bottom">
+                                <div class="col-2 fw-medium py-2 new-bg-gray">조회수</div>
+                                <div class="col py-2" th:text="${reviewInfo.read_count}"></div>
+                            </div>
+
+                            <div class="row border-bottom">
+                                <div class="col-2 fw-medium py-2 new-bg-gray">공감수</div>
+                                <div class="col py-2" th:text="${likeCount}"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row pt-5">
+                        <div class="col">
+                            <a href="/admin/ticket/reviewAdminPage">
+                                <span class="border new-px-25 new-py-25 border-black"> 후기 목록</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- /* 푸터 */ -->
+                <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="/public/js/ticket/ticketReviewAdminInfo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

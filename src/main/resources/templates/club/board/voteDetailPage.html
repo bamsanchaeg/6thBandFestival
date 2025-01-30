@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+
+    <title>6th BAND - Community</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <!-- 차트import하기ㅣㅣ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script>
+        const urlParams = new URL(window.location.href).searchParams;
+        const clubId = urlParams.get("id");
+        const voteId = urlParams.get("vote_id");
+
+        function setSessionUserId(){
+                const url = "/six/user/getSessionUserId";
+                fetch(url)
+                .then(response => response.json())
+                .then((response) => {
+                    myId= response.data.id;
+                    notMemberExist();
+                    myVoteExist();
+                    memberAndResidentExist();
+                })
+            }
+
+        function voteDetailList(){
+            const url = "/api/club/voteDetail?club_id="+clubId+"&id="+voteId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response)=>{
+                
+                const voteDetailTitle = document.querySelector(".voteDetailTitle");
+                voteDetailTitle.innerText=response.data.voteDetail.clubVoteTitle.question_title;
+                
+                const voteDetailRestDay = document.querySelector(".voteDetailRestDay");
+                let today = new Date();
+                let year = today.getFullYear();
+                let month = ('0'+(today.getMonth()+1)).slice(-2);
+                let day = ('0'+(today.getDate())).slice(-2);
+                let todayDate = new Date(`${year}-${month}-${day}`);
+
+                const finalDate = new Date(response.data.voteDetail.clubVoteTitle.final_date);
+
+                const timeRest = finalDate- todayDate;//UTC 시간임.
+                const dateRest = Math.ceil(timeRest/(1000 * 3600 * 24));
+                const btnColor = document.querySelector(".btnColor");
+                function findPreviousSpan(element){
+                    let sibling = element.previousElementSibling;
+                    while(sibling){
+                        <!--/*span 대문자가 중요!!!!!!!!!*/-->
+                        if(sibling.tagName === 'SPAN'){
+                            return sibling;
+                        }
+                        sibling = sibling.previousElementSibling;
+                    }
+                }
+
+                const previousSpan = findPreviousSpan(voteDetailRestDay);
+                const voteButtonState = document.getElementById("voteButtonState");
+                const voteDetailResult = document.getElementById("voteDetailResult");
+
+                if(dateRest > 0){
+                    voteDetailRestDay.innerText=dateRest;
+                    previousSpan.classList.add('text-primary');
+                    voteDetailRestDay.classList.add('text-primary');
+                    btnColor.className = 'btn btn-outline-primary rounded-5 py-0 px-2 new-fs-75';
+                    voteDetailResult.classList.add("d-none");
+                }
+                else if(dateRest == 0){
+                    voteDetailRestDay.textContent ="Day";
+                    previousSpan.classList.add('text-primary');
+                    btnColor.className = 'btn btn-outline-primary rounded-5 py-0 px-2 new-fs-75';
+                    voteButtonState.classList.add('d-none');
+
+                }
+                else{
+                    voteDetailRestDay.innerText = "종료";
+                    previousSpan.classList.add('d-none');
+                    previousSpan.classList.add('text-grey');
+                    btnColor.className = 'btn btn-outline-secondary  rounded-5 py-0 px-2 new-fs-75';
+                    voteButtonState.classList.add('d-none');
+                }
+
+                const voteDetailList = document.querySelector(".voteDetailList");
+                voteDetailList.innerHTML="";
+
+                const voteDetailTemplate = document.querySelector("#voteDetailTemplate .voteDetailWrapper"); 
+
+                response.data.voteDetail.clubVoteOptionList.forEach((option,index) => {
+                    const newVoteDetailTemplate = voteDetailTemplate.cloneNode(true);
+                    const voteDetailImage = newVoteDetailTemplate.querySelector(".voteDetailImage");
+
+                    const img = document.createElement('img');
+                    img.style.width='4em';
+                    img.style.height='4em';
+                    img.classList.add('rounded-2','border');
+
+                    if(option.question_image != null){
+                        img.src=`/images/${option.question_image}`;
+                    }
+                    else{
+                        img.src='/public/img/no-image01.gif'; 
+                    }
+                    voteDetailImage.appendChild(img);
+
+                    const voteOptionNum = newVoteDetailTemplate.querySelector(".voteOptionNum");
+                    voteOptionNum.innerText = index +1;
+
+                    const voteDetailContent = newVoteDetailTemplate.querySelector(".voteDetailContent");
+                    voteDetailContent.innerText=option.question_content;
+                    voteDetailContent.classList.add('d-flex','align-items-center');
+
+                    const selectButton = newVoteDetailTemplate.querySelector(".selectButton");
+
+                    const radioButton = document.createElement('input');
+                    radioButton.type = 'radio';
+                    radioButton.name = 'option_id';
+                    radioButton.value = index+1;
+                    radioButton.classList.add('customRadio','custom-radio','form-check-input');
+
+                    selectButton.appendChild(radioButton);
+
+                    const detailButton = newVoteDetailTemplate.querySelector(".detailButton");
+                    detailButton.setAttribute('option-id', index + 1);
+                    detailButton.addEventListener("click", () => voteGenderSelect(index + 1, clubId, voteId));
+
+                    
+                    voteDetailList.appendChild(newVoteDetailTemplate);
+                    
+                })
+
+                if(dateRest <=0){
+
+                selectOptionId();
+                isNobodyVote();
+                
+                }   
+            })
+        }
+
+        
+        function memberAndResidentExist(){
+            const url = "/api/club/memberAndResidentExist?id="+clubId+"&user_id="+myId;
+            fetch(url)
+            .then(response => response.json())
+            .then((response) => {
+                if(!response.data.residentInfo.residentExist && !response.data.residentInfo.memberExist){
+                    const voteButtonState = document.getElementById("voteButtonState");
+                    voteButtonState.classList.add('d-none');
+
+                    selectOptionId();                        
+                }
+            })
+        }
+
+        function registMyVoteSelect(){
+        
+
+            const urlParams = new URL(window.location.href).searchParams;
+            const clubId = urlParams.get("id");
+            const voteId = urlParams.get("vote_id");
+
+            document.getElementById("voteId").value=voteId;
+            document.getElementById("clubId").value=clubId;
+
+            const myVoteSelect = document.getElementById("myVoteSelect");
+            const formData = new FormData(myVoteSelect);
+
+            const url = "/api/club/mySelectVoteOption";
+            fetch(url, {
+                headers: {
+                    // 'Content-Type': 'multipart/form-data'
+                },
+                method: 'POST',
+                cache: 'no-cache',
+                body: formData // body 부분에 폼데이터 변수를 할당
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                
+                if (response.result === "success") {
+                        // 리다이렉트 경로 지정
+                        window.location.href = "/club/detail/vote?id=" + clubId;
+
+                    } 
+            });
+        }
+
+        
+        function myVoteExist(){
+            const url = "/api/club/myVoteExist?vote_id="+voteId+"&club_member_id="+myId;
+                fetch(url)
+                .then(response => response.json())
+                .then((response) => {
+                    const voteButtonState = document.getElementById("voteButtonState");
+                    const selectButtons = document.querySelectorAll('.selectButton');
+
+                    if(response.data.myVoteExist === true){
+                        const voteButtonState =document.getElementById("voteButtonState");
+                        voteButtonState.innerText="투표 완료";
+                        voteButtonState.classList.add('disabled');
+                    }
+
+                    if(voteButtonState.innerText == "투표 완료"){
+                        selectButtons.forEach((button) => {
+                        button.classList.add('d-none');
+                        })
+                    }
+                    
+
+                })
+        }
+
+        async function selectOptionId(){
+            const radioValue = document.querySelectorAll('input[name="option_id"]');
+            const selectButtons = document.querySelectorAll('.selectButton');
+
+                for(const radioId of radioValue){
+                    const radioOptionId = radioId.value;
+                    await voteResult(radioOptionId);
+        
+                    selectButtons.forEach((button) => {
+                        button.classList.add('d-none');
+
+                    })
+                    
+                }
+        }
+
+        async function voteResult(radioOptionId){
+
+            const optionUrl = `/api/club/voteResultByOption?vote_id=${voteId}&option_id=${radioOptionId}`;
+            const optionResponse = await fetch(optionUrl);
+            const optionData = await optionResponse.json();
+
+                // 여기에서 각 옵션별 수와 총 수를 사칙연산 하면됨.
+
+                const totalvoteUrl = `/api/club/voteTotalMember?vote_id=${voteId}`;
+                const totalResponse = await fetch(totalvoteUrl);
+                const totalData = await totalResponse.json();
+                
+                if (totalData.data.voteTotalResult > 0) {
+                
+                const percentage = optionData.data.voteOptionResult / totalData.data.voteTotalResult;
+
+                const radioButton = document.querySelector(`input[name="option_id"][value="${radioOptionId}"]`);
+                if(radioButton){
+                    const selectButton = radioButton.closest('.selectButton');
+                    if(selectButton){
+                        const voteResultPercent = selectButton.nextElementSibling;
+                        if(voteResultPercent && voteResultPercent.classList.contains('voteResultPercent')){
+                            var roundedPercentage = (percentage * 100).toFixed(1);
+                            voteResultPercent.innerText = roundedPercentage + '%';
+                        }
+                    }
+                }
+                //기존의 highlighted제거 코드 
+                document.querySelectorAll('.row').forEach((row) => {
+                    row.classList.remove('rounded-2', 'highlighted');
+                });
+
+                document.querySelectorAll('.voteResultPercent').forEach((voteResultPercent) => {
+                    voteResultPercent.classList.remove('fw-semibold');
+                });
+
+                highSelectOption();
+            }
+        }
+
+        function isNobodyVote(){
+            const url = "/api/club/voteTotalMember?vote_id="+voteId;
+            fetch(url)
+                .then(response => response.json())
+                .then((response) => {
+                    if (response.data.voteTotalResult === 0) {
+                        const voteResultPercentElement = document.querySelectorAll(".voteResultPercent");
+                        voteResultPercentElement.forEach((element) => {
+                            element.innerText='0%';
+                        })
+                    
+                    }
+            })
+
+        }
+
+        function highSelectOption(){
+            const voteResultPercent = document.querySelectorAll(".voteResultPercent");
+            
+            let highestVote =0;
+            let highestVoteElement = [];
+            voteResultPercent.forEach((element) => {
+                const voteResultPercent = parseInt(element.innerText);
+                console.log(voteResultPercent);
+                if(voteResultPercent > highestVote ){
+                    highestVote = voteResultPercent;
+                    highestVoteElement = [element];
+
+                }
+                else if(voteResultPercent == highestVote){
+                    highestVoteElement.push(element);
+                }
+            })
+
+            if(highestVoteElement.length > 0){
+                highestVoteElement.forEach((element) => {
+                    const highestVoteRow = element.closest('.row');
+                    highestVoteRow.classList.add('rounded-2','highlighted');
+
+                    const highestVotePercent = element; // 이미 'voteResultPercent'인 요소
+                    highestVotePercent.classList.add('fw-semibold');
+
+                })
+            }
+                
+        }
+
+        function goToHome(){
+            
+            location.href="/club/detail/home?id="+clubId;
+        }
+
+        function backToVoteList(){
+            location.href="/club/detail/vote?id="+clubId;
+
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            setSessionUserId();
+            voteDetailList();  
+        });
+    </script>
+    <style>
+        .custom-radio {
+            transform: scale(1.1); /* 크기를 1.5배로 확대 */
+            -webkit-transform: scale(1.1); /* Safari 지원 */
+            margin-right: 10px; /* 텍스트와 라디오 버튼 사이 간격 조정 */
+        }
+
+        .form-check-input:checked {
+            border-color: #ff6d96 !important;
+            background-color: #ff6d96;
+        }
+
+        .voteDetailContent {
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+        .highlighted {
+            transform: scale(1);
+
+            box-shadow: 0 0 15px  #ffcaca;
+
+            /* animation: pulse 2s infinite; */
+        }
+
+            /* @keyframes pulse {
+                0% {
+                    transform: scale(1);
+                    box-shadow: 0 0 5px #ff6d96;
+                }
+                50% {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 20px #ff6d96;
+                }
+                100% {
+                    transform: scale(1);
+                    box-shadow: 0 0 5px #ff6d96;
+            } */
+        /* } */
+        .text-grey {
+            color: rgb(141, 141, 141);
+        }
+        #mainVoteContent{
+            display: none;
+        }
+        .rowPadding{
+            padding-top: 10em;
+            padding-bottom: 1em;
+        }
+
+
+    </style>
+</head>
+<body>
+        <div id="root">
+            <div class="wrapper">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/navi::topNavi}"></div>
+                <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+                <!-- /* 컨텐츠 */ -->
+                <div class="main" id="mainVoteContent">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 mx-auto ">
+                                <div class="row pt-2">
+                                    <div class="col">
+                                        <span class="material-symbols-outlined" onclick="backToVoteList()">arrow_back_ios</span>
+                                    </div>
+                                </div>
+                                <div class="row border-bottom">
+                                    <div class="col-1"></div>
+                                    <div class="col-10 pb-4 px-4 text-center">
+                                        <div class="voteDetailTitle pb-1 fs-5" style="color: #46340d;">
+                                            
+                                        </div>
+                                        <div class="row d-flex justify-content-center">
+                                            <div class="col text-center py-0 px-2 rounded-5 new-fs-8">
+                                                <div class="btn btn-outline-secondary rounded-5 py-0 px-2 new-fs-8 btnColor">
+                                                    <span>D - </span><span class="voteDetailRestDay"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="col-1"></div>
+                                </div>
+
+                                <form id="myVoteSelect">
+                                    <div class="row pt-5">
+                                        <div class="col-11 mx-auto voteDetailList">
+
+                                        </div>
+                                    </div>
+
+                                    <div id="voteDetailTemplate" class="d-none">
+                                        <div class="row voteDetailWrapper mb-4" >
+                                            <div class="col-3 pt-3 ps-3 pb-0 " style="position: relative; ">
+                                                <span class=" voteDetailImage" ></span>
+                                                <span class="voteOptionNum badge rounded-2 " style="position: absolute; left:5.3em; bottom: 0em; background-color: #ff6d96;"></span>
+                                            </div>
+                                            <div class=" pt-3 pb-0 voteDetailContent d-flex align-self-start" style="width: 60%;">
+
+                                            </div>
+                                            <div class="col-1 selectButton d-flex align-items-center">
+
+                                            </div>
+                                            <div class="px-4 voteResultPercent new-fs-8 d-flex align-items-center justify-content-center" style="color: #46340d; width: 8%">
+                                            </div>
+                                            <div class="row pb-2 pe-0">
+                                                <div class="col text-end px-0" id="voteDetailResult">
+                                                    <div class="detailButton new-fs-7 new-club-text-grey">투표 결과 상세보기</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <input type="hidden" name="club_id" id="clubId">
+                                    <input type="hidden" name="vote_id" id="voteId">
+                                    
+                                </form>
+
+                                <div id="genderStatisticsBox"></div>
+                                <div id="genderStatisticsTemplate" class="d-none">
+                                    <div class="genderStatisticsWrapper pb-5">
+                                        <canvas class="genderStatistics"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button onclick="registMyVoteSelect()" id="voteButtonState" type="button" class="btn new-fixed-bottom rounded-0 new-text-white d-grid border-0 new-py-25 lh-1" style="background-color: #ff6d96;">투표하기</button>
+                        
+                </div>
+
+                <div id="notMemberSee" class="d-none">
+                    <div class="row rowPadding">
+                        <div class="col d-flex justify-content-center">
+                            멤버에게만 공개된 게시글 입니다.
+                        </div>
+                    </div>
+                    <div class="row pt-3">
+                        <div class="col d-flex justify-content-center">
+                            <button class="btn btn-primary" onclick="goToHome()" style="background-color: #ff6d96; border-color: #ff6d96;">카페 가입하기</button>
+                        </div>
+                    </div>
+                </div>
+                <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+                <!-- /* 푸터 */ -->
+                <!-- <div th:replace="~{common/navi::bottomNavi}"></div> -->
+            </div>
+        </div>
+
+        <script type="text/javascript" src="/public/js/club/clubVoteStatistics.js"></script>
+        <script type="text/javascript" src="/public/js/club/ClubVote.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+    </html>

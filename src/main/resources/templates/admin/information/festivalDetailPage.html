@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th band</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=82f1c58e1a81c1b92f6b88ceea9549bd&libraries=services"></script>
+
+</head>
+<style>
+    .nav {
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+
+    .nav-link {
+        cursor: pointer;
+        padding: 10px 20px;
+        margin-right: 5px;
+        border: 1px solid transparent;
+        display: inline-block;
+        color: black;
+    }
+
+    .nav-link:hover {
+        color: #FF6D96;
+        /* 호버 상태의 글자색 */
+    }
+
+    .nav-link.active {
+        color: #FF6D96;
+        font-weight: bold;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 20px;
+        border: 1px solid #ccc;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .align-end {
+        display: flex;
+        align-items: flex-end; /* 바닥 기준으로 정렬 */
+    }
+
+
+</style>
+<script>
+
+    const urlParams = new URL(window.location.href).searchParams;
+    const festivalId = urlParams.get("id");
+    const festivalUrl ="/api/information/festivalDetailPageForAdmin?id=" + festivalId;
+    console.log(festivalId);
+
+    //전역변수
+    let FestivalLocation;
+
+    function gertFestivalDetailForAdmin(){
+
+        fetch(festivalUrl)
+            .then(response => response.json())
+            .then(response =>{
+                const e = response.data.festivalData;
+
+                const festivalName = document.getElementById("festivalName");
+                festivalName.innerText = e.festivalDetail.festival_name;
+                console.log(e.festivalDetail.festival_name);
+                const festivalLocation = document.getElementById("festivalLocation");
+                festivalLocation.innerText = e.festivalDetail.festival_location;
+
+                FestivalLocation = e.festivalDetail.festival_location;
+
+                const posterImage = document.getElementById("posterImage");
+                posterImage.src ='/images/' + e.festivalDetail.thumbnail;
+
+                //페스티벌 소개
+                const festivalIntro = document.getElementById("festivalIntro");
+                festivalIntro.innerText = e.festivalDetail.festival_content;
+
+                const festivalCaution = document.getElementById("festivalCaution");
+                festivalCaution.innerText = e.festivalDetail.festival_caution;
+
+                const festivalReservationMethod = document.getElementById("festivalReservationMethod");
+                festivalReservationMethod.innerText = e.festivalDetail.festival_reservationMethod;
+
+                const festivalAgeLimit = document.getElementById("festivalAgeLimit");
+                festivalAgeLimit.innerText = e.festivalDetail.age_limit;
+
+                const festivalDelete = document.getElementById("festivalDelete");
+                // festivalDelete.href = '/admin/information/festivalDeleteProcess?id=' + e.festivalDetail.id;
+                console.log(e.festivalDetail.id);
+                festivalDelete.onclick = function() {
+                    event.preventDefault();
+                    confirmDeletion('/admin/information/festivalDeleteProcess?id=' + e.festivalDetail.id);
+                };
+
+                const festivalUpdate = document.getElementById("festivalUpdate");
+                festivalUpdate.href = '/admin/information/updateRegisteredFestivalPage?id=' + e.festivalDetail.id;
+
+
+                //새창으로 이동하는 주소를 생성하는 것을 의미한다. 이동은 성공했으나 Controller쪽에서 주소 설정이 잘못되어서 수정함.
+                const registerLineUplink = document.getElementById("registerLineUplink");
+                registerLineUplink.href= "/admin/information/registerPerformanceDate?id=" + e.festivalDetail.id;
+
+
+
+            });
+
+
+    }
+
+    function confirmDeletion(url) {
+        if (confirm("정말로 삭제하시겠습니까?삭제된 데이터는 복구할 수 없습니다.")) {
+            window.location.href=url;
+            window.location.href = "/admin/information/festivalListPage";
+        }
+    }
+
+    let map;
+
+    //복붙하지말고 이해하기...지피티믿지마
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.nav-link');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function(event) {
+                event.preventDefault(); // 링크 기본 동작 방지
+                if (tab.classList.contains('disabled')) return; // Disabled 탭 무시
+
+                // 모든 탭을 비활성화
+                tabs.forEach(t => t.classList.remove('active'));
+                // 모든 콘텐츠를 숨김
+                tabContents.forEach(tc => tc.classList.remove('active'));
+
+                // 현재 탭을 활성화
+                tab.classList.add('active');
+                // 해당 콘텐츠를 표시
+                const activeTabContent = document.getElementById(tab.dataset.tab);
+                activeTabContent.classList.add('active');
+            });
+        });
+    });
+
+    function getAMap(){
+        const tabEl = document.querySelector('a[data-tab="tab4"]');
+        console.log("Tab shown event triggered", tabEl);
+
+
+        //왜 탭전환이 안되냐..
+        tabEl.addEventListener('click', function() {
+            console.log("Tab shown event triggered2", tabEl);
+            getKakaoMap();
+
+        });
+
+
+    }
+
+
+    function getKakaoMap() {
+
+        //카카오맵 API
+
+        var geocoder = new kakao.maps.services.Geocoder();
+        var mapContainer = document.getElementById('map')
+
+        let xVar;
+        let yVar;
+
+        var callback = function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                console.log(result);
+                xVar = result[0].x;
+                yVar = result[0].y;
+
+                console.log("x축 값", xVar);
+                console.log("y축 값", yVar);
+
+                var mapOption = {
+                    center: new kakao.maps.LatLng(yVar, xVar), // 지도의 중심좌표
+                    level: 3, // 지도의 확대 레벨
+                    mapTypeId: kakao.maps.MapTypeId.ROADMAP // 지도종류
+                };
+
+                // 지도를 생성한다
+                var map = new kakao.maps.Map(mapContainer, mapOption);
+
+                // 지도에 마커를 생성하고 표시한다
+                var marker = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(yVar, xVar), // 마커의 좌표
+                    map: map // 마커를 표시할 지도 객체
+
+                });
+
+                // 탭이 전환된 후에 지도 크기를 재설정하고 중심을 다시 설정
+            }
+        };
+
+        geocoder.addressSearch(FestivalLocation, callback);
+
+    }
+
+
+    //function 밖에 있어야함.
+    window.addEventListener("DOMContentLoaded",()=>{
+        gertFestivalDetailForAdmin()
+    })
+</script>
+<body>
+<div class="admin-wrapper">
+    <div class="admin-container">
+        <div class="d-flex">
+            <!-- /* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */ -->
+            <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+            </div>
+
+            <!-- /* 우측 컨텐츠 */ -->
+            <div class="page-right flex-grow-1">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                <!-- /* 컨텐츠 */ -->
+                <div class="main py-4 px-4">
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row align-end new-mb-25">
+                                        <div class="col">
+                                            <image class="img-fluid" id="posterImage"></image>
+                                        </div>
+                                        <div class="col" >
+                                            <div class="row">
+                                                <div class="col h4" id="festivalName">
+                                                    페스티벌 이름
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="division-shortest-line"></div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col">
+                                                    <a id="registerLineUplink">
+                                                        <div class="btn ps-0">
+                                                            <input type="button" value="라인업 등록" class="btn btn-outline-secondary rounded-0">
+                                                        </div>
+                                                    </a>
+                                                    <a id="festivalUpdate" class="btn btn-outline-secondary rounded-0">
+                                                        수정하기
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="my-1 border-bottom"></div>
+                            <!--디테일-->
+
+                            <!--내비게이션 탭-->
+                            <ul class="nav nav-underline">
+                                <li class="nav-item">
+                                    <a class="nav-link active" aria-current="page" data-tab="tab1">페스티벌 소개</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-tab="tab2">예매방법</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-tab="tab3">주의사항</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-tab="tab4" onclick="getAMap()">위치</a>
+                                </li><li class="nav-item">
+                                    <a class="nav-link" data-tab="tab5">연령제한</a>
+                                </li>
+                                <!--<li class="nav-item">-->
+                                <!--<a class="nav-link disabled" aria-disabled="true">Disabled</a>-->
+                                <!--</li>-->
+                            </ul>
+
+                            <div id="tab-contents">
+                                <div id="tab1" class="tab-content active">
+                                    <div class="row">
+                                        <div class="col" id="festivalIntro">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tab2" class="tab-content">
+                                    <div class="row">
+                                        <div class="col" id="festivalReservationMethod"></div>
+                                    </div>
+                                </div>
+                                <div id="tab3" class="tab-content">
+                                    <div class="row">
+                                        <div class="col" id="festivalCaution">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tab4" class="tab-content">
+                                    <div class="row">
+                                        <div id="map" style="width:500px;height:250px;"></div>
+                                        <div class="col" id="festivalLocation">
+                                        </div>
+                                    </div>
+                                </div><div id="tab5" class="tab-content">
+                                    <div class="row">
+                                        <div class="col" id="festivalAgeLimit">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row new-my-45">
+                                <div class="col">
+                                    <button class="btn btn-outline-secondary rounded-0" id="festivalDelete">삭제하기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- /* 푸터 */ -->
+                <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

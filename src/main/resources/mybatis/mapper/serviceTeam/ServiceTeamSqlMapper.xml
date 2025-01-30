@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sixthband.festival.serviceTeam.mapper.ServiceTeamSqlMapper">
+
+    <select id="selectServiceTeamByEmailAndPassword" resultType="com.sixthband.festival.serviceTeam.dto.ServiceTeamDto">
+        select * from service_team
+        where email = #{email}
+        and password = #{password};
+    </select>
+
+    <select id="selectServiceTeamCount" resultType="int">
+        select count(*) from service_team;
+    </select>
+
+<!--    팀원 리스트-->
+    <select id="selectAllServiceTeam" resultType="map">
+        select * from service_team
+        order by position asc, name asc;
+    </select>
+
+<!--    팀원 등록-->
+    <insert id="insertServiceTeamMember">
+        insert into service_team(
+            email, password, name, birth, gender, phone, profile, position
+        ) values (
+            #{email}, #{password}, #{name}, #{birth}, #{gender}, #{phone}, #{profile}, #{position}
+        )
+    </insert>
+
+<!--    팀원 한 명-->
+    <select id="selectServiceTeamById" resultType="map">
+        select st.*,
+               IFNULL(sts.select_date, 0) as select_date,
+               IFNULL(sts.end_date, 0) as end_date,
+               IFNULL(sts.working_time, 0) as working_time,
+               IFNULL(sts.quitting_time, 0) as quitting_time
+        from service_team st
+        left join service_team_schedule sts on st.id = sts.service_id
+        and #{today} BETWEEN DATE(sts.select_date) and DATE(sts.end_date)
+        where st.id = #{service_id};
+    </select>
+
+<!--    출근-->
+    <insert id="insertServiceTeamAttendance">
+        insert into service_attendance_management(
+            service_id, status
+        ) values (
+            #{service_id}, #{status}
+        )
+    </insert>
+
+<!--    오늘 날짜에 출퇴근 기록이 있는지..-->
+    <select id="selectIsTodayAttendance" resultType="int">
+        select count(*)
+        from service_attendance_management
+        where service_id = #{service_id}
+        and DATE(created_at) = #{today}
+    </select>
+
+<!--   휴게시간 등록-->
+    <insert id="insertServiceTeamBreakTime">
+        insert into service_break_management(
+            service_id, end_time
+        ) values (
+            #{service_id}, DATE_ADD(NOW(), INTERVAL 1 HOUR)
+        )
+    </insert>
+
+<!--    오늘 날짜에 휴게시간 기록이 있는지..-->
+    <select id="selectIsTodayBreakTime" resultType="int">
+        select count(*)
+        from service_break_management
+        where service_id = #{service_id}
+        and DATE(created_at) = #{today}
+    </select>
+
+    <select id="selectTodayBreakTime" resultType="com.sixthband.festival.serviceTeam.dto.ServiceBreakManagementDto">
+        select *
+        from service_break_management
+        where service_id = #{service_id}
+        and DATE(created_at) = #{today}
+    </select>
+
+<!--    휴게시간 종료-->
+    <update id="updateIsDoneY">
+        update service_break_management
+        set is_done = 'Y'
+        where service_id = #{service_id}
+        and DATE(created_at) = #{today}
+    </update>
+
+<!--    퇴근..-->
+    <select id="selectIsTodayGoHome" resultType="int">
+        select count(*)
+        from service_attendance_management
+        where service_id = #{service_id}
+        and DATE(created_at) = #{today}
+        and status = '퇴근'
+    </select>
+
+<!--    팀원 리스트.. 근데 날짜를 비교하는.. -->
+    <select id="selectAllServiceTeamByToday" resultType="map">
+        select st.*,
+               IFNULL(sam.status, 0) AS status,
+               IFNULL(sbm.is_done, 0) as is_done,
+               case
+                   when #{today} BETWEEN DATE(sts.select_date) and DATE(sts.end_date) then '근무'
+                   else '휴무'
+               end as is_working
+        from service_team st
+        left join (
+            select service_id, status
+            from service_attendance_management sam1
+            where id = (
+                select MAX(id) from service_attendance_management sam2
+                where sam1.service_id = sam2.service_id
+                and DATE(sam2.created_at) = #{today})
+            ) sam on st.id = sam.service_id
+        left join (
+                select * from service_break_management
+                where DATE(created_at) = #{today}
+            ) sbm on st.id = sbm.service_id
+        left join (
+            select sts1.*
+            from service_team_schedule sts1
+            where sts1.id = (
+                select sts2.id
+                from service_team_schedule sts2
+                where sts1.service_id = sts2.service_id
+                order by sts2.end_date desc
+                limit 1
+            )
+        ) sts ON st.id = sts.service_id
+        order by position, name;
+    </select>
+
+<!--    팀원 일정 (일단 출근퇴근만) -->
+    <select id="selectAllAttendanceByServiceId" resultType="map">
+        select * from service_attendance_management
+        where service_id = #{service_id};
+    </select>
+
+<!--    내 스케줄-->
+    <select id="selectAllScheduleByServiceId" resultType="com.sixthband.festival.serviceTeam.dto.ServiceTeamScheduleDto">
+        select * from service_team_schedule
+        where service_id = #{id};
+    </select>
+
+<!--    내 정보 -->
+    <select id="selectMyInformationById" resultType="com.sixthband.festival.serviceTeam.dto.ServiceTeamDto">
+        select * from service_team
+        where id = #{id};
+    </select>
+
+<!--    프로필사진 수정 -->
+    <update id="updateProfileById">
+        update service_team
+        set profile = #{profile}
+        where id = #{id}
+    </update>
+
+<!--    비밀번호 수정 -->
+    <update id="updatePasswordById">
+        update service_team
+        set password = #{password}
+        where id = #{id}
+    </update>
+
+<!--    폰번호 수정 -->
+    <update id="updatePhoneById">
+        update service_team
+        set phone = #{phone}
+        where id = #{id}
+    </update>
+
+<!--    근무 등록 -->
+    <insert id="insertServiceTeamMemberWork">
+        insert into service_team_schedule(
+            service_id, select_date, end_date, working_time, quitting_time
+        ) values (
+            #{service_id}, #{select_date}, #{end_date}, #{working_time}, #{quitting_time}
+        )
+    </insert>
+
+<!--    스케줄인 사람 리스트 -->
+    <select id="selectAllScheduleMember" resultType="map">
+        select st.*,
+               IFNULL(sam.status, 0) AS status,
+               IFNULL(sbm.is_done, 0) as is_done
+        from service_team st
+        left join (
+            select service_id, status
+            from service_attendance_management sam1
+            where id = (
+                select MAX(id) from service_attendance_management sam2
+                where sam1.service_id = sam2.service_id
+                and DATE(sam2.created_at) = #{today})
+            ) sam on st.id = sam.service_id
+        left join (
+            select * from service_break_management
+            where DATE(created_at) = #{today}
+            ) sbm on st.id = sbm.service_id
+        left join service_team_schedule sts on st.id = sts.service_id
+        where #{today} BETWEEN DATE(sts.select_date) and DATE(sts.end_date)
+        order by position, name;
+    </select>
+
+<!--    공지사항 게시판 등록-->
+    <insert id="insertServiceNotice">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select MAX(id) from service_team_notice
+        </selectKey>
+
+        insert into service_team_notice(
+            service_id, title, content, read_count, is_important
+        ) values (
+            #{service_id}, #{title}, #{content}, 0, #{is_important}
+        )
+    </insert>
+
+<!--    공지사항 이미지-->
+    <insert id="insertServiceNoticeImages">
+        insert into service_team_notice_image(
+            notice_id, url
+        ) values (
+            #{notice_id}, #{url}
+        )
+    </insert>
+
+<!--    공지사항 목록 -->
+    <select id="selectAllServiceTeamNotice" resultType="map">
+        select stn.*,
+               st.name,
+               IFNULL(stni.url, 0) as url
+        from service_team_notice stn
+        inner join service_team st on stn.service_id = st.id
+        left join (
+            select notice_id, url
+            from service_team_notice_image
+            group by notice_id) stni on stni.notice_id = stn.id
+        order by is_important desc, id desc
+        limit 15 offset #{page};
+    </select>
+
+<!--    개수-->
+    <select id="selectNoticeCount" resultType="int">
+        select count(*) from service_team_notice;
+    </select>
+
+<!--    메인버전 -->
+    <select id="selectFiveServiceTeamNotice" resultType="map">
+        select stn.*,
+               st.name,
+               IFNULL(stni.url, 0) as url
+        from service_team_notice stn
+                 inner join service_team st on stn.service_id = st.id
+                 left join (
+            select notice_id, url
+            from service_team_notice_image
+            group by notice_id) stni on stni.notice_id = stn.id
+        order by is_important desc, id desc
+        limit 7;
+    </select>
+
+<!--    공지사항 상세-->
+    <select id="selectServiceTeamNoticeById" resultType="map">
+        select stn.*,
+               st.name,
+               IFNULL(stni.url, 0) as url,
+               ROW_NUMBER() OVER (ORDER BY stn.id) as rn,
+               (select MAX(stn_prev.id)
+                from service_team_notice stn_prev
+                where stn_prev.id <![CDATA[<]]> stn.id) as previous_id,
+               (select MIN(stn_next.id)
+                from service_team_notice stn_next
+                where stn_next.id <![CDATA[>]]> stn.id) as next_id
+        from service_team_notice stn
+        inner join service_team st on stn.service_id = st.id
+        left join (
+        select notice_id, url
+        from service_team_notice_image
+        group by notice_id) stni on stni.notice_id = stn.id
+        where stn.id = #{id};
+    </select>
+
+<!--    조회수 업데이트-->
+    <update id="updateServiceTeamNoticeReadCount">
+        update service_team_notice
+        set read_count = read_count + 1
+        where id = #{id};
+    </update>
+
+<!--    이미지 가져오기-->
+    <select id="selectServiceTeamNoticeImages" resultType="com.sixthband.festival.serviceTeam.dto.ServiceTeamNoticeImageDto">
+        select * from service_team_notice_image
+        where notice_id = #{id};
+    </select>
+
+<!--    공지 삭제-->
+    <delete id="deleteServiceTeamNoticeById">
+        delete from service_team_notice
+        where id = #{id}
+    </delete>
+
+<!--    공지 수정-->
+    <delete id="updateServiceTeamNoticeById">
+        update service_team_notice
+        set title = #{title}, content = #{content}
+        where id = #{id};
+    </delete>
+
+
+<!--    qna 카테고리-->
+    <select id="selectAllQnaCategoryList" resultType="com.sixthband.festival.serviceTeam.dto.ServiceQnaCategoryDto">
+        select * from service_qna_category;
+    </select>
+
+<!--    qna 게시글 등록-->
+    <insert id="insertQnaBoard">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select MAX(id) from service_qna_board
+        </selectKey>
+
+        insert into service_qna_board(
+            category_id, user_id, service_id, title, content, status
+        ) values (
+            #{category_id}, #{user_id}, #{service_id}, #{title}, #{content}, '접수 중'
+        )
+    </insert>
+
+<!--    qna 이미지-->
+    <insert id="insertQnaImages">
+        insert into service_qna_image(
+            board_id, url
+        ) values (
+            #{board_id}, #{url}
+        )
+    </insert>
+
+<!--    제일 놀고있는 하나..-->
+    <select id="selectQnABoardServiceId" resultType="int">
+        select st.id
+        from service_team st
+        left join (
+            select service_id, status
+            from service_attendance_management sam1
+            where id = (
+                select MAX(id) from service_attendance_management sam2
+                where sam1.service_id = sam2.service_id
+                  and DATE(sam2.created_at) = #{today})
+        ) sam on st.id = sam.service_id
+        left join (
+            select * from service_break_management
+            where DATE(created_at) = #{today}
+            ) sbm on st.id = sbm.service_id
+        left join service_team_schedule sts on st.id = sts.service_id
+        left join (
+            select service_id, COUNT(*) as qna_count
+            from service_qna_board
+            group by service_id
+            ) qb ON st.id = qb.service_id
+        where #{today} BETWEEN DATE(sts.select_date) and DATE(sts.end_date)
+        and IFNULL(sbm.is_done, 0) != 'N'
+        and sam.status = '출근'
+        order by qna_count
+        limit 1;
+    </select>
+
+<!--    qna list-->
+    <select id="selectAllQnAList" resultType="map">
+        select * from service_qna_board sqb
+        inner join service_qna_category sqc on sqb.category_id = sqc.id
+        where user_id = #{id}
+        order by sqb.id desc;
+    </select>
+
+<!--    qna 상세-->
+    <select id="selectQnAListById" resultType="map">
+        select * from service_qna_board sqb
+        inner join service_qna_category sqc on sqb.category_id = sqc.id
+        where sqb.id = #{id};
+    </select>
+
+<!--    qna - 직원.. 나한테 들어온 qna -->
+    <select id="selectQnAListByServiceId" resultType="map">
+        select sqb.*,
+               sqc.category_title,
+               IFNULL(sqi.url, 0) as url,
+               su.name,
+               su.nickname
+        from service_qna_board sqb
+        inner join service_qna_category sqc on sqb.category_id = sqc.id
+        left join (
+            select board_id, url
+            from service_qna_image
+            group by board_id) sqi on sqi.board_id = sqb.id
+        inner join six_user su on sqb.user_id = su.id
+        where sqb.service_id = #{service_id}
+        order by status desc, id asc
+        limit 15 offset #{page};
+    </select>
+
+<!--    qna - 직원.. 상세 -->
+    <select id="selectServiceTeamQnAById" resultType="map">
+        select sqb.*,
+               sqc.category_title,
+               su.name,
+               su.nickname
+        from service_qna_board sqb
+        inner join service_qna_category sqc on sqb.category_id = sqc.id
+        inner join six_user su on sqb.user_id = su.id
+        where sqb.id = #{id};
+    </select>
+
+<!--    qna - 직원.. 상세의 이미지 -->
+    <select id="selectServiceTeamQnAImagesByBoardId" resultType="com.sixthband.festival.serviceTeam.dto.serviceQnaImageDto">
+        select * from service_qna_image
+        where board_id = #{id};
+    </select>
+
+<!--    qna 상태 변경 -->
+    <update id="updateQnAStatusCompleted">
+        update service_qna_board
+        set status = '접수 완료'
+        where id = #{id};
+    </update>
+
+<!--    qna 답변 등록 -->
+    <insert id="insertQnAAnswer">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select MAX(id) from service_qna_answer
+        </selectKey>
+
+        insert into service_qna_answer(
+            board_id, content
+        ) values (
+            #{board_id}, #{content}
+        );
+    </insert>
+
+<!--    qna 답변 이미지-->
+    <insert id="insertQnaAnswerImages">
+        insert into service_qna_answer_image(
+            answer_id, url
+        ) values (
+             #{answer_id}, #{url}
+        )
+    </insert>
+
+<!--    qna 상태 변경 - 답변완료 -->
+    <update id="updateQnAStatusDone">
+        update service_qna_board
+        set status = '답변 완료'
+        where id = #{id};
+    </update>
+
+<!--    답변이 있는지.. -->
+    <select id="selectIsQnaCount" resultType="int">
+        select count(*) from service_qna_answer
+        where board_id = #{id};
+    </select>
+
+<!--    qna 답변 -->
+    <select id="selectQnaAnswerByBoardId" resultType="com.sixthband.festival.serviceTeam.dto.ServiceQnaAnswerDto">
+        select * from service_qna_answer
+        where board_id = #{id};
+    </select>
+
+<!--    qna 답변 이미지 -->
+    <select id="selectQnAAnswerImagesByAnswerId" resultType="com.sixthband.festival.serviceTeam.dto.ServiceQnaAnswerImageDto">
+        select * from service_qna_answer_image
+        where answer_id = #{id};
+    </select>
+
+<!--    qna 답변 - 유저 화면 -->
+    <select id="selectQnaAnswerForUserPage" resultType="map">
+        select *
+        from service_qna_answer sqa
+        inner join service_qna_board sqb on sqa.board_id = sqb.id
+        inner join service_team st on sqb.service_id = st.id
+        where board_id = #{id};
+    </select>
+
+<!--    qna 답변 이미지 - 유저 화면 -->
+    <select id="selectQnaAnswerImagesForUserPage" resultType="map">
+        select sqai.*
+        from service_qna_answer sqa
+        inner join service_qna_board sqb on sqa.board_id = sqb.id
+        inner join service_qna_answer_image sqai on sqa.id = sqai.answer_id
+        where board_id = #{id};
+    </select>
+
+<!--    qna 상황 -->
+    <select id="selectQnaStatusOneCount" resultType="int">
+        select count(*)
+        from service_qna_board
+        where service_id = #{id}
+        and status = '접수 중';
+    </select>
+
+    <select id="selectQnaStatusTwoCount" resultType="int">
+        select count(*)
+        from service_qna_board
+        where service_id = #{id}
+          and status = '접수 완료';
+    </select>
+
+    <select id="selectQnaStatusThreeCount" resultType="int">
+        select count(*)
+        from service_qna_board
+        where service_id = #{id}
+          and status = '답변 완료';
+    </select>
+
+<!--    qna 답변완료 - 일 그래프 -->
+    <select id="selectQnaStatusCanvasByServiceId" resultType="map">
+        select DATE_FORMAT(sqa.created_at, '%m-%d') as created_at, count(*) as answer_count
+        from service_qna_board sqb
+        inner join service_qna_answer sqa on sqa.board_id = sqb.id
+        where sqb.service_id = #{id}
+        and sqb.status = '답변 완료'
+        group by DATE_FORMAT(sqa.created_at, '%m-%d');
+    </select>
+
+<!--    qna 개수 -->
+    <select id="selectMineQnaCount" resultType="int">
+        select count(*) from service_qna_board
+        where service_id = #{id};
+    </select>
+
+<!--    채팅 - 제일 놀고있는 사람 -->
+    <select id="selectLiveChatServiceId" resultType="int">
+        select st.id
+        from service_team st
+        left join (
+            select service_id, status
+            from service_attendance_management sam1
+            where id = (
+                select MAX(id) from service_attendance_management sam2
+                where sam1.service_id = sam2.service_id
+                  and DATE(sam2.created_at) = #{today})
+            ) sam on st.id = sam.service_id
+        left join (
+            select * from service_break_management
+            where DATE(created_at) = #{today}
+            ) sbm on st.id = sbm.service_id
+        left join service_team_schedule sts on st.id = sts.service_id
+        left join (
+            select service_id, COUNT(*) as chat_count
+            from service_live_chat_room
+            group by service_id
+            ) slcr ON st.id = slcr.service_id
+        where #{today} BETWEEN DATE(sts.select_date) and DATE(sts.end_date)
+        and IFNULL(sbm.is_done, 0) != 'N'
+        and sam.status = '출근'
+        order by chat_count
+        limit 1;
+    </select>
+
+<!--    채팅방 등록-->
+    <insert id="insertLiveChatRoom">
+        insert into service_live_chat_room(
+            user_id, service_id
+        ) values (
+            #{user_id}, #{service_id}
+        )
+    </insert>
+
+<!--    채팅방 입장-->
+    <select id="selectMyChatRoomId" resultType="int">
+        select id from service_live_chat_room
+        where user_id = #{user_id}
+        and service_id = #{service_id}
+        and is_active = 'Y'
+        order by id desc
+        limit 1;
+    </select>
+
+<!--    채팅방 정보-->
+    <select id="selectMyChatRoomInfoById" resultType="map">
+        select slcr.*,
+               su.name as user_name,
+               su.nickname as user_nickname,
+               su.email as user_email,
+               su.profile_img as user_profile,
+               st.name as service_name,
+               st.email as service_email,
+               st.profile as service_profile
+        from service_live_chat_room slcr
+        inner join six_user su on slcr.user_id = su.id
+        inner join service_team st on slcr.service_id = st.id
+        where slcr.id = #{id};
+    </select>
+
+<!--    채팅 입력-->
+    <insert id="insertLiveChatMessage">
+        insert into service_live_chat(
+            room_id, from_email, message
+        ) values (
+            #{room_id}, #{from_email}, #{message}
+        )
+    </insert>
+
+<!--    채팅방 목록-->
+    <select id="selectMyChatRoomList" resultType="map">
+        select slcr.*,
+               su.name as user_name,
+               su.nickname as user_nickname,
+               su.email as user_email,
+               su.profile_img as user_profile,
+               st.name as service_name,
+               st.email as service_email,
+               st.profile as service_profile,
+               IFNULL(slc.chat_count, 0) as chat_count
+        from service_live_chat_room slcr
+        inner join six_user su on slcr.user_id = su.id
+        inner join service_team st on slcr.service_id = st.id
+        left join (
+            select count(*) as chat_count, room_id from service_live_chat
+            where is_reading = 'N'
+            group by room_id
+        ) slc on slcr.id = slc.room_id
+        where slcr.service_id = #{id}
+        order by id desc, is_active;
+    </select>
+
+<!--    채팅 내역-->
+    <select id="selectLiveChatMessageByRoomId" resultType="com.sixthband.festival.serviceTeam.dto.ServiceLiveChatDto">
+        select * from service_live_chat
+        where room_id = #{id};
+    </select>
+
+<!--    메세지 읽음처리-->
+    <update id="updateIsReadingYByRoomId">
+        update service_live_chat
+        set is_reading = 'Y'
+        where room_id = #{id};
+    </update>
+
+<!--    채팅 종료-->
+    <update id="updateChatRoomIsActiveById">
+        update service_live_chat_room
+        set is_active = 'N'
+        where id = #{id};
+    </update>
+
+<!--    채팅 목록 - 유저-->
+    <select id="selectUserChatList" resultType="map">
+        select * from service_live_chat_room slcr
+        inner join service_team st on slcr.service_id = st.id
+        where slcr.user_id = #{id}
+        order by slcr.id desc;
+    </select>
+
+<!--    채팅 - 진행중-->
+    <select id="selectLiveChatActiveCount" resultType="int">
+        select count(*) from service_live_chat_room
+        where service_id = #{id}
+        and is_active = 'Y'
+    </select>
+
+<!--    채팅 - 진행 종료-->
+    <select id="selectLiveChatNotActiveCount" resultType="int">
+        select count(*) from service_live_chat_room
+        where service_id = #{id}
+        and is_active = 'N'
+    </select>
+
+<!--    채팅 - 그래프 -->
+    <select id="selectLiveChatCanvasByServiceId" resultType="map">
+        select DATE_FORMAT(created_at, '%m-%d') as created_at, count(*) as chat_count from service_live_chat_room
+        where service_id = #{id}
+        and is_active = 'N'
+        group by DATE_FORMAT(created_at, '%m-%d');
+    </select>
+</mapper>

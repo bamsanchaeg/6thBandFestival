@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Funding</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/funding.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!-- /* 헤더 */ -->
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            <!-- /* 서브 헤더 */ -->
+            <div th:replace="~{funding/fundingNavi::managementHeader}"></div>
+
+            <!-- /* 컨텐츠 */ -->
+            <div class="main main-management">
+                <!-- /* 관리 헤더 */ -->
+                <div th:replace="~{funding/fundingNavi::managementTitle}"></div>
+
+                <div class="management-con pt-3 pb-5">
+                    <div class="container">
+                        <div th:if="${projectData.project_status.equals('진행중')}" class="list-none-box">
+                            <span class="material-symbols-outlined mb-3 icon-draft-order">overview</span>
+                            <p>프로젝트 진행 종료 후 <span class="fw-semibold text-dark">성공</span>할 경우</p>
+                            <p>모금액 명세서 확인이 가능합니다.</p>
+                        </div>
+                        <div th:if="${projectData.project_status.equals('무산')}" class="list-none-box">
+                            <span class="material-symbols-outlined mb-3 icon-draft-order">quick_reference</span>
+                            <p>프로젝트가 <span class="fw-semibold text-dark">무산</span>되어 명세서 확인이 불가합니다.</p>
+                        </div>
+                        <div class="settlement-box pt-3 new-pb-45" th:if="${projectData.project_status.equals('성공') and isSettlementCount}">
+                            <div class="title mb-2 fw-medium">모금액 명세 정보</div>
+                            <div class="info-box mb-3">
+                                <p class=" new-fs-8 text-body-tertiary"><i class="bi bi-dot"></i>정산 내역과 모금액 명세서의 금액을 확인 해주세요.</p>
+                                <p class=" new-fs-8 text-body-tertiary"><i class="bi bi-dot"></i>결제대행 수수료는 총 결제 성공 금액의 5% 와 VAT 3% 의 합계(8%)입니다.</p>
+                                <p class=" new-fs-8 text-body-tertiary"><i class="bi bi-dot"></i>후원에 대한 상세 내역은 후원자 관리에서 확인 가능합니다.</p>
+                                <p class=" new-fs-8 text-body-tertiary"><i class="bi bi-dot"></i>문의가 있으실 경우 홈페이지 문의 게시판을 이용해주세요.</p>
+                            </div>
+                            <div class="settlement-info new-fs-9 mt-1 border-top border-dark">
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray fw-medium">실 정산 금액(a+b)</div>
+                                    <div th:text="|${#numbers.formatInteger(settlementDto.settlementDetails.settlement_amount, 0, 'COMMA')}원|" class="col-8 py-1 px-2 fw-medium text-end"></div>
+                                </div>
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray">결제 금액(a)</div>
+                                    <div th:text="|${#numbers.formatInteger(settlementDto.projectTotalAmount, 0, 'COMMA')}원|" class="col-8 py-1 px-2 fw-medium text-end"></div>
+                                </div>
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray">수수료(b)</div>
+                                    <div th:text="|-${#numbers.formatInteger(settlementDto.settlementDetails.settlement_fee, 0, 'COMMA')}원|" class="col-8 py-1 px-2 fw-medium text-danger text-end"></div>
+                                </div>
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray">정산 예정일</div>
+                                    <div th:text="${settlementDto.expectedDate}" class="col-8 py-1 px-2 fw-medium text-end"></div>
+                                </div>
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray">정산 완료일</div>
+                                    <div th:text="${settlementDto.settlementDetails.settlement_date != null ? #dates.format(settlementDto.settlementDetails.settlement_date, 'yyyy-MM-dd HH:mm') : '-'}" class="col-8 py-1 px-2 fw-medium text-end"></div>
+                                </div>
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray">정산 상태</div>
+                                    <div th:text="${settlementDto.settlementDetails.settlement_status}" th:classappend="${settlementDto.settlementDetails.settlement_status == '정산완료' ? 'text-success' : 'text-danger'}" class="col-8 py-1 px-2 fw-medium text-end"></div>
+                                </div>
+                                <div class="d-flex border-bottom">
+                                    <div class="col-4 py-1 px-2 border-end new-bg-gray">모금액 명세서</div>
+                                    <div class="col-8 py-1 px-2 text-end">
+                                        <button type="button" data-bs-toggle="modal" data-bs-target="#pledgeModal" class="py-1 px-2 border border-dark bg-white fw-medium new-fs-85 text-dark">명세서 확인하기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--/* 명세서 모달 */-->
+            <div class="modal fade" th:if="${projectData.project_status == '성공' and isSettlementCount}" id="pledgeModal" tabindex="-1" aria-labelledby="pledgeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content rounded-0">
+                        <div class="modal-header justify-content-center">
+                            <h1 class="modal-title fs-6" id="pledgeModalLabel">모금액 명세서</h1>
+                            <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close" style="top:20px; right:20px"></button>
+                        </div>
+                        <div class="modal-body py-4">
+                            <div class="pledge-wrapper">
+                                <div class="pledge-table border fs-6">
+                                    <div class="pledge-section">
+                                        <div class="pledge-row border-bottom">
+                                            <div class="pledge-col py-2 px-3 fw-semibold new-fs-9">프로젝트 정보</div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">프로젝트 제목</div>
+                                            <div th:text="${settlementProjectData.project_title}" class="col-7 pledge-col py-2 px-3 border-start text-end"></div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">창작자 프로필 이름</div>
+                                            <div th:text="${settlementProjectData.creator_name}" class="col-7 pledge-col py-2 px-3 border-start text-end"></div>
+                                        </div>
+                                    </div>
+                                    <div class="pledge-section new-mt-45 border-top">
+                                        <div class="pledge-row border-bottom">
+                                            <div class="pledge-col py-2 px-3 fw-semibold new-fs-9">정산 정보</div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">창작자 정보</div>
+                                            <div th:text="|${settlementProjectData.user_nickname} (${settlementProjectData.user_account})|" class="col-7 pledge-col py-2 px-3 border-start text-end">회원이름 (회원 아이디)</div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">입금계좌 정보</div>
+                                            <div class="col-7 pledge-col py-2 px-3 border-start text-end">
+                                                <p th:text="${creatorDto.account_holder}">계좌명</p>
+                                                <p th:text="|${creatorDto.bank_name} ${creatorDto.account_number}|">은행명 / 계좌번호</p>
+                                            </div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">정산일</div>
+                                            <div th:text="${settlementDto.settlementDetails.settlement_date != null ? #dates.format(settlementDto.settlementDetails.settlement_date, 'yyyy-MM-dd HH:mm') : '정산 전'}" class="col-7 settlement-date pledge-col py-2 px-3 border-start text-end"></div>
+                                        </div>
+                                    </div>
+                                    <div class="pledge-section new-mt-45 border-top">
+                                        <div class="pledge-row border-bottom">
+                                            <div class="pledge-col py-2 px-3 fw-semibold new-fs-9">모금액</div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">A. 총 모금액<span th:text="|(${backersCount}명)|"></span></div>
+                                            <div th:text="|${#numbers.formatInteger(settlementDto.projectTotalAmount, 0, 'COMMA')}원|" class="col-7 pledge-col py-2 px-3 border-start fw-medium text-end"></div>
+                                        </div>
+                                        <div class="pledge-row border-bottom d-flex align-items-center new-fs-8">
+                                            <div class="col-5 pledge-col py-2 px-3 text-light-emphasis">B. 수수료</div>
+                                            <div th:text="|-${#numbers.formatInteger(settlementDto.settlementDetails.settlement_fee, 0, 'COMMA')}원|" class="col-7 pledge-col py-2 px-3 border-start fw-medium text-end"></div>
+                                        </div>
+                                    </div>
+                                    <div class="pledge-section new-mt-45 border-top">
+                                        <div class="pledge-row d-flex align-items-center new-bg-gray">
+                                            <div class="col-5 pledge-col py-2 px-3 fw-semibold new-fs-9">정산금액 (A + B)</div>
+                                            <div th:text="|${#numbers.formatInteger(settlementDto.settlementDetails.settlement_amount, 0, 'COMMA')}원|" class="col-7 pledge-col py-2 px-3 border-start fw-semibold text-end"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/funding.js"></script>
+    <script src="/public/js/funding/editorManagement.js"></script>
+</body>
+</html>

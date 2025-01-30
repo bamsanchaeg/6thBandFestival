@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sixthband.festival.rental.mapper.RentalSqlMapper">
+    <!--모든 대여 카테고리 정보 조회-->
+    <select id="getRentalCategories" resultType="com.sixthband.festival.rental.dto.RentalCategoryDto">
+        select * from rental_category
+    </select>
+
+    <!--특정 카테고리에 속하는 렌탈 아이템 조회-->
+    <select id="getRentalItemsByCategory" parameterType="int" resultType="com.sixthband.festival.rental.dto.RentalItemDto">
+        select * from rental_item
+        where category_id = #{category_id}
+    </select>
+
+    <!--대여 상품 정보 조회-->
+    <select id="getAllRentalItems" resultType="com.sixthband.festival.rental.dto.RentalItemDto">
+        select * from rental_item
+        order by id desc
+        limit #{pageIndex}, 10
+    </select>
+
+    <!--대여 상품 정보 조회 All-->
+    <select id="getAllRentalItemsAll" resultType="com.sixthband.festival.rental.dto.RentalItemDto">
+        select * from rental_item
+        order by id desc
+    </select>
+
+    <!--대여 상품 페이지-->
+    <select id="getRentalItemTotalCount" resultType="int">
+        select count(*) from rental_item
+        order by id desc
+    </select>
+
+    <!--대여 카테고리 상세정보 조회-->
+    <select id="getByCategoryId" resultType="com.sixthband.festival.rental.dto.RentalCategoryDto">
+        select * from rental_category
+        where id = #{id}
+    </select>
+
+    <!--대여 상품 상세정보 조회-->
+    <select id="getByItemId" resultType="com.sixthband.festival.rental.dto.RentalItemDto">
+        select * from rental_item
+        where id = #{id}
+    </select>
+
+    <!--대여 상품 등록-->
+    <insert id="insertRentalItem">
+        <selectKey order="AFTER" resultType="int" keyProperty="id">
+            select max(id) from rental_item
+        </selectKey>
+        insert into rental_item(
+            category_id, rental_title, title,
+            content, image, stock_total,
+            rental_location, price, deposit
+        )
+        values(
+            #{category_id}, #{rental_title}, #{title},
+            #{content}, #{image}, #{stock_total},
+            #{rental_location}, #{price}, #{deposit}
+        )
+    </insert>
+
+    <!--상세이미지 저장-->
+    <insert id="insertDetailImage">
+        insert into rental_detail_image(rental_item_id, detail_image)
+        values(#{rental_item_id}, #{detail_image})
+    </insert>
+
+    <!--상세이미지 삭제-->
+    <delete id="deleteItemImages">
+        delete from rental_detail_image
+        where rental_item_id = #{rental_item_id}
+    </delete>
+
+    <!--특정 상품에 해당하는 상세 이미지-->
+    <select id="getImagesByRentalItemId" resultType="com.sixthband.festival.rental.dto.RentalDetailImageDto">
+        select * from rental_detail_image
+        where rental_item_id = #{rental_item_id}
+    </select>
+
+    <!--대여 상품 수정-->
+    <update id="updateRentalItem">
+        update rental_item
+        set
+            category_id = #{category_id},
+            rental_title = #{rental_title},
+            title = #{title},
+            content = #{content},
+            image = #{image},
+            stock_total = #{stock_total},
+            rental_location = #{rental_location},
+            price = #{price},
+            deposit = #{deposit}
+        where id = #{id}
+    </update>
+
+    <!--대여 상품 삭제-->
+    <delete id="deleteRentalItemById">
+        delete from rental_item
+        where id = #{id}
+    </delete>
+
+    <!--대여 내역 등록-->
+    <insert id="insertRentalOrder">
+        <selectKey order="AFTER" resultType="int" keyProperty="id">
+            select max(id) from rental_order
+        </selectKey>
+        insert into rental_order(
+            user_id, rental_item_id, receiver, count,
+            payment_method, rental_order_status,
+            rental_days, total_price
+        )
+        values(
+            #{user_id}, #{rental_item_id}, #{receiver}, #{count},
+            #{payment_method}, #{rental_order_status},
+            #{rental_days}, #{total_price}
+        )
+    </insert>
+
+    <!--대여 내역 목록 조회-->
+    <select id="getRentalOrderAll" resultType="com.sixthband.festival.rental.dto.RentalOrderDto">
+        select * from rental_order
+        order by id desc
+        limit #{pageIndex}, 10
+    </select>
+
+    <!--대여 내역 페이지-->
+    <select id="getRentalOrderTotalCount" resultType="int">
+        select count(*) from rental_order
+        order by id desc
+    </select>
+
+    <!--대여 내역 상세 조회-->
+    <select id="getRentalOrderById" resultType="com.sixthband.festival.rental.dto.RentalOrderDto">
+        select * from rental_order
+        where id = #{id}
+    </select>
+
+    <!--로그인한 사용자 대여 내역 리스트-->
+    <select id="getRentalOrderByUserId" resultType="com.sixthband.festival.rental.dto.RentalOrderDto">
+        select * from rental_order
+        where user_id = #{user_id}
+        order by created_at desc;
+    </select>
+
+    <!--사용자 정보 조회-->
+    <select id="getUserById" resultType="com.sixthband.festival.dto.UserDto">
+        select * from six_user where id = #{id}
+    </select>
+
+    <!--대여 내역 수정-->
+    <update id="updateRentalOrder">
+        update rental_order
+        set
+            receiver = #{receiver},
+            count = #{count},
+            payment_method = #{payment_method},
+            rental_order_status = #{rental_order_status},
+            rental_days = #{rental_days},
+            total_price = #{total_price}
+        where id = #{id}
+    </update>
+
+
+    <!--대여 내역 삭제-->
+    <delete id="deleteRentalOrderById">
+        delete from rental_order
+        where id = #{id}
+    </delete>
+
+    <!--찜하기-->
+    <insert id = "insertLike">
+        insert into rental_like(
+            item_id, user_id
+        )
+        values(
+            #{item_id}, #{user_id}
+        )
+    </insert>
+
+    <!--찜 취소-->
+    <delete id="deleteLike">
+        delete from rental_like
+        where item_id = #{item_id}
+        and user_id = #{user_id}
+    </delete>
+
+    <!--찜 상태 확인-->
+    <select id="getIsLiked" resultType="int">
+        select count(*) from rental_like
+        where item_id = #{item_id}
+        and user_id = #{user_id}
+    </select>
+
+    <!--찜하기 총 수-->
+    <select id="totalLikes" resultType="int">
+        select count(*) from rental_like
+        where item_id = #{item_id}
+    </select>
+
+    <!--리뷰 등록-->
+    <insert id="insertReview">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from rental_review
+        </selectKey>
+        insert into rental_review(
+            user_id, order_id, content, image, item_condition, rating
+        )
+        values(
+            #{user_id}, #{order_id}, #{content}, #{image}, #{item_condition}, #{rating}
+        )
+    </insert>
+
+    <!--리뷰 목록-->
+    <select id="getAllReviews" resultType="com.sixthband.festival.rental.dto.RentalReviewDto">
+        select * from rental_review
+        order by id desc
+    </select>
+
+    <!--특정 상품에 대한 리뷰 조회-->
+    <select id="getReviewsByRentalItemId" resultType="com.sixthband.festival.rental.dto.RentalReviewDto">
+        select rr.* from rental_review rr
+        inner join rental_order ro on ro.id = rr.order_id
+        where ro.rental_item_id = #{rental_item_id}
+        order by rr.created_at desc
+    </select>
+
+    <!--특정 상품에 대한 리뷰 총 개수 조회-->
+    <select id="getReviewCountByRentalItemId" resultType="int">
+        select count(*)
+        from rental_review rr
+        inner join rental_order ro on ro.id = rr.order_id
+        where ro.rental_item_id = #{rental_item_id}
+    </select>
+
+    <!--리뷰 삭제-->
+    <delete id="deleteReview">
+        delete from rental_review
+        where id = #{id}
+    </delete>
+
+    <!--특정 대여 주문에 대한 리뷰 목록 조회(사용자 리뷰 목록)-->
+    <select id="getReviewsByOrderId" parameterType="int" resultType="com.sixthband.festival.rental.dto.RentalReviewDto">
+        select * from rental_review
+        where order_id = #{order_id}
+        order by created_at desc
+    </select>
+
+    <!--특정 리뷰 조회(사용자 리뷰 상세)-->
+    <select id="getReviewById" parameterType="int" resultType="com.sixthband.festival.rental.dto.RentalReviewDto">
+        select * from rental_review
+        where id = #{id}
+    </select>
+
+    <!--특정 대여 주문과 회원에 대한 리뷰 개수 확인-->
+    <select id="countUserReview" parameterType="int" resultType="int">
+        select count(*) from rental_review
+        where user_id = #{user_id}
+        and order_id = #{order_id}
+    </select>
+
+    <!--리뷰 좋아요-->
+    <insert id="insertReviewLike">
+        insert into rental_review_like(
+            review_id, user_id
+        ) values (
+            #{review_id}, #{user_id}
+        )
+    </insert>
+
+    <!--리뷰 좋아요 취소-->
+    <delete id="deleteReviewLike">
+        delete from rental_review_like
+        where review_id = #{review_id}
+        and user_id = #{user_id}
+    </delete>
+
+    <!--리뷰 좋아요 확인-->
+    <select id="getUserReviewLikeStatus" resultType="int">
+        select count(*) from rental_review_like
+        where review_id = #{review_id}
+        and user_id = #{user_id}
+    </select>
+
+    <!--리뷰 좋아요 총 개수-->
+    <select id="getReviewTotalLikes" resultType="int">
+        select count(*) from rental_review_like
+        where review_id = #{review_id}
+    </select>
+
+    <!--리뷰 평균 별점-->
+    <select id="getAverageRating" resultType="double">
+        select coalesce(round(avg(rr.rating), 1), 0.0)
+        from rental_review rr
+        inner join rental_order ro on ro.id = rr.order_id
+        where ro.rental_item_id = #{rental_item_id}
+    </select>
+
+    <select id="getUserInfoBySessionId" resultType="map">
+        SELECT * FROM six_user WHERE id = #{userId}
+    </select>
+
+    <!--가장 많이 대여된 상품 top4-->
+    <select id="getTopRentalItems" resultType="com.sixthband.festival.rental.dto.RentalItemDto">
+        select
+            ri.id,
+            ri.title,
+            ri.image,
+            ri.price
+        from
+            rental_order ro
+        join
+            rental_item ri on ro.rental_item_id = ri.id
+        group by
+            ri.id, ri.title, ri.image, ri.price
+        order by
+            count(ro.id) desc
+        limit 4
+    </select>
+
+    <!--가장 많이 찜한 상품 limit 6-->
+    <select id="getTopLikedItems" resultType="com.sixthband.festival.rental.dto.RentalItemDto">
+        select
+            ri.id,
+            ri.title,
+            ri.image,
+            ri.price,
+            count(rl.id)
+        from
+            rental_item ri
+        left join
+            rental_like rl on ri.id = rl.item_id
+        group by
+            ri.id, ri.title, ri.image, ri.price
+        order by
+            count(rl.id) desc
+        limit 6
+    </select>
+
+    <!--주문 상태 개수-->
+    <select id="getRentalOrderStatusCount" resultType="int">
+        select count(*) as count
+        from rental_order ro
+        where rental_order_status = #{status}
+    </select>
+
+    <!--리뷰 작성 확인-->
+    <select id="getUserReviewCount" resultType="int">
+        select count(*) from rental_review
+        where order_id = #{order_id} AND user_id = #{user_id}
+    </select>
+
+    <!--ChatGpt-->
+    <insert id="insertRentalChatGptReview">
+        insert into rental_chatGpt_review(
+            Gpt_Review, comment_id
+        ) values (
+            #{Gpt_Review}, #{comment_id}
+        )
+    </insert>
+
+    <select id="rentalGptReview" resultType="com.sixthband.festival.rental.dto.RentalChatGptReviewDto">
+        select * from rental_chatGpt_review where comment_id = #{comment_id}
+    </select>
+
+    <!--리뷰 정렬순-->
+    <select id="getReviewsByCriteria" resultType="com.sixthband.festival.rental.dto.RentalReviewDto">
+        SELECT rental_review.*
+        FROM rental_review
+        JOIN rental_order ON rental_review.order_id = rental_order.id
+        JOIN rental_item ON rental_order.rental_item_id = rental_item.id
+        WHERE rental_item.id = #{id}
+        ORDER BY
+        <choose>
+            <when test="sortOrder == 'latest'">
+                rental_review.created_at DESC
+            </when>
+            <when test="sortOrder == 'highRated'">
+                rental_review.rating DESC, rental_review.created_at DESC
+            </when>
+            <when test="sortOrder == 'lowRated'">
+                rental_review.rating ASC, rental_review.created_at DESC
+            </when>
+            <when test="sortOrder == 'topRated'">
+                (SELECT COUNT(*) FROM rental_review_like WHERE review_id = rental_review.id) DESC, rental_review.created_at DESC
+            </when>
+            <otherwise>
+                rental_review.created_at DESC
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

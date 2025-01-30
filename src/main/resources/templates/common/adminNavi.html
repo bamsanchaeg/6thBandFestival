@@ -1,0 +1,149 @@
+<!--/* 메인 헤더 */-->
+<div th:fragment="topNavi" class="header border-bottom border-dark bg-white">
+    <div class="d-flex align-items-center px-4 new-py-25 pt-4">
+        <div class="title fs-5 lh-1">
+            관리자 메뉴
+        </div>
+        <div class="util ms-auto">
+            <a href="/" class="px-2 border border-dark bg-dark new-text-white lh-1">홈페이지</a>
+            <a href="/admin/logoutProcess" class="ms-2 px-2 border border-dark lh-1">로그아웃</a>
+        </div>
+    </div>
+</div>
+
+<!--/* 좌측 카테고리 : 카테고리 추가시 해당 링크 변경 필요 */-->
+<div th:fragment="leftMenuNavi" class="left-menu">
+    <div class="container">
+        <div class="logo py-2 fw-semibold lh-sm pt-4">
+            <a href="/admin" class="d-block">6th <br>ROCK FESTIVAL</a>
+        </div>
+        <div class="menu-list">
+            <div class="py-2 border-bottom border-dark">
+                <a href="/admin" class="d-flex align-items-center px-2 new-py-25 fw-medium">
+                    <span class="material-symbols-outlined me-3 fw-light text-secondary">grid_view</span>대시보드
+                </a>
+            </div>
+            <ul class="py-2 border-bottom border-dark">
+                <li>
+                    <a href="#user-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary fill-1">person</span>
+                        <span class="lh-1">회원 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="user-management">
+                        <li><a href="/admin/userControlPage" class="ps-5 d-block pe-3 py-2 new-text-white">회원 관리</a></li>
+                        <li><a href="javascript:alert('서비스 준비중입니다.');" class="ps-5 d-block pe-3 py-2 new-text-white">신고 관리</a></li>
+                        <li><a href="javascript:alert('서비스 준비중입니다.');" class="ps-5 d-block pe-3 py-2 new-text-white">포인트 관리</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#club-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary">group</span>
+                        <span class="lh-1">소모임 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="club-management">
+                        <li><a href="/admin/club/registClub" class="ps-5 d-block pe-3 py-2 new-text-white">가입한 소모임</a></li>
+                        <li><a href="/admin/club/freeBoardListManage" class="ps-5 d-block pe-3 py-2 new-text-white">신고 게시글 관리</a></li>
+                        <!-- <li><a href="" class="ps-5 d-block pe-3 py-2 new-text-white">메뉴3</a></li> -->
+                    </ul>
+                </li>
+                <li>
+                    <a href="#bubble-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary">bubble_chart</span>
+                        <span class="lh-1">버블 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="bubble-management">
+                        <li><a href="/admin/bubble/bubbleArtistPage" class="ps-5 d-block pe-3 py-2 new-text-white">아티스트 권한 관리</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="py-2 border-bottom border-dark">
+                <li>
+                    <a href="#information-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary fill-1">festival</span>
+                        <span class="lh-1">페스티벌 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="information-management">
+                        <li><a href="/admin/information" class="ps-5 d-block pe-3 py-2 new-text-white">페스티벌</a></li>
+                        <li><a href="/admin/information/festivalListPage" class="ps-5 d-block pe-3 py-2 new-text-white">페스티벌 관리</a></li>
+                        <li><a href="/admin/information/artistListPage" class="ps-5 d-block pe-3 py-2 new-text-white">아티스트 관리</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#ticket-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary">qr_code_2</span>
+                        <span class="lh-1">티켓 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="ticket-management">
+                        <li><a href="/admin/ticket" class="ps-5 d-block pe-3 py-2 new-text-white">티켓</a></li>
+                        <li><a href="/admin/ticket/bookingPage" class="ps-5 d-block pe-3 py-2 new-text-white">티켓 예매 내역</a></li>
+                        <li><a href="/admin/ticket/statisticsPage" class="ps-5 d-block pe-3 py-2 new-text-white">티켓 판매 현황</a></li>
+                        <li><a href="/admin/ticket/reviewAdminPage" class="ps-5 d-block pe-3 py-2 new-text-white">페스티벌 후기 관리</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="py-2 border-bottom border-dark">
+                <li>
+                    <a href="#goods-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary">shopping_bag</span>
+                        <span class="lh-1">굿즈샵 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="goods-management">
+                        <li><a href="/admin/goods" class="ps-5 d-block pe-3 py-2 new-text-white">굿즈샵</a></li>
+                        <li><a href="/admin/goods/adminOrderList" class="ps-5 d-block pe-3 py-2 new-text-white">굿즈 판매 현황</a></li>
+                        <li><a href="/admin/goods/adminReviewList" class="ps-5 d-block pe-3 py-2 new-text-white">굿즈 리뷰 관리</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#rental-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary">storefront</span>
+                        <span class="lh-1">대여샵 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="rental-management">
+                        <li><a href="/admin/rental" class="ps-5 d-block pe-3 py-2 new-text-white">대여샵</a></li>
+                        <li><a href="/admin/rental/orderList" class="ps-5 d-block pe-3 py-2 new-text-white">대여 내역</a></li>
+                        <!--<li><a href="" class="ps-5 d-block pe-3 py-2 new-text-white">메뉴</a></li>-->
+                    </ul>
+                </li>
+                <li>
+                    <a href="#funding-management" data-bs-toggle="collapse" role="button" aria-expanded="false" class="d-flex align-items-center px-2 new-py-25">
+                        <span class="material-symbols-outlined me-3 fw-light text-secondary">featured_seasonal_and_gifts</span>
+                        <span class="lh-1">펀딩 관리</span>
+                        <span class="material-symbols-outlined ms-auto text-secondary">arrow_drop_down</span>
+                    </a>
+                    <ul class="collapse" id="funding-management">
+                        <!-- <li><a href="/admin" class="ps-5 d-block pe-3 py-2 new-text-white">펀딩</a></li> -->
+                        <li><a href="/admin/funding/projectList" class="ps-5 d-block pe-3 py-2 new-text-white">프로젝트 관리</a></li>
+                        <li><a href="/admin/funding/backersList" class="ps-5 d-block pe-3 py-2 new-text-white">후원자 후원 관리</a></li>
+                        <li><a href="/admin/funding/settlementList" class="ps-5 d-block pe-3 py-2 new-text-white">창작자 정산 관리</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="menu-list mt-5 pt-4">
+            <div class="">
+                <a href="/serviceTeam" class="d-flex align-items-center px-2 new-py-25 fw-medium">
+                    <span class="material-symbols-outlined me-3 fw-light text-secondary">headset_mic</span>고객센터
+                </a>
+            </div>
+            <div class="">
+                <a href="javascript:alert('서비스 준비중입니다.');" class="d-flex align-items-center px-2 new-py-25 fw-medium">
+                    <span class="material-symbols-outlined me-3 fw-light text-secondary">settings</span>환경설정
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--/* 공통 푸터 */-->
+<div th:fragment="bottomNavi" class="footer">
+    <div class="container">
+        
+    </div>
+</div>

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="/public/img/favicon.ico">
+        <title>6th BAND - Login</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/public/css/common.css">
+        <script>
+            function formsbumit(){
+                //아이디 정규식
+                const inputId = document.getElementById("inputId");
+                const idRegx = /^[a-z0-9]{5,20}$/;
+
+                if(!idRegx.test(inputId.value)){
+                    alert("아이디를 다시 입력 해주세요.");
+                    inputId.focus();
+                    return; 
+                }
+
+                //비번,비번확인 서로 다를때
+                // const inputPW = document.getElementById("inputPW");
+                // const inputPWConfirm = document.getElementById("inputPWConfirm");
+
+                // if(inputPW.value != inputPWConfirm.value){
+                //     alert("비밀번호가 다릅니다. ");
+                //     inputPW.vlaue='';
+                //     inputPWConfirm.value='';
+                //     inputPW.focus();
+                //     return;
+                // }
+
+                // //비번 정규식
+                const passwordRegex = /^(?!.*(.)\1\1)(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+{}\[\]:;"'<>,.?/\\|`~]).{8,16}$/;
+
+
+
+                if(!passwordRegex.test(inputPW.value)){
+                    alert("비밀번호를 다시 입력 해주세요.");
+                    //버튼 오버하면  비밀번호 조건 경고창 말풍선으로 조그만하게 보이게!!!하는거 어떤가영?
+                    inputPW.value='';
+                    inputPWConfirm.value='';
+                    inputPW.focus();
+                    return;
+                }
+
+                const inputBirth = document.getElementById("inputBirth");
+
+                if(inputBirth == ''){
+                    alert("생년월일을 선택해주세요.");
+                    return;
+                }
+                
+                const registerAccount = document.getElementById("registerAccount");
+                registerAccount.submit();
+
+                if(isconfirmId == false){
+                    alert("아이디 중복 확인을 하셔야 합니다.");
+                    return;
+                }
+
+
+
+            }
+            // 아이디 중복 확인
+            let isConfirmId = false;
+
+            function checkaccountNameDouble(){
+
+                const inputId = document.getElementById("inputId");
+
+                const url="/six/user/isExistAccountName?accountName="+inputId.value;
+                fetch(url)
+                .then(response => response.json())
+                .then((response)=>{
+                    const idConfirmResult = document.getElementById("idConfirmResult");
+                    if(response.result === true){
+                        isConfirmId = false;
+                        idConfirmResult.innerText="이미 존재하는 아이디 입니다.";
+                        idConfirmResult.classList.add("new-fs-9","ps-3");
+                        idConfirmResult.style.color="#F53535";
+
+                    }
+                    else{
+                        isConfirmId = true;
+                        idConfirmResult.innerText="사용 가능한 아이디 입니다."; 
+                        idConfirmResult.classList.add("new-fs-9","ps-3");
+                        idConfirmResult.style.color="#3BB30C";
+
+                    }
+                
+                })
+            }
+
+            function formFileUpload(){
+                const imageFile = document.getElementById("imageFile");
+
+                imageFile.addEventListener('change',function(event){
+                    const file = event.target.files[0];
+                    const previewImage = document.getElementById('previewImage');
+                    previewImage.innerHTML="";
+
+                    if(file){
+                        const reader = new FileReader();
+                        reader.onload = function(e){
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '6em';  // 이미지 너비 설정
+                            img.style.height = '6em'; // 이미지 높이 설정
+                            img.classList.add("img-fluid","image-thumbnail"); // 필요한 클래스 추가
+                            previewImage.innerHTML = ''; // 기존의 미리보기 이미지 제거
+                            previewImage.appendChild(img); // 새로운 이미지 추가
+                        }
+                        reader.readAsDataURL(file);
+
+                    }
+                    
+                })
+            }
+
+            function showNextSection() {
+                const check1 =document.getElementById("check1");
+                const check2 =document.getElementById("check2");
+                if(!check1.checked && !check2.checked){
+                    if(!check1.checked){
+                    alert('이용약관에 동의하셔야 합니다.');
+
+                }
+                if(!check2.checked){
+                    alert('개인정보에 동의하셔야 합니다.');
+
+                }
+                }
+
+                else{
+                    document.getElementById('terms-section').style.display = 'none';
+                    document.getElementById('account-section').style.display = 'block';
+
+                }
+
+
+            }
+
+            function gotoLoginPage(){
+                window.location.href = "/user/loginPage";
+            }
+
+            function toggleAllCheckboxes(source) {
+                const checkboxes = document.querySelectorAll('.check-item');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = source.checked;
+                });
+            }
+
+            window.addEventListener("DOMContentLoaded",() => {
+                formFileUpload();
+
+                const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+
+                
+            })
+        </script>
+        <style>
+            .borderWrapper {
+                display: inline-block;
+                text-align: center; /* 아이콘 가운데 정렬 */
+                background-color: rgb(234, 234, 234);
+            }
+            
+            .custom-tooltip {
+                --bs-tooltip-bg: rgb(239, 239, 239);
+
+                --bs-tooltip-color: var(--bs-black);
+            }
+
+            .custom-radio {
+                transform: scale(1.1); /* 크기를 1.5배로 확대 */
+                -webkit-transform: scale(1.1); /* Safari 지원 */
+                margin-right: 10px; /* 텍스트와 라디오 버튼 사이 간격 조정 */
+            }
+            .section {
+                display: none;
+            }
+
+            #terms-section {
+                display: block;
+            }
+
+            .custom-tooltip .tooltip-inner {
+                max-width: 300px; /* 툴팁의 최대 너비 설정 */
+                font-size: 0.9em; /* 폰트 크기 조절 */
+                padding: 10px; /* 패딩 조절 */
+                line-height: 1.5; /* 줄 간격 조절 */
+                text-align: left; /* 텍스트 정렬 왼쪽으로 */
+            }
+
+            .custom-tooltip {
+                max-width: 300px; /* 전체 툴팁 박스의 최대 너비 설정 */
+            }
+            .form-check-input:checked {
+                border-color: black !important;
+                background-color: black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root">
+            <div class="wrapper">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/navi::topNavi}"></div>
+                <div th:replace="~{common/navi::allMenuNavi}"></div>
+                <!-- /* 컨텐츠 */ -->
+                <div class="main">
+                    <div class="container">
+                        
+                        <div id="terms-section" class="section">
+                            <div class="row">
+                                <div class="col-11 mx-auto">
+
+                                
+                            <div class="row pt-4">
+                                <div class="col border-bottom border-secondary">
+                                    <h3>약관 동의</h3>
+
+                                </div>
+                            </div>
+                            <div class="row new-py-25 border-bottom">
+                                <div class="col ps-4">
+                                    <input type="checkbox" id="checkAll" onclick="toggleAllCheckboxes(this)" class="form-check-input">
+                                    <label for="checkAll" class="fw-medium mb-0">아래 내용에 모두 동의합니다.</label>
+                                </div>
+                            </div>
+
+                            <div class="row pt-3">
+                                <div class="col new-fs-9 mb-1 ps-4">
+                                    <input type="checkbox" id="check1" class="check-item form-check-input "> <label for="check1" class="mb-0">이용약관 동의</label> <span class="text-danger">(필수)</span>
+                                    
+                                </div>
+                            </div>
+                            
+                            
+                           
+                            <div class="row overflow-auto border py-2" style="max-height: 150px;">
+                                <div class="col " >
+                                    <div data-bs-spy="scroll" data-bs-target="#list-example" data-bs-smooth-scroll="true" class="scrollspy-example" tabindex="0">
+                                        <div class="content new-fs-85">
+                                            <div class="fr-view fr-view-mall-agreement">이&nbsp;'여섯번째 밴드'&nbsp;서비스&nbsp;이용&nbsp;약관은&nbsp;주식회사&nbsp;에스엠브랜드마케팅(이하&nbsp;‘회사’라&nbsp;함)이&nbsp;운영하는&nbsp;'여섯번째 밴드'&nbsp;의&nbsp;적립금&nbsp;및&nbsp;쿠폰&nbsp;제도&nbsp;이용에&nbsp;대한&nbsp;‘'여섯번째 밴드' &nbsp;서비스’, ‘멤버십&nbsp;서비스’&nbsp;약관으로&nbsp;구성&nbsp;됩니다.
+                                                <br>제&nbsp;1&nbsp;장('여섯번째 밴드' &nbsp;서비스)
+                                                <br>&nbsp;
+                                                <br>제&nbsp;1&nbsp;조(목적)
+                                                <br>이&nbsp;약관은&nbsp;‘회사’가&nbsp;운영하는&nbsp;'여섯번째 밴드' &amp;STORE &nbsp;(이하&nbsp;‘판매채널’이라&nbsp;합니다)를&nbsp;통하여&nbsp;제공하는&nbsp;전자상거래&nbsp;서비스(이하&nbsp;‘서비스’라&nbsp;함)와&nbsp;관련하여&nbsp;‘회사’와&nbsp;‘이용자’(제2조에&nbsp;정합니다)의&nbsp;권리와&nbsp;의무,&nbsp;책임사항&nbsp;및&nbsp;‘이용자’의&nbsp;‘서비스’&nbsp;이용절차에&nbsp;관한&nbsp;사항을&nbsp;규정함을&nbsp;목적으로&nbsp;합니다.
+                                                <br>&nbsp;
+                                                <br>제&nbsp;2&nbsp;조(정의)
+                                                <br>①이&nbsp;약관에서&nbsp;사용하는&nbsp;용어의&nbsp;정의는&nbsp;다음과&nbsp;같습니다.
+                                                <br>1.판매채널: ‘회사’가&nbsp;상품&nbsp;또는&nbsp;용역(이하&nbsp;‘상품&nbsp;등’이라&nbsp;합니다)을&nbsp;‘이용자’에게&nbsp;판매/제공할&nbsp;수&nbsp;있도록&nbsp;마련한&nbsp;‘회사’의&nbsp;인터넷&nbsp;사이트와&nbsp;스마트폰&nbsp;등&nbsp;이동통신기기를&nbsp;통해&nbsp;제공하는&nbsp;모바일&nbsp;어플리케이션&nbsp;또는&nbsp;모바일&nbsp;웹을&nbsp;말합니다.
+                                                <br>2.이용자: ‘판매채널’에&nbsp;접속하여&nbsp;이&nbsp;약관에&nbsp;따라&nbsp;‘회사’가&nbsp;제공하는&nbsp;‘서비스’를&nbsp;받는&nbsp;회원&nbsp;및&nbsp;비회원을&nbsp;말합니다.
+                                                <br>3.회원: ‘회사’에게&nbsp;개인정보를&nbsp;제공하여&nbsp;회원&nbsp;등록을&nbsp;한&nbsp;자로서&nbsp;이&nbsp;약관에&nbsp;따라&nbsp;‘회사’와&nbsp;‘서비스’&nbsp;이용계약을&nbsp;체결한&nbsp;자를&nbsp;말합니다.&nbsp;모든&nbsp;‘회원’은&nbsp;‘회원’&nbsp;가입과&nbsp;동시에&nbsp;‘멤버십&nbsp;회원’에&nbsp;자동으로&nbsp;가입되고, ‘회원’&nbsp;탈퇴시&nbsp;‘멤버십&nbsp;회원’에서&nbsp;자동&nbsp;탈퇴됩니다.
+                                                <br>4.아이디(ID): ‘회원’의&nbsp;식별과&nbsp;‘서비스’&nbsp;이용을&nbsp;위하여&nbsp;‘회원’이&nbsp;선정하고&nbsp;‘회사’가&nbsp;승인한&nbsp;영문&nbsp;대소문자,&nbsp;숫자의&nbsp;조합을&nbsp;말합니다.
+                                                <br>5.비밀번호(Password): ‘회원’의&nbsp;동일성&nbsp;확인과&nbsp;‘회원’의&nbsp;권익&nbsp;및&nbsp;비밀보호를&nbsp;위하여&nbsp;‘회원’&nbsp;스스로가&nbsp;설정하여&nbsp;‘회사’에&nbsp;등록한&nbsp;영문&nbsp;대소문자,&nbsp;숫자,&nbsp;특수문자의&nbsp;조합을&nbsp;말합니다.
+                                                <br>6.게시물: ‘회원’이&nbsp;‘서비스’를&nbsp;이용함에&nbsp;있어&nbsp;‘판매채널’&nbsp;상에&nbsp;게시한&nbsp;부호,&nbsp;문자,&nbsp;음성&nbsp;형태의&nbsp;글,&nbsp;사진,&nbsp;동영상&nbsp;및&nbsp;각종&nbsp;파일과&nbsp;링크&nbsp;등을&nbsp;의미합니다.
+                                                <br>②이&nbsp;약관에서&nbsp;정의되지&nbsp;않은&nbsp;용어는&nbsp;상관례&nbsp;내지&nbsp;관련법령이&nbsp;정하는&nbsp;바에&nbsp;따릅니다.
+                                                <br>&nbsp;
+                                                <br>제&nbsp;3&nbsp;조(약관&nbsp;등의&nbsp;명시와&nbsp;설명&nbsp;및&nbsp;개정)
+                                                <br>①‘회사’는&nbsp;이&nbsp;약관의&nbsp;내용,&nbsp;상호,&nbsp;대표자의&nbsp;성명,&nbsp;영업소&nbsp;소재지&nbsp;주소(소비자의&nbsp;불만을&nbsp;처리할&nbsp;수&nbsp;있는&nbsp;곳의&nbsp;주소를&nbsp;포함),&nbsp;사업자등록번호,&nbsp;통신판매업&nbsp;신고번호,&nbsp;고객센터&nbsp;번호,&nbsp;전자우편주소&nbsp;등을&nbsp;‘회원’이&nbsp;쉽게&nbsp;알&nbsp;수&nbsp;있도록&nbsp;‘판매채널’의&nbsp;초기&nbsp;‘서비스’&nbsp;화면에&nbsp;게시합니다.&nbsp;다만,&nbsp;이&nbsp;약관의&nbsp;구체적&nbsp;내용은&nbsp;‘회원’이&nbsp;연결화면을&nbsp;통하여&nbsp;볼&nbsp;수&nbsp;있습니다.
+                                                <br>②‘회사’는&nbsp;이용자가&nbsp;약관에&nbsp;동의하기에&nbsp;앞서&nbsp;약관에&nbsp;정하여져&nbsp;있는&nbsp;내용&nbsp;중&nbsp;청약철회・배송책임・환불조건&nbsp;등과&nbsp;같은&nbsp;중요한&nbsp;내용을&nbsp;이용자가&nbsp;이해할&nbsp;수&nbsp;있도록&nbsp;별도의&nbsp;연결화면&nbsp;또는&nbsp;팝업화면&nbsp;등을&nbsp;제공하여&nbsp;이용자의&nbsp;확인을&nbsp;구하여야&nbsp;합니다.
+                                                <br>③‘회사’는&nbsp;약관의&nbsp;규제에&nbsp;관한&nbsp;법률,&nbsp;전자문서&nbsp;및&nbsp;전자거래기본법,&nbsp;전자금융거래법,&nbsp;전자서명법,&nbsp;정보통신망&nbsp;이용촉진&nbsp;및&nbsp;정보보호&nbsp;등에&nbsp;관한&nbsp;법률,&nbsp;전자상거래&nbsp;등에서의&nbsp;소비자보호에&nbsp;관한&nbsp;법률,&nbsp;소비자기본법,&nbsp;위치정보의&nbsp;보호&nbsp;및&nbsp;이용&nbsp;등에&nbsp;관한&nbsp;법률&nbsp;등&nbsp;관련법을&nbsp;위배하지&nbsp;않는&nbsp;범위에서&nbsp;이&nbsp;약관을&nbsp;개정할&nbsp;수&nbsp;있습니다.
+                                                <br>&nbsp;
+                                                <br>부&nbsp;칙
+                                                <br>(1) 이&nbsp;약관은&nbsp;2024년&nbsp;6월&nbsp;5일부터&nbsp;시행합니다.
+                                                <br>(2) 이전의 이용약관은 아래에서 확인하실 수 있습니다.
+                                                <br>- 2019. 04. 02 ~ 2024.06.04 적용 
+                                                <br>
+                                                <br>
+                                                <br>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row pt-4">
+                                <div class="col new-fs-9 mb-1 ps-4">
+                                    <input type="checkbox" id="check2" class="check-item form-check-input"> <label for="check2" class="mb-0">개인정보 수집•이용 동의</label> <span class="text-danger">(필수)</span>
+                                </div>
+                            </div>
+                            <div class="row overflow-auto border py-2" style="max-height: 150px;">
+                                <div class="col " >
+                                    <div data-bs-spy="scroll" data-bs-target="#list-example" data-bs-smooth-scroll="true" class="scrollspy-example" tabindex="0">
+                                        <div class="content new-fs-85">
+                                            <div class="fr-view fr-view-privacy-required">
+                                                <p>
+                                    
+                                                    <strong><span>수집하는 개인정보 항목 및 수집방법</span></strong></p>
+                                                <p>
+                                    
+                                                    <span lang="&quot;EN-US&quot;"><span>1. </span></span><span lang="&quot;EN-US&quot;">'여섯번째 밴드'</span><span>는 별도의 회원가입 절차 없이 대부분의 컨텐츠에 자유롭게 접근할 수 있습니다<span lang="&quot;EN-US&quot;">. </span></span></p>
+                                                <p><span><span lang="&quot;EN-US&quot;"></span></span><span><span lang="&quot;EN-US&quot;">여섯번째 밴드</span>는 회원제 서비스를 이용하시고자 할 경우 다음의 정보를 입력해주셔야 합니다<span lang="&quot;EN-US&quot;">.<br>
+                                                            - </span>입력항목<span lang="&quot;EN-US&quot;"> : </span>아이디<span lang="&quot;EN-US&quot;">, </span>비밀번호<span lang="&quot;EN-US&quot;">, </span>이름<span lang="&quot;EN-US&quot;">, </span>휴대전화<span lang="&quot;EN-US&quot;">, </span>이메일주소</span></p>
+                                                <p>
+                                    
+                                                    <span lang="&quot;EN-US&quot;"><span>2. </span></span><span>또한 서비스 이용과정이나 사업 처리 과정에서 아래와 같은 정보들이
+                                                        생성되어 수집될 수 있습니다<span lang="&quot;EN-US&quot;">.<br>
+                                                            - </span>최근접속일<span lang="&quot;EN-US&quot;">, </span>접속<span lang="&quot;EN-US&quot;"> IP </span>정보<span lang="&quot;EN-US&quot;">, </span>쿠키<span lang="&quot;EN-US&quot;">, </span>구매로그<span lang="&quot;EN-US&quot;">, </span>이벤트로그<span lang="&quot;EN-US&quot;"><br>
+                                                            - </span>회원가입 시 회원이 원하시는 경우에 한하여 추가 정보를 선택<span lang="&quot;EN-US&quot;">, </span>제공하실 수 있도록 되어있으며<span lang="&quot;EN-US&quot;">, </span></span></p>
+                                                <p><span><span lang="&quot;EN-US&quot;"></span>일부 재화 또는 용역 상품에 대한 주문 및 접수 시 회원이 원하는 정확한 주문 내용 파악을 통한 </span></p>
+                                                <p><span>원활한 주문
+                                                        및 결제<span lang="&quot;EN-US&quot;">, </span>배송을 위하여 추가적인 정보를 요구하고 있습니다<span lang="&quot;EN-US&quot;">. </span></span></p>
+                                                <p>
+                                    
+                                                    <span lang="&quot;EN-US&quot;"><span>3. </span></span><span lang="&quot;EN-US&quot;">'여섯번째 밴드'</span><span>는 다음과 같은 방법으로 개인정보를 수집합니다<span lang="&quot;EN-US&quot;">.<br>
+                                                            - </span>홈페이지<span lang="&quot;EN-US&quot;">, </span>서면양식<span lang="&quot;EN-US&quot;">, </span>팩스<span lang="&quot;EN-US&quot;">, </span>전화<span lang="&quot;EN-US&quot;">, </span>상담 게시판<span lang="&quot;EN-US&quot;">, </span>이메일<span lang="&quot;EN-US&quot;">, </span>이벤트 응모<span lang="&quot;EN-US&quot;">, </span>배송요청<span lang="&quot;EN-US&quot;"> <br>
+                                                            - </span>협력회사로부터의 제공<span lang="&quot;EN-US&quot;"><br>
+                                                            - </span>로그 분석 프로그램을 통한 생성정보 수집 </span></p>
+                                
+                                                <p><span></span><span>「동의한다」버튼 또는 「동의하지 않는다」버튼을 클릭할 수 있는 절차를 마련하여<span lang="&quot;EN-US&quot;">, </span>「동의한다」버튼을
+                                                    </span></p>
+                                                <p><span>클릭하면 개인정보 수집에 대해 동의한 것으로 봅니다<span lang="&quot;EN-US&quot;">. </span></span></p>
+                                                <p>
+                                    
+                                    
+                                            </div>
+                                            </td>
+                                            </tr>
+                                            </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="row pt-4">
+                                <div class="col new-fs-9 d-flex align-items-center mb-1 ps-4">
+                                    <input type="checkbox" id="check3" class="check-item form-check-input"> <label for="check3" class="mb-0">만 14세 이상입니다.</label>
+                                </div>
+                            </div>
+                            <div class="row py-3 mb-5" >
+                                <div class="col-6 d-grid ">
+                                    <button type="button " class="btn btn-outline-primary" style="background-color: white; border-color: #ff6d96; color: #ff6d96;" onclick="gotoLoginPage()">취소</button>
+
+                                </div>
+                                <div class="col-6 d-grid">
+                                    <button type="button" class=" btn btn-primary" style="background-color: #ff6d96; border-color: #ff6d96;" onclick="showNextSection()">다음</button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        <div id="account-section" class="section" style="display:none;">
+
+                            <div class="row" >
+                                <div class="col" >
+                                    <div class="row py-3" >
+                                        <div class="fw-bold fs-3 pt-3 text-center">
+                                            회원가입 
+                                        </div>
+                                    </div>
+                                    <form action="./registerProcess" method="post" enctype="multipart/form-data" id="registerAccount">
+                                        <div class="row">
+                                            <div class="col-11 mx-auto">
+                                                <div class="row ">
+                                                    <div class="col text-end new-fs-7 d-flex align-items-center justify-content-end pe-0">
+                                                        <span class="new-text-red fs-6">*</span><span class="new-text-light-gray">표시 항목은 필수 입력 항목입니다.</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row py-1">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        프로필 이미지
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="row pt-1 pb-2 px-3">
+                                                    <div class="col">
+                                                        <div class="borderWrapper p-0 d-flex justify-content-center align-items-center" style="height: 6em; width: 6em;">
+
+                                                        <input type="file"  class="custom-file-input d-none image-thumbnail" id="imageFile" accept="image/*" name="uploadFile">
+
+                                                        <label class="mb-0" for="imageFile" id="previewImage"><span class="material-symbols-outlined new-text-white pt-2" style="font-size: 3em;">add_circle</span>
+                                                        </label>
+                                                        </div>
+                                                    </div>
+                                                </div>                                    
+                                                <div class="row pt-1">
+                                                    <div class="col d-flex align-items-center ps-3 new-fs-9">
+                                                        <span >아이디 </span><span class="new-text-red">*</span>&nbsp;<span class="material-symbols-outlined" data-bs-toggle="tooltip" data-bs-placement="right"
+                                                        data-bs-custom-class="custom-tooltip" data-bs-html="true" 
+                                                        data-bs-title="<ul style='margin: 0; padding-left: 20px;'>
+                                                            <li>• 5~20자 사이의 영문 소문자와 숫자를 조합</li>
+                                                            <li>• 특수문자(예: !, @, #, $)는 사용 불가</li>
+                                                          </ul>"  style="font-size: 0.9em;">info</span>
+                                                    </div>
+                                                </div>
+                                            
+                                                <div class="row d-flex align-items-center pb-2">
+                                                    <div style="width: 70%;"><input id="inputId" name="account_name" type="text" class="rounded py-2 px-3 form-control" placeholder="아이디를 입력해주세요."></div>
+                                                    <div class="col-3 ps-0 pe-3">
+                                                        <input onclick="checkaccountNameDouble()" type="button"  class="new-btn-none new-fs-8 rounded-0 border-bottom new-text-gray border-secondary" value="아이디 중복 확인">
+                                                    </div>
+                                                </div>
+                                                <div style="color: crimson;" id="idConfirmResult"></div>
+                                                    
+                                                <div class="row pb-1 pt-2">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <span>비밀번호</span><span class="new-text-red">*</span> <span class="material-symbols-outlined" data-bs-toggle="tooltip" data-bs-placement="right"
+                                                        data-bs-custom-class="custom-tooltip" data-bs-html="true" 
+                                                        data-bs-title="<ul style='margin: 0; padding-left: 20px;'>
+                                                            <li>• 8~16자, 영문 대소문자, 숫자, 특수문자 포함</li>
+                                                            <li>• 동일한 문자 3회 이상 반복 불가</li>
+                                                          </ul>"  style="font-size: 0.9em;">info</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row pb-2">
+                                                    <div class="col">
+                                                        <input id="inputPW" name="password" type="password" class="rounded py-2 px-3 form-control" placeholder="비밀번호를 입력해주세요">
+                                                    </div>
+                                                </div>
+                                                <!-- <div class="row py-1 ">
+                                                    <div class="col d-grid ">
+                                                        <div class="py-1">• 비밀번호 확인</div>
+                                                        <input id="inputPWConfirm" name="password" type="password" class="rounded py-2 px-3 form-control" placeholder="비밀번호를 입력해주세요">
+                                                    </div>
+                                                </div> -->
+                                                <div class="row py-1 ">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <span>닉네임</span><span class="new-text-red">*</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row pb-2">
+                                                    <div class="col">
+                                                        <input name="nickname" type="text" class="rounded py-2 px-3 form-control" placeholder="닉네임을 10자이내로 입력해주세요">
+                                                    </div>
+                                                </div>
+                                                <div class="row py-1 ">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <span>이름</span><span class="new-text-red">*</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row pb-2">
+                                                    <div class="col">
+                                                        <input name="name" type="text" class="rounded py-2 px-3 form-control" placeholder="이름을 입력해주세요.">
+                                                    </div>
+                                                </div>
+                                                <div class="row py-1 ">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <span>이메일</span><span class="new-text-red">*</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row pb-2">
+                                                    <div class="col">
+                                                        <input name="email" type="text" class="rounded py-2 px-3 form-control" placeholder="이메일을 입력해주세요">
+                                                    </div>
+                                                </div>
+                                                <div class="row py-1 ">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <div>성별</div>
+                                                    </div>
+                                                </div>
+                                                <div class="row py-2">
+                                                    <div class="col-4 new-fs-9 ps-5">
+                                                        <input name="gender" type="radio" class="custom-radio form-check-input" checked value="남성">남
+                                                    </div>
+                                                    <div class="col-4 new-fs-9 ps-5">
+                                                        <input name="gender" type="radio" class=" custom-radio form-check-input" value="여성">여    
+                                                    </div>
+                                                </div>
+                                                <div class="row py-1 ">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <div>생년월일</div>
+                                                    </div>
+                                                </div>
+                                                <div class="row pb-2">
+                                                    <div class="col">
+                                                        <input id="inputBirth" name="birth" type="date" class="rounded px-3 form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="row py-1 ">
+                                                    <div class="col ps-3 new-fs-9">
+                                                        <span>전화번호</span><span class="new-text-red">*</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row" style="padding-bottom: 30%;">
+                                                    <div class="col">
+                                                        <input name="phone" type="text" class="rounded py-2 px-3 form-control"  placeholder="전화번호를 입력해주세요">
+                                                    </div>
+                                                </div>
+                                                
+                                                </form>
+                                            </div>
+                                        </div>
+                                            
+                                    </div>
+                                     
+                                </div>
+
+                                <div class="row">
+                                    <div class="col px-0">
+                                        <button onclick="formsbumit()" class="btn btn-primary new-fixed-bottom rounded-0 new-py-25 lh-1" type="button" style="opacity: 1; z-index: 1; background-color: #ff6d96; border-color: #ff6d96;">가입</button>
+
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+
+                <!-- /* 푸터 */ -->
+                <!-- <div th:replace="~{common/navi::bottomNavi}"></div> -->
+            </div>
+        </div>
+
+        <!--/* 사이드바 */-->
+        <div th:replace="~{common/navi::sidebarLeft}"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

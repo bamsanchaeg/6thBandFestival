@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th band</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+
+    .doneContent{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+    }
+
+    .announcement{
+        font-size: 0.8em;
+        color: #9f9f9f;
+    }
+
+    .limited-size-image {
+        height: 20px; /* 자동으로 높이를 설정 */
+        width: auto;
+    }
+
+</style>
+<body>
+<!--버블유저페이지, 마이페이지와 다름, 이름과 헷갈리지 말것... 이름좀 잘 지었어야지..-->
+<div id="root">
+    <div class="wrapper">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{bubble/bubbleNavigation::topBubbleNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+        <!-- /* 컨텐츠 */ -->
+        <!-- /* 로그인 분기처리 */ -->
+        <div class="main doneContent">
+            <div class="container-fluid">
+                <div class="col">
+                    <div class="row " style="margin-top: 60px"></div>
+                    <!--아티스트 신청-->
+                    <div class="row">
+                        <div class="col">
+                            <div class="row my-2">
+                                <div class="col text-center">
+                                    <img src="/public/img/bubble/bubble_logo.png" class="limited-size-image">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col announcement text-center">
+                                    <p>제출이 완료되었습니다.</p>
+                                    <p>완료결괴는 30일 이내 메일로 전송될 예정입니다.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /* 푸터 */ -->
+            <div th:replace="~{common/navi::bottomNavi}"></div>
+        </div>
+        <div th:replace="~{bubble/bubbleNavigation::bottomBubbleNavi}"></div>
+    </div>
+</div>
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

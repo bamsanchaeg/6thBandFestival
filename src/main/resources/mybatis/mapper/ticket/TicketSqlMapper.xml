@@ -1,0 +1,724 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sixthband.festival.ticket.mapper.TicketSqlMapper">
+
+<!--    관리자-->
+    <select id="selectAllFestivalList" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        select * from festival_information;
+    </select>
+
+    <select id="selectFestivalById" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        select * from festival_information
+        where id = #{id};
+    </select>
+
+    <insert id="insertTicket">
+        insert into ticket_info (
+            festival_id, day_type, adult_price, youth_price, open_date, deadline_date, booking_day, total_quantity
+        ) values (
+            #{festival_id}, #{day_type}, #{adult_price}, #{youth_price}, #{open_date}, #{deadline_date}, #{booking_day}, #{total_quantity}
+        )
+    </insert>
+
+    <select id="selectAllTicketList" resultType="map">
+        select ti.*,
+               IFNULL(fi.festival_name, '삭제된 페스티벌 입니다.') as festival_name,
+               IFNULL(td.id, 0) as discount_id,
+               IFNULL(td.discount, 0) as discount,
+               IFNULL(td.discount_quantity, 0) as discount_quantity,
+               IFNULL(td.remaining_quantity, 0) as remaining_quantity from ticket_info ti
+        left join festival_information fi on fi.id = ti.festival_id
+        left join ticket_earlybird_discount td on ti.id = td.info_id
+        order by ti.id desc
+        limit 15 offset #{page};
+    </select>
+
+    <select id="selectTicketById" resultType="map">
+        select ti.*, fi.*,
+               IFNULL(td.id, 0) as discount_id,
+               IFNULL(td.discount, 0) as discount,
+               IFNULL(td.discount_quantity, 0) as discount_quantity,
+               IFNULL(td.remaining_quantity, 0) as remaining_quantity from ticket_info ti
+        inner join festival_information fi on fi.id = ti.festival_id
+        left join ticket_earlybird_discount td on ti.id = td.info_id
+        where ti.id = #{id}
+        order by ti.id desc;
+    </select>
+
+    <delete id="deleteTicketById">
+        delete from ticket_info
+        where id = #{id};
+    </delete>
+
+    <insert id="insertDiscount">
+        insert into ticket_earlybird_discount(
+            info_id, discount, discount_quantity, remaining_quantity
+        ) values (
+             #{info_id}, #{discount}, #{discount_quantity}, #{discount_quantity}
+        )
+    </insert>
+
+    <delete id="deleteDiscountById">
+        delete from ticket_earlybird_discount
+        where id = #{id};
+    </delete>
+
+    <select id="selectTicketPurchaseQuantity" resultType="int">
+        select ifnull(sum(adult_quantity + youth_quantity), 0) from ticket_booking
+        where info_id = #{id};
+    </select>
+
+<!--    할인 적용 -->
+    <select id="selectEarlybirdDiscount" resultType="com.sixthband.festival.ticket.dto.TicketEarlybirdDiscountDto">
+        select * from ticket_earlybird_discount
+        where info_id = #{id};
+    </select>
+
+    <update id="updateRemainingQuantity">
+        update ticket_earlybird_discount
+        set remaining_quantity = remaining_quantity - #{count}
+        where info_id = #{id};
+    </update>
+
+<!--    관리자 - 티켓 구매 내역-->
+    <select id="selectBookingList" resultType="map">
+        select tb.*,
+               su.name,
+               su.phone,
+               ti.day_type,
+               ti.booking_day,
+               IFNULL(fi.festival_name, '삭제된 페스티벌 입니다.') as festival_name,
+               IFNULL(fi.thumbnail, '삭제된 페스티벌 입니다.') as thumbnail
+        from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        left join ticket_info ti on tb.info_id = ti.id
+        left join festival_information fi on ti.festival_id = fi.id
+        <if test="isPayment != null and searchOption == null and searchWord == null">
+            where tb.payment_status = #{isPayment}
+        </if>
+        <if test="isPayment == null and searchOption != null and searchWord != null">
+            <choose>
+                <when test="searchOption == 'name'">where su.name LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'nickname'">where su.nickname LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'email'">where su.email LIKE CONCAT('%', #{searchWord}, '%')</when>
+            </choose>
+        </if>
+        <if test="isPayment != null and searchOption != null and searchWord != null">
+            where tb.payment_status = #{isPayment}
+            <choose>
+                <when test="searchOption == 'name'">and su.name LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'nickname'">and su.nickname LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'email'">and su.email LIKE CONCAT('%', #{searchWord}, '%')</when>
+            </choose>
+        </if>
+        order by tb.id desc
+        limit 11 offset #{page};
+    </select>
+
+<!--    관리자 - 티켓 구매 내역 상세P-->
+    <select id="selectAdminBookingById" resultType="map">
+        select tb.*,
+               su.name,
+               su.phone,
+               su.email,
+               su.profile_img,
+               ti.day_type,
+               ti.booking_day,
+               IFNULL(fi.festival_name, '삭제된 페스티벌 입니다.') as festival_name,
+               IFNULL(fi.thumbnail, '삭제된 페스티벌 입니다.') as thumbnail
+        from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        left join festival_information fi on ti.festival_id = fi.id
+        where tb.id = #{id};
+    </select>
+
+<!--    관리자 - 리뷰 관리-->
+    <select id="selectAdminReviewAll" resultType="map">
+        select tv.*,
+               su.*,
+               tb.*,
+               ti.*,
+               fi.*,
+               count(tri.review_id) as image_count
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        left join ticket_review_image tri on tv.id = tri.review_id
+        group by tv.id
+        order by tv.id desc
+        limit 15 offset #{page};
+    </select>
+
+<!--    사용자-->
+    <select id="selectTicketOneDayListByFestivalId">
+        select * from ticket_info
+        where festival_id = #{festival_id}
+        and day_type = '1Day'
+        order by booking_day, id;
+    </select>
+
+    <select id="selectTicketAllDayByFestivalId">
+        select * from ticket_info
+        where festival_id = #{festival_id}
+          and day_type = 'AllDay'
+        order by booking_day, id;
+    </select>
+
+    <select id="selectMinYouthPriceByOneDay" resultType="int">
+        select min(youth_price) from ticket_info
+        where festival_id = #{festival_id}
+          and day_type = '1Day';
+    </select>
+
+    <select id="selectMinYouthPriceByAllDay" resultType="int">
+        select min(youth_price) from ticket_info
+        where festival_id = #{festival_id}
+        and day_type = 'AllDay';
+    </select>
+
+    <insert id="insertTicketBooking">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select max(id) from ticket_booking;
+        </selectKey>
+        insert into ticket_booking(
+            user_id, info_id, adult_quantity, youth_quantity, total_price
+        ) values (
+            #{user_id}, #{info_id}, #{adult_quantity}, #{youth_quantity}, #{total_price}
+        )
+    </insert>
+
+<!--    구매한 티켓 정보 -->
+    <select id="selectBookingByUserId" resultType="map">
+        select tb.id as booking_id, tb.*, ti.*, fi.* from ticket_booking tb
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        where tb.user_id = #{user_id}
+        order by booking_id desc
+        limit 5;
+    </select>
+
+    <select id="selectBookingById" resultType="map">
+        select tb.id as booking_id, tb.created_at as buy_day, tb.*, ti.* from ticket_booking tb
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.id = #{id};
+    </select>
+
+<!--    티켓 구분-->
+    <select id="selectIsUseNBookingByUserId" resultType="map">
+        select tb.id as booking_id, tb.*, ti.*, fi.* from ticket_booking tb
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        where tb.user_id = #{user_id}
+        and tb.is_use = 'N'
+        order by booking_id desc;
+    </select>
+
+    <select id="selectIsUseYBookingByUserId" resultType="map">
+        select tb.id as booking_id, tb.*, ti.*, fi.* from ticket_booking tb
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        where tb.user_id = #{user_id}
+          and tb.is_use = 'Y'
+        order by booking_id desc;
+    </select>
+
+<!--    티켓 메인페이지-->
+<!--    오늘 기준 날짜가 제일 가까운 페스티벌 가져옴-->
+    <select id="selectMinStartingDateFestivalInfo" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT *
+        FROM festival_information
+        WHERE starting_date = (
+            SELECT MIN(starting_date)
+            FROM festival_information
+            WHERE starting_date >= NOW()
+        );
+    </select>
+
+<!--    티켓 구매자 판별-->
+    <select id="isBookingTickets" resultType="int">
+        select count(*) from ticket_booking
+        where user_id = #{user_id};
+    </select>
+
+<!--    구매한 정보(끝난페스티벌)-->
+    <select id="selectBookingDataByUserId" resultType="map">
+        select * from ticket_booking tb
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join six_user su on tb.user_id = su.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        where tb.user_id = #{user_id}
+        and fi.end_date <![CDATA[<]]> now();
+    </select>
+
+<!--    글 등록-->
+    <insert id="insertFestivalReview">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select MAX(id) from ticket_review
+        </selectKey>
+
+        insert into ticket_review (
+            user_id, booking_id, title, content, read_count
+        ) values (
+            #{user_id}, #{booking_id}, #{title}, #{content}, 0
+        )
+    </insert>
+
+    <insert id="insertFestivalReviewImages">
+        insert into ticket_review_image(
+            review_id, url
+        ) values (
+            #{review_id}, #{url}
+        )
+    </insert>
+
+<!--    리뷰 리스트 검색 + 정렬 -->
+    <select id="selectAllReviewList" resultType="map">
+        select tv.*, su.*, tb.*, ti.*, fi.*,
+               IFNULL(ri.review_id, 0) as review_id,
+               IFNULL(ri.url, 0) as url,
+               IFNULL(trl.like_count, 0) as like_count
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        left join festival_information fi on ti.festival_id = fi.id
+        left join (
+            select review_id, url from ticket_review_image
+            group by review_id) ri on tv.id = ri.review_id
+        left join (
+            select count(*) as like_count, review_id from ticket_review_like
+            group by review_id) trl on trl.review_id = tv.id
+        <if test="searchWord != null">
+            where tv.content like concat('%', #{searchWord}, '%')
+        </if>
+        order by
+            <if test="sort == 2">tv.read_count desc,</if>
+            <if test="sort == 3">like_count desc,</if>
+        tv.id desc
+        limit 10 offset #{page};
+    </select>
+
+    <select id="selectReviewInfoById" resultType="map">
+        select tv.*, su.*, tb.*, ti.*, fi.*
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        where tv.id = #{id};
+    </select>
+
+    <select id="selectReviewImagesByReviewId" resultType="com.sixthband.festival.ticket.dto.TicketReviewImageDto">
+        select * from ticket_review_image
+        where review_id = #{review_id};
+    </select>
+
+    <insert id="insertReviewLike">
+        insert into ticket_review_like (
+            user_id, review_id
+        ) values (
+            #{user_id}, #{review_id}
+        )
+    </insert>
+
+    <select id="isReviewLike" resultType="int">
+        select count(*) from ticket_review_like
+        where user_id = #{user_id}
+        and review_id = #{review_id};
+    </select>
+
+    <delete id="deleteReviewLikeByUserIdAndReviewId">
+        delete from ticket_review_like
+        where user_id = #{user_id}
+        and review_id = #{review_id};
+    </delete>
+
+    <select id="selectReviewLikeCount" resultType="int">
+        select count(*) from ticket_review_like
+        where review_id = #{review_id};
+    </select>
+
+    <update id="updateReviewReadCount">
+        update ticket_review
+        set  read_count = read_count + 1
+        where id = #{id};
+    </update>
+
+    <delete id="deleteReviewById">
+        delete from ticket_review
+        where id = #{id}
+    </delete>
+
+    <update id="updateReviewById">
+        update ticket_review
+        set  title = #{title},
+             content = #{content}
+        where id = #{id};
+    </update>
+
+    <select id="selectReviewListLikeCountBestThree" resultType="map">
+        select tv.*, su.*, tb.*, fi.*,
+               IFNULL(ri.review_id, 0) as review_id,
+               IFNULL(ri.url, 0) as url,
+               IFNULL(trl.like_count, 0) as like_count
+        from ticket_review tv
+                 inner join six_user su on tv.user_id = su.id
+                 inner join ticket_booking tb on tv.booking_id = tb.id
+                 inner join ticket_info ti on tb.info_id = ti.id
+                 left join festival_information fi on ti.festival_id = fi.id
+                 left join (
+            select review_id, url from ticket_review_image
+            group by review_id) ri on tv.id = ri.review_id
+                 left join (
+            select count(*) as like_count, review_id from ticket_review_like
+            group by review_id) trl on trl.review_id = tv.id
+        order by like_count desc, tv.id desc
+        limit 3;
+    </select>
+
+<!--    현재 글 기준 +-5개의 글만 나오게 하는 쿼리 -->
+<!--    id로 하면 중간에 글이 삭제된 경우, id를 제대로 가져오지 못하므로
+        ROW_NUMBER : 각 행에 고유 번호를 생성하는 함수. over : 범위지정
+        이용해서 삭제한 글을 제외한 순서를 재지정 후 between ~ and ~ 조건 설정-->
+    <select id="selectReviewListFiveById" resultType="map">
+        select * from (
+            select tv.*,
+            su.nickname,
+            tb.id as ticketInfo_id, tb.info_id,
+            fi.festival_name,
+            IFNULL(ri.review_id, 0) as review_id,
+            IFNULL(ri.url, 0) as url,
+            IFNULL(trl.like_count, 0) as like_count,
+            ROW_NUMBER() OVER (ORDER BY tv.id) as rn
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        left join (
+            select review_id, url from ticket_review_image
+            group by review_id) ri on tv.id = ri.review_id
+        left join (
+            select count(*) as like_count, review_id from ticket_review_like
+            group by review_id) trl on trl.review_id = tv.id
+        ) as review_list
+        where review_list.rn between
+            (select rn from (
+                select id, ROW_NUMBER() over (order by id) as rn
+                from ticket_review
+            ) as temp
+            where id = #{id}) - 2 AND
+            (select rn from (
+                select id, ROW_NUMBER() over (order by id) as rn
+                from ticket_review
+            ) as temp
+            where id = #{id}) + 2
+        order by review_list.rn desc;
+    </select>
+
+<!--    자기가 쓴 리뷰-->
+    <select id="selectReviewListByUserId" resultType="map">
+        select tv.*, su.*, tb.*, fi.*,
+               IFNULL(ri.review_id, 0) as review_id,
+               IFNULL(ri.url, 0) as url,
+               IFNULL(trl.like_count, 0) as like_count
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        left join (
+            select review_id, url from ticket_review_image
+            group by review_id) ri on tv.id = ri.review_id
+        left join (
+            select count(*) as like_count, review_id from ticket_review_like
+            group by review_id) trl on trl.review_id = tv.id
+        where tv.user_id = #{id}
+        order by tv.id desc;
+    </select>
+
+<!--    자기가 좋아요한 리뷰 -->
+    <select id="selectLikeReviewListByUserId" resultType="map">
+        select tv.*,
+               su.id as user_id,
+               su.nickname as nickname,
+               IFNULL(ri.review_id, 0) as review_id,
+               IFNULL(ri.url, 0) as url,
+               IFNULL(trl.like_count, 0) as like_count
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        left join (
+            select review_id, url from ticket_review_image
+            group by review_id) ri on tv.id = ri.review_id
+        left join (
+            select count(*) as like_count, review_id from ticket_review_like
+            group by review_id) trl on trl.review_id = tv.id
+        inner join ticket_review_like trl2 on trl2.review_id = tv.id
+        where trl2.user_id = #{id}
+        order by tv.id desc;
+    </select>
+
+<!--    qr입장확인-->
+    <update id="updateIsUseByBookingId">
+        update ticket_booking
+        set is_use = 'Y'
+        where id = #{id}
+    </update>
+
+
+<!--    페이징-->
+    <select id="countTickets" resultType="int">
+        select count(*) from ticket_info ti;
+    </select>
+
+    <select id="countBooking" resultType="int">
+        select count(*)
+        from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        left join ticket_info ti on tb.info_id = ti.id
+        left join festival_information fi on ti.festival_id = fi.id
+        <if test="isPayment != null and searchOption == null and searchWord == null">
+            where tb.payment_status = #{isPayment}
+        </if>
+        <if test="isPayment == null and searchOption != null and searchWord != null">
+            <choose>
+                <when test="searchOption == 'name'">where su.name LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'nickname'">where su.nickname LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'email'">where su.email LIKE CONCAT('%', #{searchWord}, '%')</when>
+            </choose>
+        </if>
+        <if test="isPayment != null and searchOption != null and searchWord != null">
+            where tb.payment_status = #{isPayment}
+            <choose>
+                <when test="searchOption == 'name'">and su.name LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'nickname'">and su.nickname LIKE CONCAT('%', #{searchWord}, '%')</when>
+                <when test="searchOption == 'email'">and su.email LIKE CONCAT('%', #{searchWord}, '%')</when>
+            </choose>
+        </if>
+    </select>
+
+    <select id="countReview" resultType="int">
+        select count(*) from ticket_review;
+    </select>
+
+<!--    결제-->
+    <update id="updatePaymentStatusY">
+        update ticket_booking
+        set payment_status = 'Y'
+        where id = #{id}
+    </update>
+
+    <insert id="insertTicketPayment">
+        insert into ticket_payment (booking_id, tid, cid)
+        values (#{booking_id}, #{tid}, #{cid})
+    </insert>
+
+<!--    그래프-->
+    <select id="selectDailySales" resultType="map">
+        select DATE_FORMAT(created_at, '%m-%d') as date, sum(total_price) as total_price
+        from ticket_booking
+        where payment_status = 'Y'
+        group by date(created_at)
+        order by date(created_at);
+    </select>
+
+    <select id="selectMonthlySales" resultType="map">
+        select year(created_at) as year, month(created_at) as month, sum(total_price) as total_price
+        from ticket_booking
+        where payment_status = 'Y'
+        group by year(created_at), month(created_at)
+        order by year(created_at), month(created_at);
+    </select>
+
+    <select id="selectAnnualSales" resultType="map">
+        select year(created_at) as year, sum(total_price) as total_price
+        from ticket_booking
+        where payment_status = 'Y'
+        group by year(created_at)
+        order by year(created_at);
+    </select>
+
+    <select id="selectDayTypeOneDay" resultType="int">
+        select count(*) from festival_information fi
+        left join ticket_info ti on fi.id = ti.festival_id
+        left join ticket_booking tb on ti.id = tb.info_id
+        where ti.day_type = '1Day'
+        and tb.payment_status = 'Y'
+        and fi.id = #{id};
+    </select>
+
+    <select id="selectDayTypeAllDay" resultType="int">
+        select count(*) from festival_information fi
+        left join ticket_info ti on fi.id = ti.festival_id
+        left join ticket_booking tb on ti.id = tb.info_id
+        where ti.day_type = 'AllDay'
+        and tb.payment_status = 'Y'
+        and fi.id = #{id};
+    </select>
+
+    <select id="selectOneDaySales" resultType="int">
+        select IFNULL(sum(tb.total_price), 0) as total_price
+        from festival_information fi
+        left join ticket_info ti on fi.id = ti.festival_id
+        left join ticket_booking tb on ti.id = tb.info_id
+        where ti.day_type = '1Day'
+        and tb.payment_status = 'Y'
+        and fi.id = #{id};
+    </select>
+
+    <select id="selectAllDaySales" resultType="int">
+        select IFNULL(sum(tb.total_price), 0) as total_price
+        from festival_information fi
+        left join ticket_info ti on fi.id = ti.festival_id
+        left join ticket_booking tb on ti.id = tb.info_id
+        where ti.day_type = 'AllDay'
+        and tb.payment_status = 'Y'
+        and fi.id = #{id};
+    </select>
+
+    <select id="selectOneDayAge" resultType="map">
+        select su.age, count(*) as age_count from ticket_booking tb
+        inner join (
+            select *, TRUNCATE(TIMESTAMPDIFF(year, birth, now()), -1) as age
+            from six_user) su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.payment_status = 'Y'
+        and ti.day_type = '1Day'
+        and ti.festival_id = #{id}
+        group by su.age;
+    </select>
+
+    <select id="selectOneDayGenderF" resultType="int">
+        select count(*) as female_count from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.payment_status = 'Y'
+        and ti.day_type = '1Day'
+        and ti.festival_id = #{id}
+        and su.gender = '여성';
+    </select>
+
+    <select id="selectOneDayGenderM" resultType="int">
+        select count(*) as male_count from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.payment_status = 'Y'
+        and ti.day_type = '1Day'
+        and ti.festival_id = #{id}
+        and su.gender = '남성';
+    </select>
+
+    <select id="selectAllDayAge" resultType="map">
+        select su.age, count(*) as age_count from ticket_booking tb
+        inner join (
+            select *, TRUNCATE(TIMESTAMPDIFF(year, birth, now()), -1) as age
+            from six_user) su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.payment_status = 'Y'
+        and ti.day_type = 'AllDay'
+        and ti.festival_id = #{id}
+        group by su.age;
+    </select>
+
+    <select id="selectAllDayGenderF" resultType="int">
+        select count(*) as female_count from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.payment_status = 'Y'
+        and ti.day_type = 'AllDay'
+        and ti.festival_id = #{id}
+        and su.gender = '여성';
+    </select>
+
+    <select id="selectAllDayGenderM" resultType="int">
+        select count(*) as male_count from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        where tb.payment_status = 'Y'
+        and ti.day_type = 'AllDay'
+        and ti.festival_id = #{id}
+        and su.gender = '남성';
+    </select>
+
+
+
+<!--    보충-->
+<!--    티켓 총 개수-->
+    <select id="selectAllTicketCount" resultType="int">
+        select count(*)
+        from ticket_info ti
+        left join festival_information fi on fi.id = ti.festival_id
+        left join ticket_earlybird_discount td on ti.id = td.info_id
+        order by ti.id desc;
+    </select>
+
+<!--    예매내역 총 개수-->
+    <select id="selectAllBookingCount" resultType="int">
+        select count(*)
+        from ticket_booking tb
+        inner join six_user su on tb.user_id = su.id
+        left join ticket_info ti on tb.info_id = ti.id
+        left join festival_information fi on ti.festival_id = fi.id
+        order by tb.id desc;
+    </select>
+
+<!--    리뷰 총 개수-->
+    <select id="selectAllReviewCount" resultType="int">
+        select count(*) from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        order by tv.id desc;
+    </select>
+
+<!--    gpt 요약용 -->
+    <select id="selectGptReviewById" resultType="com.sixthband.festival.ticket.dto.TicketReviewDto">
+        select *
+        from ticket_review
+        where id = #{id};
+    </select>
+
+<!--    후기 개수-->
+    <select id="selectTicketReviewCount" resultType="int">
+        select count(*) from ticket_review;
+    </select>
+
+<!--    메인 대시보드용-->
+    <select id="selectMainDashBoardTickets" resultType="map">
+        select IFNULL(sum(tb.adult_quantity + tb.youth_quantity), 0) as total_count,
+               IFNULL(fi.festival_name, '등록된 페스티벌이 없습니다.') as festival_name,
+               IFNULL(fi.starting_date, now()) as starting_date,
+               IFNULL(fi.end_date, now()) as end_date
+        from ticket_booking tb
+        inner join ticket_info ti on tb.info_id = ti.id
+        inner join festival_information fi on ti.festival_id = fi.id
+        where ti.festival_id = (
+            select id from festival_information
+            where starting_date <![CDATA[>=]]> now()
+            limit 1)
+    </select>
+
+<!--    리뷰 검색된 결과 개수-->
+    <select id="selectSearchCount" resultType="int">
+        select count(*) as count
+        from ticket_review tv
+        inner join six_user su on tv.user_id = su.id
+        inner join ticket_booking tb on tv.booking_id = tb.id
+        inner join ticket_info ti on tb.info_id = ti.id
+        left join festival_information fi on ti.festival_id = fi.id
+        left join (
+            select review_id, url from ticket_review_image
+            group by review_id) ri on tv.id = ri.review_id
+        left join (
+            select count(*) as like_count, review_id from ticket_review_like
+            group by review_id) trl on trl.review_id = tv.id
+        <if test="searchWord != null">
+            where tv.content like concat('%', #{searchWord}, '%')
+        </if>
+    </select>
+</mapper>

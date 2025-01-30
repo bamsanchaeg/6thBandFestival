@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th band</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/information/information.css">
+</head>
+<script>
+
+
+
+    //이 방식으로 많이 쓰임.const url
+    function getFestivalList(){
+
+        const url="/api/information/getFestivalList"
+
+        fetch(url)
+            .then(response => response.json())
+            .then(response =>{
+            //여기 id가 festivalListBox의 안에 있는 모든 내용을 비우는 역활을 한다. 모든 html 내용을 삭제하는 것이다.
+                // 자바스크립트의 DOM(Document Object Mode)을 조작하여 웹 페이지의 내용을 동적으로 변경하는 기본적이 예이다. text만 변경하고 싶다면 textContext만 사용 가능
+            const festivalListBox = document.getElementById("festivalListBox");
+            festivalListBox.innerHTML="";
+
+            //아이디가 템플릿인 값인 곳의 값을 여기로 대체시켜주겠다.
+            const festivalWrapperTemplete = document.querySelector("#templete .festivalListWrapper");
+            //틀
+            console.log(festivalWrapperTemplete);
+
+            for(e of response.data.FestivalList){
+
+                const newFestivalWrapper = festivalWrapperTemplete.cloneNode(true);//한바퀴 돌때마다 클론을 함
+
+                //admin이랑 주소 헷갈리지말기..!
+                const festivalDetail = newFestivalWrapper.querySelector(".festivalDetail");
+                festivalDetail.href ='/information/festivalDetailPage?id=' + e.festivalDto.id;
+                console.log(e.festivalDto.id);
+
+                const festivalName = newFestivalWrapper.querySelector(".festivalName");
+                festivalName.innerText = e.festivalDto.festival_name;
+
+                const festivalStartingDate = newFestivalWrapper.querySelector(".festivalStartingDate");
+                festivalStartingDate.innerText = formDate(e.festivalDto.starting_date);
+
+                const festivalThumbnail = newFestivalWrapper.querySelector(".festivalThumbnail");
+                festivalThumbnail.src = '/images/' + e.festivalDto.thumbnail;
+
+                const ageLimit = newFestivalWrapper.querySelector(".ageLimit");
+                ageLimit.innerText = e.festivalDto.age_limit;
+
+                const festivalEndDate = newFestivalWrapper.querySelector(".festivalEndDate");
+                festivalEndDate.innerText = formDate(e.festivalDto.end_date);
+
+                const festivalLocation = newFestivalWrapper.querySelector(".festivalLocation");
+                festivalLocation.innerText = e.festivalDto.festival_location;
+
+
+                //특정요소인 festivalListBox 내에 NewFestivalWrapper 요소들로 값을 추가해주겠다는 이야기이다.
+                //for 문 안에 들어와야함.. Wrapper안에 싸여있는 아래 요소들을 바꿔준다는 이야기이다.
+                festivalListBox.appendChild(newFestivalWrapper);
+
+            }
+
+        })
+
+    }
+
+    //날짜변환함수..
+    function formDate(dateString){
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = ('0' + (date.getMonth() + 1)).slice(-2);
+        const day = ('0' + date.getDate()).slice(-2);
+        return `${year}/${month}/${day}`;
+    }
+
+    //윈도우가 시작될때 불러오는 함수, 주소로 연결되면 해당 자바스크립트가 호출된다.
+    window.addEventListener("DOMContentLoaded",() =>{
+        getFestivalList();
+    })
+
+</script>
+<body>
+<div id="root">
+    <div class="wrapper bgPatternPink">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <div class="main">
+            <div class="container">
+                <div class="row bg-boxColor-festivalBody">
+                    <div class="col">
+                        <h2 class="new-text-white text-center new-my-45 fw-bold">Upcoming Festival</h2>
+                        <!--festivalListBox의 값을 반복시켜준다. 틀은 아래 있다. 이것은 반복될 껍데기...-->
+                        <div class="row mx-0 new-mb-45">
+                            <div class="g-col-10 overflow-hidden bg-boxColor-festival" id="festivalListBox">
+                            </div>
+                        </div>
+                        <!--반복될 공연 정보의 틀-->
+                        <div class="gird d-none" id="templete">
+                            <div class="row festivalListWrapper">
+                                <div class="g-col-10 overflow-hidden ">
+                                    <!--이미지, 포스터 이미지는 정방형으로 들어감-->
+                                    <div class="row align-items-stretch ">
+                                        <div class="col p-3">
+                                            <!--이미지, a태그를 어떻게 걸어줄지에 대한 생각-->
+                                            <a class="festivalDetail">
+                                                <div class="row">
+                                                    <div class="col">
+                                                        <!--AppConfig에서 경로 변경된거 참고하세요, 아래 주소를 위로 바꿔준다고 생각하면 됨-->
+                                                        <image class="img-fluid festivalThumbnail">
+                                                        </image>
+                                                    </div>
+                                                </div>
+                                                <!--페스티벌 제목-->
+                                                <div class="row mt-3 px-1">
+                                                    <div class="col new-text-white h4 festivalName">
+                                                    </div>
+                                                </div>
+                                            </a>
+                                            <!--페스티벌날짜, 타임리프 출력시 달 출력은 MM! 주의-->
+                                            <div class="my-2 border-bottom"></div>
+                                            <!--아래 아이콘 라인 맞추는거 떄문에 x축에 패딩 1씩 줌-->
+                                            <div class="row new-text-white px-1">
+                                                <div class="col-1">
+                                                    <span class="material-symbols-outlined">
+                                                        calendar_month
+                                                    </span>
+                                                </div>
+                                                <div class="col font-roboto festivalStartingDate">
+                                                </div>
+                                                <div class="col-1 p-0">
+                                                    -
+                                                </div>
+                                                <div class="col font-roboto festivalEndDate">
+                                                </div>
+                                                <div class="col-1"></div>
+                                            </div>
+                                            <div class="row px-1 new-text-white">
+                                                <div class="col-1">
+                                                    <span class="material-symbols-outlined">
+                                                         account_circle
+                                                    </span>
+                                                </div>
+                                                <div class="col ageLimit"></div>
+                                            </div>
+                                            <div class="row new-text-white p-1">
+                                                <div class="col-1">
+                                                   <span class="material-symbols-outlined">
+                                                        location_on
+                                                   </span>
+                                                </div>
+                                                <div class="col festivalLocation">
+                                                </div>
+                                            </div>
+                                            <div class="my-1 border-bottom"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNavi}"></div>
+        <!--/* 퀵바 */-->
+        <div th:replace="~{common/navi::quickNavi}"></div>
+    </div>
+</div>
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

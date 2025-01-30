@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sixthband.festival.information.mapper.InformationSqlMapper">
+
+    <insert id="registerFestivalInformation">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from festival_information
+        </selectKey>
+        INSERT INTO festival_information(
+                festival_name,
+                festival_location,
+                festival_content,
+                festival_reservationMethod,
+                festival_caution,
+                thumbnail,
+                age_limit,
+                starting_date,
+                end_date
+        )VALUES(
+                #{festival_name},
+                #{festival_location},
+                #{festival_content},
+                #{festival_reservationMethod},
+                #{festival_caution},
+                #{thumbnail},
+                #{age_limit},
+                #{starting_date},
+                #{end_date}
+                       )
+    </insert>
+
+    <!--게시물 업데이트.. 무슨 아이디의 글을 수정하겠다-->
+    <update id="updateFestival">
+        update festival_information
+        set
+            festival_name = #{festival_name},
+            festival_location = #{festival_location},
+            festival_content = #{festival_content},
+            festival_reservationMethod = #{festival_reservationMethod},
+            festival_caution = #{festival_caution},
+            age_limit = #{age_limit},
+            starting_date = #{starting_date},
+            end_date = #{end_date}
+        where id =#{id}
+    </update>
+
+    <!--썸네일 업데이트-->
+    <update id="createThumbnail">
+        UPDATE festival_information
+        SET thumbnail=#{thumbnail}
+        WHERE id=#{id}
+    </update>
+
+    <delete id="deleteFestivalInformationById">
+        DELETE FROM festival_information
+        WHERE id = #{id}
+    </delete>
+
+    <insert id="registerFestivalImages">
+        INSERT INTO festival_information_image(
+           festival_id,
+           url
+        )VALUES(
+            #{festival_id},
+                 #{url}
+        )
+    </insert>
+
+    <!--현재날짜에서 가장 가까운 날짜로 가져옴, 대표 페스티벌 1만 걸어놓는것도 생각하고 있어서 limit 걸어놓는것도 생각-->
+    <select id="getAllFestivalList" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT *
+        FROM festival_information
+        WHERE starting_date <![CDATA[>=]]> CURRENT_DATE
+        ORDER BY DATEDIFF(starting_date, CURRENT_DATE) ASC
+            LIMIT 1
+    </select>
+
+    <select id="getAllFestivalListForAdmin" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT * FROM festival_information
+        ORDER BY DATE_FORMAT(starting_date, '%Y-%m-%d')-CURRENT_DATE ASC
+    </select>
+
+    <!--미래 페스티벌과 현재 날짜의 페스티벌 제외하고 리스트 가져오기-->
+    <select id="getAllFestivalHistoryList" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT *
+        FROM festival_information
+        WHERE end_date <![CDATA[<]]> now()
+        ORDER BY end_date DESC
+    </select>
+
+    <!--관리자페이지 페스티벌 리스트 출력, 메인에 걸거라 limit 3 걸기-->
+    <select id="getFestivalListForAdminMainPage" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT *
+        FROM festival_information
+        ORDER BY YEAR(starting_date) DESC, starting_date DESC
+            LIMIT 3;
+    </select>
+
+    <!--라인업 등록용 아티스트 리스트 출력-->
+    <!--관리자페이지 아티스트 리스트 출력-->
+    <select id="getAllArtistList">
+        SELECT * FROM festival_information_artist
+        ORDER BY id DESC;
+    </select>
+
+    <select id="getFestivalInformationDetailById" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT * FROM festival_information
+        WHERE id= #{id}
+    </select>
+
+    <!--라인업 등록용 insert 쿼리, 여기서 performance_id는 라인업의 PK-->
+    <insert id="registerArtistForLineUp">
+        INSERT INTO festival_information_lineup(
+            performance_id,
+            artist_id
+        )
+        VALUES (
+            #{performance_id},
+            #{artist_id}
+               )
+    </insert>
+
+    <!--페스티벌 날짜 등록용 insert 쿼리-->
+    <insert id="registerDateForFestival">
+        INSERT INTO festival_information_performanceDate(
+            festival_id,
+            performance_date
+        )VALUES (
+            #{festival_id},
+            #{performance_date}
+                        )
+    </insert>
+
+    <!--페스티벌 정보 불러오는 쿼리-->
+    <select id="getFestivalDateDtoById">
+        SELECT * FROM festival_information_performanceDate
+        WHERE festival_id =#{festival_id}
+    </select>
+
+    <insert id="registerArtistInformation">
+    <selectKey resultType="int" keyProperty="id" order="AFTER">
+        select max(id) from festival_information_artist
+    </selectKey>
+        INSERT INTO festival_information_artist
+        (
+            artist_name,
+            artist_detail,
+            artist_summary,
+            thumbnail,
+            youtube_url,
+            sns_url
+        )VALUES(
+            #{artist_name},
+            #{artist_detail},
+            #{artist_summary},
+            #{thumbnail},
+            #{youtube_url},
+            #{sns_url}
+        )
+    </insert>
+
+    <!--아티스트 썸네일 업데이트-->
+    <update id="createArtistThumbnail">
+        UPDATE festival_information_artist
+        SET thumbnail=#{thumbnail}
+        WHERE id=#{id}
+    </update>
+
+    <!--아티스트 이미지 등록-->
+    <insert id="registerArtistImages">
+        INSERT INTO festival_information_artist_image(
+            artist_id,images_url
+            )VALUES (
+                     #{artist_id},#{images_url}
+                            )
+    </insert>
+
+    <!--아티스트 디테일에 이미지 불러오기-->
+    <select id="getArtistImagesByArtistId" resultType="com.sixthband.festival.information.dto.ArtistImageDto">
+        SELECT * FROM festival_information_artist_image
+        WHERE artist_id = #{artist_id}
+    </select>
+
+    <!--아티스트 정보 삭제하기-->
+    <delete id="deleteArtistById">
+        DELETE FROM festival_information_artist
+        WHERE id =#{id}
+    </delete>
+
+    <!--메인화면에 나오는 페스티벌 정보(메인에 올라갈)-->
+    <select id="getMinDateFestivalList" resultType="com.sixthband.festival.information.dto.FestivalDto">
+        SELECT
+            id,
+            festival_name,
+            festival_location,
+            thumbnail,
+            starting_date,
+            end_date
+        FROM festival_information
+        WHERE starting_date > CURDATE()
+        ORDER BY starting_date ASC
+            LIMIT 1;
+    </select>
+
+    <!--최신 날짜 공연의 페스티벌 라인업 구해오기-->
+    <select id="getLineUpOfLatestFestival" resultType="map">
+        WITH EarlistFestival AS (
+            SELECT
+                id,
+                MIN(starting_date) AS earlist_Date
+            FROM festival_information
+            GROUP BY id
+        )
+        SELECT
+            festival_information.id AS festival_id,
+            FIP.id,
+            FIP.performance_date,
+            FIA.id AS artist_id,
+            FIA.artist_name,
+            FIA.artist_summary,
+            FIA.thumbnail,
+            FIA.artist_detail
+        FROM festival_information
+                 INNER JOIN festival_information_performanceDate AS FIP ON festival_information.id = FIP.festival_id
+                 LEFT JOIN festival_information_lineup AS FIL
+                           ON FIP.id = FIL.performance_id
+                 LEFT JOIN festival_information_artist AS FIA
+                           ON FIL.artist_id = FIA.id
+        WHERE FIA.id IS NOT NULL
+    </select>
+
+    <!--전체 라인업 리스트 구하기-->
+    <select id="getFestivalLineUpLists" resultType="map">
+        SELECT
+            festival_information.id AS festival_id,
+            FIP.id,
+            FIP.performance_date,
+            FIA.id AS artist_id,
+            FIA.artist_name,
+            FIA.artist_summary,
+            FIA.thumbnail,
+            FIA.artist_detail
+        FROM festival_information
+                 INNER JOIN festival_information_performanceDate AS FIP ON festival_information.id = FIP.festival_id
+                 INNER JOIN festival_information_lineup AS FIL ON FIP.id = FIL.performance_id
+                 INNER JOIN festival_information_artist AS FIA ON FIL.artist_id = FIA.id GROUP BY FIP.performance_date
+    </select>
+
+<!--    전체 라인업에서 특정 페스티벌의 라인업 리스트 구하기-->
+    <select id="getFestivalLineUpByFestivalId" resultType="map">
+        SELECT
+            festival_information.id AS festival_id,
+            FIP.id,
+            FIP.performance_date,
+            FIA.id AS artist_id,
+            FIA.artist_name,
+            FIA.artist_summary,
+            FIA.thumbnail,
+            FIA.artist_detail
+        FROM festival_information
+                 INNER JOIN festival_information_performanceDate AS FIP ON festival_information.id = FIP.festival_id
+                 INNER JOIN festival_information_lineup AS FIL ON FIP.id = FIL.performance_id
+                 INNER JOIN festival_information_artist AS FIA ON FIL.artist_id = FIA.id
+        WHERE festival_information.id = #{id} ORDER BY FIP.performance_date
+    </select>
+
+
+    <!--아티스트 디테일 정보 불러오기-->
+    <select id="getArtistInformationDerailById"  resultType="com.sixthband.festival.information.dto.ArtistDto">
+        SELECT * FROM festival_information_artist
+        WHERE id = #{id}
+    </select>
+
+    <!--특정 페스티벌 및 라인업 일자에 등록된 아티스트 정보들 가져오기, 퍼포먼스 id와 festivalid로 유효성 검사 처리해야함-->
+    <select id="getRegisteredArtistListAtLineUp" resultType="map">
+        SELECT
+            festival_information.id AS festival_id,
+            FIP.performance_date,
+            FIP.id AS performance_id,
+            FIL.artist_id,
+            FIA.artist_name
+        FROM festival_information
+                 INNER JOIN festival_information_performanceDate As FIP ON festival_information.id = FIP.festival_id
+                 INNER JOIN festival_information_lineup AS FIL ON FIP.id = FIL.performance_id
+                 INNER JOIN festival_information_artist AS FIA ON FIL.artist_id = FIA.id
+        WHERE festival_information.id = (
+            SELECT festival_id
+            FROM festival_information_performanceDate
+            WHERE id = #{id}
+            )
+    </select>
+
+    <select id="getArtistLineUpForCheckRegistered" resultType="map">
+        SELECT
+            festival_information.id AS festival_id,
+            FIP.performance_date,
+            FIP.id AS performance_id,
+            FIL.artist_id,
+            FIA.artist_name
+        FROM festival_information
+                 INNER JOIN festival_information_performanceDate AS FIP ON festival_information.id = FIP.festival_id
+                 INNER JOIN festival_information_lineup AS FIL ON FIP.id = FIL.performance_id
+                 INNER JOIN festival_information_artist AS FIA ON FIL.artist_id = FIA.id
+        WHERE festival_information.id = (
+            SELECT festival_id
+            FROM festival_information_performanceDate
+            WHERE id = #{id}
+        )
+          AND FIL.artist_id = #{artistId}
+    </select>
+
+    <select id="isRegistered" resultType="boolean">
+        SELECT COUNT(*) >0
+        FROM festival_information fi
+                 INNER JOIN festival_information_performanceDate As FIP ON fi.id = FIP.festival_id
+                 INNER JOIN festival_information_lineup AS FIL ON FIP.id = FIL.performance_id
+                 INNER JOIN festival_information_artist AS FIA ON FIL.artist_id = FIA.id
+        WHERE fi.id = #{id}
+        AND FIL.artist_id = #{artistId}
+    </select>
+
+    <delete id="deleteDateByDateid">
+        DELETE FROM festival_information_performanceDate
+        WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteLineupByDateid">
+        DELETE FIL
+            FROM festival_information_lineup FIL
+                     INNER JOIN festival_information_performanceDate FIP ON FIL.performance_id = FIP.id
+            WHERE FIP.id = #{id}
+    </delete>
+
+
+</mapper>

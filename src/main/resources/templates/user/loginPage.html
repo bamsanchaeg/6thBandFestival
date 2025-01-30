@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="/public/img/favicon.ico">
+        <title>6th BAND - Login</title>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+        <link rel="stylesheet" href="/public/css/common.css">
+
+        <script>
+            window.addEventListener("DOMContentLoaded", () => {
+                document.getElementById('loginID').value = 'sixbanduser1';
+                document.getElementById('loginPW').value = 'sixbanduser1';
+            });
+        </script>
+
+        <style>
+            .text-with-lines {
+                display: flex;
+                align-items: center;
+                text-align: center;
+            }
+
+            .text-with-lines::before,
+            .text-with-lines::after {
+                content: "";
+                flex: 1;
+                border-bottom: 1px solid rgb(193, 193, 193);
+                margin: 0 10px;
+            }
+
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #ffffff;
+            }
+
+            .naver-login-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #03C75A;
+                color: white;
+                padding: 3% 20%; /* 뷰포트 높이와 너비를 기준으로 패딩 설정 */
+                border-radius: 1vh; /* 모서리를 둥글게, 높이에 비례하여 조정 */
+                text-decoration: none;
+                font-size: 120%; /* 폰트 크기를 뷰포트 높이에 비례하여 설정 */
+                font-weight: bold;
+            }
+
+            .naver-logo {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 8vw; /* 뷰포트 너비를 기준으로 크기 설정 */
+                height: 20%; /* 뷰포트 너비를 기준으로 크기 설정 (정사각형) */
+                margin-right: 2vw; /* 로고와 텍스트 사이의 간격을 뷰포트 너비로 설정 */
+                color:  white;
+                font-weight: bold;
+                font-family: Arial, sans-serif;
+                font-size: 140%; /* 로고 폰트 크기를 뷰포트 높이에 비례하여 설정 */
+            }
+
+
+            .logoImage{
+                width: 30%; /* 너비를 50%로 설정하면 높이는 자동으로 비율을 유지하여 조정됨 */
+                height: auto; /* 높이를 자동으로 조정하여 비율 유지 */
+
+            }
+            input:focus {
+                outline: none;
+                box-shadow: none;
+                border-color: initial; /* 테두리 색상을 초기화하거나 원하는 색상으로 지정 */
+            }
+
+            html, body, #root {
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root">
+            <div class="wrapper">
+                <!-- /* 헤더 */ -->
+                <div th:replace="~{common/navi::topNavi}"></div>
+                <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+                <!-- /* 컨텐츠 */ -->
+                <div class="main">
+                    <div class="container">
+                        <!-- <div class="row py-1 rounded" >
+                            <div class="col-1"></div>
+                        </div> -->
+                        <div class="row pt-5"></div>
+                        <!-- <div class="row py-4 text-center" >
+                            <div class="col">
+                                <div class="titleFont fw-bold" style="font-size: 1.5rem;">LOGIN</div>
+                            </div>
+                        </div> -->
+
+
+                        <div class="row sns-login-box pt-5">
+                            <div class="col mx-auto text-center" >
+                                <img src="/public/img/footer_logo_bk.png" class="img-fluid logoImage" alt="로고" >
+                            </div> 
+                        </div>
+                        <div class="row">
+                            <div class="col-11 mx-auto">  
+                                <form action="/user/loginProcess" method="post" class="row">
+                                    <div class="col">
+                                        <div class="row pt-5 pb-2 px-4">
+                                            <div class="border-bottom px-0 border-secondary-subtle">
+                                                <input id="loginID" class="py-2 border-0 fw-bold fs-6 rounded col-12 ps-3" style="box-shadow: none;" name="account_name" type="text" placeholder="아이디">
+                                            </div>
+                                        </div>
+                                        <div class="row py-1 px-4">
+                                            <div class="border-bottom px-0 border-secondary-subtle">
+                                                <input id="loginPW" class="py-2 border-0 fw-bold fs-6 rounded col-12 ps-3" name="password" type="password" placeholder="비밀번호">
+                                            </div>
+                                        </div>
+                                        <div class="row pt-2 pb-1 px-4">
+                                            <div class="col pt-2 px-0 rounded d-grid">
+                                                <button class="btn btn-primary py-2 fs-6">로그인</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form> 
+                                
+                                <div class="row px-4">
+                                    <div class="col-8 new-fs-8 new-text-gray">
+                                        <div>아이디 찾기 / 비밀번호 찾기</div>
+                                    </div>
+                                    <div class="col-4 new-fs-8 text-end " > 
+                                        <a href="./registerPage" style="text-decoration: none;" class=" new-text-gray">회원가입</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row pt-5 px-4">
+                            <div class="col">
+                                <div class="text-with-lines new-fs-8" style="color: rgb(153, 155, 155);">다른 방법으로 로그인 하기</div>
+                            </div>
+                        </div>
+
+
+                        <!--/* 간편 로그인 */-->
+                        <div class="row sns-login-box pt-3 d-flex justify-content-center">
+                            <div class="col-auto kakao-login px-2" >
+                                <a href="https://kauth.kakao.com/oauth/authorize?client_id=880b331520fbca0de4ceadc4f809be72&redirect_uri=https://festival.null-pointer-exception.com/auth/kakao/callback&response_type=code" class="d-block text-center" >
+                                    <img src="/public/img/user/iconKakaoLogin.png" class="img-fluid " style="height: 3rem; width: 3rem;" alt="카카오 로그인 버튼" >
+                                </a>
+                            </div> 
+                        
+                            <div class="col-auto px-2">
+                                <a href="" class="d-block text-center" >
+                                    <img src="/public/img/user/iconNaverLogin.png" class="img-fluid " style="height: 3rem; width: 3rem;" alt="네이버 로그인 버튼" >
+                                </a>
+                            </div>
+                        </div> 
+                    </div>
+
+                </div>
+
+                <!-- /* 푸터 */ -->
+                <!-- <div th:replace="~{common/navi::bottomNavi}"></div> -->
+            </div>
+        </div>
+
+        <!--/* 사이드바 */-->
+        <div th:replace="~{common/navi::sidebarLeft}"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+</html>

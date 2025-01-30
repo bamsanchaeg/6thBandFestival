@@ -1,0 +1,152 @@
+<!-- /* 펀딩 카테고리 */ -->
+<div th:fragment="fundingCategory" class="header-category bg-white border-bottom">
+    <div class="container">
+        <ul class="category-list d-flex justify-content-center">
+            <li><a href="/funding/discover" class="d-block new-px-25 py-2 new-fs-9">전체</a></li>
+            <li><a href="/funding/discover?category=1" class="d-block new-px-25 py-2 new-fs-9">공연</a></li>
+            <li><a href="/funding/discover?category=2" class="d-block new-px-25 py-2 new-fs-9">페스티발</a></li>
+            <li><a href="/funding/discover?category=3" class="d-block new-px-25 py-2 new-fs-9">앨범</a></li>
+            <li><a href="/funding/discover?category=4" class="d-block new-px-25 py-2 new-fs-9">쇼케이스</a></li>
+        </ul> 
+    </div>
+</div>
+
+<!-- /* 서브 헤더 */ -->
+<div th:fragment="subHeader" class="top-sub-header sticky-top border-bottom bg-white">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <a href="javascript:history.back()" class="d-flex align-items-center py-2">
+                <span class="material-symbols-outlined fw-light fs-5">arrow_back_ios</span>
+            </a>
+            <a href="/funding" class="d-flex align-items-center py-2 px-1">
+                <span class="material-symbols-outlined fw-light">home</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- /* 프로젝트 상세 헤더 */ -->
+<div th:fragment="detailHeader" class="detail-sub-header sticky-top border-bottom bg-white">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <a href="/funding/discover" class="d-flex align-items-center py-2">
+                <span class="material-symbols-outlined fw-light fs-5">arrow_back_ios</span>
+            </a>
+            <a href="/funding" class="d-flex align-items-center py-2 px-1">
+                <span class="material-symbols-outlined fw-light">home</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- /* 펀딩 만들기 버튼 */ -->
+<div th:fragment="fundingCreatedBtn" class="btn-project position-fixed">
+    <a href="/funding/projectEditorStart" class="overflow-hidden d-flex justify-content-center align-items-center p-1 rounded-pill bg-dark">
+        <span class="material-symbols-outlined new-fw-thin fs-1 new-text-white">add</span>
+    </a>
+</div>
+
+<!-- /* 프로젝트 관리 헤더 */ -->
+<div th:fragment="managementHeader" class="sub-header sticky-top border-bottom border-dark bg-white">
+    <div class="container">
+        <div class="d-flex align-items-center py-1">
+            <a href="/funding/projectsCreated" class="d-flex align-items-center py-2">
+                <span class="material-symbols-outlined fw-light fs-5">arrow_back_ios</span>
+            </a>
+            <a href="/funding" class="d-flex align-items-center py-2 px-1">
+                <span class="material-symbols-outlined fw-light">home</span>
+            </a>
+            <div class="ms-auto fs-2 lh-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                <i class="bi bi-list"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /* 프로젝트 관리 타이틀 */ -->
+<div th:fragment="managementTitle" class="management-header custom-shadow">
+    <div class="management-title">
+        <div class="container">
+            <div class="management-btn-box">
+                <!--/* 기본 상태 */-->
+                <button th:if="${projectStatus.projectStatus == '작성중' and projectStatus.managementStatus == '작성중'}" type="button" disabled class="project-submit-btn">기획중</button>
+                <!--/* 심사요청 가능 상태 : 작성완료, 반려인 경우 */-->
+                <button th:if="${(projectStatus.projectStatus == '작성중' or projectStatus.projectStatus == '반려') and projectStatus.managementStatus == '작성완료'}" th:text="${projectStatus.projectStatus == '반려' ? '재심사 요청' : '심사 요청'}" type="button" th:onclick="requestApproval([[${param.id}]])" class="project-submit-btn">심사요청</button>
+                <!--/* 심사요청 상태 */-->
+                <button th:if="${projectStatus.projectStatus == '심사중' || projectStatus.projectStatus == '승인' || projectStatus.projectStatus == '무산'}" type="button" th:text="${projectStatus.projectStatus}" disabled class="project-submit-btn">심사 중</button>
+                <!--/* 진행 상태 */-->
+                <button th:if="${projectStatus.projectStatus == '진행중' || projectStatus.projectStatus == '성공'}" type="button" th:text="${projectStatus.projectStatus}" th:classappend="${projectStatus.projectStatus == '성공'} ? 'btn-success'" class="project-submit-btn"></button>
+            </div>
+            <div class="project-thumbnail">
+                <div class="img-p-box">
+                    <div th:if="${!#maps.containsKey(projectData, 'thumbnail_location') or projectData.thumbnail_location == null}" class="material-symbols-outlined img no-img">broken_image</div>
+                    <img th:if="${#maps.containsKey(projectData, 'thumbnail_location') and  projectData.thumbnail_location != null}" class="img image-thumbnail" th:src="|/images/${projectData.thumbnail_location}|" alt="썸네일 이미지">
+                    <!--/* 프로젝트 상세 확인 */-->
+                    <div th:if="${projectStatus.projectStatus == '진행중' || projectStatus.projectStatus == '성공' || projectStatus.projectStatus == '종료'}" class="detail-link-box position-absolute">
+                        <a th:href="@{/funding/detailPage(id=${projectData.id})}" class="material-symbols-outlined fw-light text-white">visibility</a>
+                    </div>
+                </div>
+            </div>
+            <div class="project-creator">
+                <span th:if="${#maps.containsKey(projectData, 'creator_name') and projectData.creator_name != null}" th:text="|${projectData.creator_name}의 |" class=""></span>프로젝트
+            </div>
+            <div class="project-category">
+                <p th:text="${projectData.category_name}"></p>
+            </div>
+        </div>
+    </div>
+    <div class="management-tab">
+        <div class="container">
+            <ul class="d-flex justify-content-center">
+                <li th:classappend="${requestURI.contains('/funding/projectEditorManagement')} ? 'on'">
+                    <a th:href="@{/funding/projectEditorManagement(id=${param.id})}" class="d-block new-px-25 new-py-25 new-fs-9">기획</a>
+                </li>
+                <li th:classappend="${requestURI.contains('/funding/projectEditorDashboard')} ? 'on'">
+                    <a th:href="@{/funding/projectEditorDashboard(id=${param.id})}" th:classappend="${!isFundingStatus} ? 'disabled'" class="d-block new-px-25 new-py-25 new-fs-9">
+                        대시보드<span th:if="${!isFundingStatus}" class="material-symbols-outlined fill-1 margin-top-1 new-fs-8">lock</span>
+                    </a>
+                </li>
+                <li th:classappend="${requestURI.contains('/funding/projectEditorBackers')} ? 'on'">
+                    <a th:href="@{/funding/projectEditorBackers(id=${param.id})}" th:classappend="${!isFundingStatus} ? 'disabled'" class="d-block new-px-25 new-py-25 new-fs-9">
+                        후원자 관리<span th:if="${!isFundingStatus}" class="material-symbols-outlined fill-1 margin-top-1 new-fs-8">lock</span>
+                    </a>
+                </li>
+                <li th:classappend="${requestURI.contains('/funding/projectEditorPledges')} ? 'on'">
+                    <a th:href="@{/funding/projectEditorPledges(id=${param.id})}" th:classappend="${!isFundingStatus} ? 'disabled'" class="d-block new-px-25 new-py-25 new-fs-9">
+                        모금액 명세<span th:if="${!isFundingStatus}" class="material-symbols-outlined fill-1 margin-top-1 new-fs-8">lock</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- /* 프로젝트 기획 헤더 */ -->
+<div th:fragment="projectManagementHeader" class="sub-header border-bottom border-dark bg-white">
+    <div class="container">
+        <div class="d-flex align-items-center py-1">
+            <a th:href="@{/funding/projectEditorManagement(id=${param.id})}" class="d-flex align-items-center py-2">
+                <span class="material-symbols-outlined fw-light fs-5">arrow_back_ios</span>
+            </a>
+            <a href="/funding" class="d-flex align-items-center py-2 px-1">
+                <span class="material-symbols-outlined fw-light">home</span>
+            </a>
+            <div class="ms-auto fs-2 lh-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                <i class="bi bi-list"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /* 프로젝트 기획 탭 */ -->
+<div th:fragment="projectManagementTab" class="management-tab status-tab sticky-top custom-scroll custom-shadow">
+    <div class="container">
+        <ul class="tab-list">
+            <li th:classappend="${requestURI.startsWith('/funding/management/default')} ? 'on'"><a th:href="@{/funding/management/default(id=${param.id})}">기본 정보</a></li>
+            <li th:classappend="${requestURI.startsWith('/funding/management/funding')} ? 'on'"><a th:href="@{/funding/management/funding(id=${param.id})}">펀딩 계획</a></li>
+            <li th:classappend="${requestURI.startsWith('/funding/management/reward')} ? 'on'"><a th:href="@{/funding/management/reward(id=${param.id})}">선물 구성</a></li>
+            <li th:classappend="${requestURI.startsWith('/funding/management/story')} ? 'on'"><a th:href="@{/funding/management/story(id=${param.id})}">프로젝트 계획</a></li>
+            <li th:classappend="${requestURI.startsWith('/funding/management/creator')} ? 'on'"><a th:href="@{/funding/management/creator(id=${param.id})}">창작자 정보</a></li>
+        </ul>
+    </div>
+</div>

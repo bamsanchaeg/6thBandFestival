@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sixthband.festival.club.mapper.ClubSqlMapper">
+<!-- 방장등록  -->
+    <select id="clubCategoryList" resultType="com.sixthband.festival.club.dto.ClubCategoryDto">
+        select * from club_category
+    </select>
+    <insert id="clubRegistProcess">
+        insert into club(
+            user_id,club_name,club_explanation ,club_category_id,max_members,club_logo,question1,question2,club_location
+        )
+        values(
+           #{user_id},#{club_name},#{club_explanation},#{club_category_id},#{max_members},#{club_logo},#{question1},#{question2},#{club_location}
+        );
+
+    </insert>
+    <select id="clubListAll" resultType="com.sixthband.festival.club.dto.ClubDto">
+        select * from club where club_activation = 2
+    </select>
+
+    <select id="clubCategoryListAll" resultType="com.sixthband.festival.club.dto.ClubDto">
+        SELECT *
+        FROM club
+        WHERE club_activation = 2
+        <choose>
+            <when test="categoryId != null">
+                AND club_category_id = #{categoryId}
+            </when>
+            <otherwise>
+                
+            </otherwise>
+        </choose>
+    </select>
+    
+
+    <select id="recommandClubRandom" resultType="com.sixthband.festival.club.dto.ClubDto">
+        SELECT * FROM club
+        where club_activation =2 
+        ORDER BY RAND()
+        LIMIT 3 ;
+    </select>
+
+<!-- 관리자 -->
+    <select id="clubListAdminAppear" resultType="com.sixthband.festival.club.dto.ClubDto">
+            select * from club order by id desc limit #{pageIndex}, 10
+    </select>
+
+    <select id="clubAdminDetailInfo" resultType="com.sixthband.festival.club.dto.ClubDto">
+        select * from club where id = #{id}
+    </select>
+
+    <select id="clubListAppear" resultType="com.sixthband.festival.club.dto.ClubDto">
+        <if test ="searchWord == null">
+            select * from club  order by id desc 
+        </if>
+
+        <if test ="searchWord != null">
+            select * from club c where c.club_name like CONCAT('%',#{searchWord},'%')
+            or c.club_explanation like CONCAT('%',#{searchWord},'%'); 
+        </if>
+    </select>
+
+    <select id="clubCategory" resultType="String">
+        SELECT category from club_category where id=#{id}
+    </select>
+    <update id="rejectClubUpdate">
+        update club set club_activation =1 where id = #{id}
+
+    </update>
+
+    <update id="updateApproveClub">
+        update club set club_activation =2 where id = #{id}
+
+    </update>
+    <!-- 특정모임에 유저가 존재하는지 확인 -->
+    <select id="selectExistUser" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+        select * from club_member_regist where club_id =#{club_id} and user_id=#{user_id}     
+    </select>
+
+    <select id="selectExistUserCount" resultType="int">
+        select count(*) from club_member_regist where club_id =#{club_id} and user_id=#{user_id} and member_activation=2 
+    </select>
+
+    <select id="clubDetailInfo" resultType="com.sixthband.festival.club.dto.ClubDto">
+        select * from club where id = #{id}
+    </select>
+
+    <select id="clubChairmanId" resultType="int">
+        select user_id from club where id=#{id}
+    </select>
+
+    <select id="userCount" resultType="int">
+        select 1+count(*) from club_member_regist where club_id=#{club_id} and member_activation = 2
+    </select>
+<!--소모임 회원등록 -->
+    <insert id="clubMemberRegist">
+         insert into club_member_regist(
+            user_id,club_id,regist_reason,club_member_active,self_introduction
+        )
+        values(
+            #{user_id},#{club_id},#{regist_reason},'N',#{self_introduction}
+        );
+
+    </insert>
+    <!-- RestApi 호출하는 쿼리 내모임 모압보기ㅣㅣㅣㅣ -->
+    <select id="myClubList" resultType="com.sixthband.festival.club.dto.ClubDto">
+        select * from club c where user_id=#{user_id} and club_activation=2
+    </select>
+
+    <select id="mySignUpClub" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+    
+        select * from club_member_regist where user_id=#{user_id}
+            
+    </select>
+
+    <!--방장이 자기 모임 상세페이지 볼때-->
+    <select id="myClubListDetail" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+        select * from club_member_regist where user_id=#{user_id} and club_id=#{club_id}
+
+    </select>
+<!--  방장 정보출력도 가능-->
+    <select id="memberResident" resultType="com.sixthband.festival.club.dto.ClubDto">
+        select * from club where user_id = #{user_id} and id=#{id}
+
+    </select>
+    <select id="memberResidentCount" resultType="int">
+        select count(*) from club where user_id = #{user_id} and id=#{id}
+
+    </select>
+    <select id="memberExistRegist" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+        select * from club_member_regist where club_id=#{club_id} and user_id=#{user_id}
+
+    </select>
+
+    <!--수락 전 모임 멤버 -->
+    <select id="memberBeforeAccept" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+        <!-- select * from club_member_regist where member_activation =0 and club_id=#{club_id}; -->
+
+        <!-- 이거인가ㅏㅏㅏㅏㅏㅏㅏㅏ -->
+        select cmr.* from club c right join club_member_regist cmr  on cmr.club_id = c.id where cmr.member_activation=0 and c.id=#{id}
+
+    </select>
+
+    <select id="memberAcceptList" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+
+        select cmr.* from club c right join club_member_regist cmr  on cmr.club_id = c.id where cmr.member_activation=2 and c.id=#{id}
+
+    </select>
+    <select id="memberRejectList" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+
+        select cmr.* from club c right join club_member_regist cmr  on cmr.club_id = c.id where cmr.member_activation=1 and c.id=#{id}
+
+    </select>
+
+<!-- 멤버 리스트 수 -->
+
+     <select id="memberBeforeAcceptCount" resultType="int">
+        
+        select count(*) from club c right join club_member_regist cmr  on cmr.club_id = c.id where cmr.member_activation=0 and c.id=#{id}
+
+    </select>
+
+    <select id="memberAcceptListCount" resultType="int">
+
+        select count(*) from club c right join club_member_regist cmr  on cmr.club_id = c.id where cmr.member_activation=2 and c.id=#{id}
+
+    </select>
+    <select id="memberRejectListCount" resultType="int">
+
+        select count(*) from club c right join club_member_regist cmr  on cmr.club_id = c.id where cmr.member_activation=1 and c.id=#{id}
+
+    </select>
+
+
+    <delete id="memberActivationReject">
+        delete from club_member_regist where id=#{id};
+
+    </delete>
+
+<!-- 내보낸 멤버 -->
+    <update id="memberActivationGetOut">
+        update club_member_regist cmr set cmr.member_activation=1 where id=#{id};
+
+    </update>
+
+    <update id="memberActivationAccept">
+        update club_member_regist cmr set cmr.member_activation=2 where id=#{id};
+
+    </update>
+    <!-- 회원별 멤버 리스트 보이는거 다르게 ....... -->
+    <select id="clubMemberList" resultType="com.sixthband.festival.club.dto.ClubMemberRegistDto">
+        select * from club_member_regist where club_id =#{club_id} and member_activation =2 ;
+    </select>
+    <!-- 소모임 정원 제한-->
+    <select id="recentMember" resultType="int">
+        select count(*)+1 from club_member_regist cmr where club_id=#{id} and member_activation= 2;
+    </select>
+<!-- 게시판시작 -->
+<!-- 자유게시판 카테고리  -->
+    <select id="boardCategoryList" resultType="com.sixthband.festival.club.dto.BoardCategoryDto">
+        select * from board_category  order by id asc
+    </select>
+
+    <insert id="registBoard">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from club_board;
+        </selectKey>
+        insert into club_board (
+        club_member_id,club_category_id,title,content,club_id,read_count)
+        values(
+            #{club_member_id},#{club_category_id},#{title},#{content},#{club_id},#{read_count}
+        )
+
+    </insert>
+    <insert id="clubDetailImage">
+        insert into club_board_detail_img(
+            club_board_id, club_id,location
+        ) values (
+            #{club_board_id}, #{club_id},#{location}
+        )
+    </insert>
+    <select id="clubBoardList" resultType="com.sixthband.festival.club.dto.ClubBoardDto">
+        <if test="order != null">
+            <choose>
+                <when test="order == 0">
+                    select * from club_board where club_id = #{club_id} order by id desc LIMIT 10 OFFSET #{page}
+                </when>
+                <when test="order == 1">
+                    select * from club_board where club_id = #{club_id} order by read_count desc LIMIT 10 OFFSET #{page}
+                </when>
+                <when test="order == 2">
+                    select cb.* from club_board cb left join club_board_comment cbc on cb.id =cbc.club_board_id where cb.club_id = 3 group by cb.id order by count(cbc.club_board_id) desc LIMIT 10 OFFSET #{page}
+
+                </when>
+                <when test="order == 3">
+                    select * from club_board where club_id = 3 order by created_at asc LIMIT 10 OFFSET #{page}
+                </when>
+            </choose>
+        </if>
+    </select>
+    <select id="clubBoardDetailImageList" resultType="com.sixthband.festival.club.dto.ClubBoardDetailImgDto">
+        select * from club_board_detail_img where club_board_id =#{club_board_id};
+    </select>
+
+    <select id="clubBoardCategoryName" resultType="String">
+        SELECT name from board_category where id=#{id};
+    </select>
+    <select id="clubBoardDetailPage" resultType="com.sixthband.festival.club.dto.ClubBoardDto">
+        select * from club_board where club_id=#{club_id} and id =#{id}
+    </select>
+    <!-- 신고 -->
+    <insert id="registBoardReport">
+        insert into club_board_report(
+            club_board_id, club_id,club_member_id,report_reason
+        ) values (
+            #{club_board_id}, #{club_id},#{club_member_id},#{report_reason}
+        )
+    </insert>
+    <select id="boardReportList" resultType="com.sixthband.festival.club.dto.ClubBoardReportDto">
+        select * from club_board_report order by id desc
+    </select>
+
+    <select id="boardReportDetail" resultType="com.sixthband.festival.club.dto.ClubBoardReportDto">
+        select * from club_board_report where id = #{id}
+    </select>
+    <!-- 신고 당했을때 삭제 -->
+    <delete id="deleteBoardAdminProcess">
+        delete from club_board where id=#{id}
+    </delete>
+
+    <!-- 조회수 -->
+    <update id="clubBoardClickCount">
+        update club_board set read_count = read_count +1 where id=#{id}
+
+    </update>
+
+<!-- 좋아요 -->
+    <insert id="boardLikeClick">
+        insert into club_board_like(
+            club_member_id,club_board_id,club_id)
+        values(
+            #{club_member_id},#{club_board_id},#{club_id})
+
+    </insert>
+
+    <select id="boardLikeUser" resultType="int">
+        select count(*) from  club_board_like where club_member_id=#{club_member_id} and club_board_id=#{club_board_id} and club_id=#{club_id} 
+    </select>
+    <delete id="boardDislikeClick">
+        delete from club_board_like where club_member_id=#{club_member_id} and club_board_id=#{club_board_id} and club_id=#{club_id}
+    </delete>
+    <select id="likeTotalCount" resultType="int">
+        select count(*) from club_board_like where club_board_id =#{club_board_id}
+    </select>
+
+<!--  댓글작성 -->
+
+    <insert id="registBoardComment">
+
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from club_board_comment
+        </selectKey>
+        insert into club_board_comment(
+        club_board_id,club_member_id ,content ,club_id
+        )
+        values(
+            #{club_board_id},#{club_member_id},#{content},#{club_id}
+        )
+
+    </insert>
+<!-- 글 수정 삭제 -->
+    <select id="clubCategoryId" resultType="int">
+            select club_category_id  from club_board where id=#{id} and club_id=#{club_id}
+    </select>
+
+    <update id="updateProcess">
+        update club_board set club_category_id =#{club_category_id}, title=#{title}, content =#{content} where club_id =#{club_id} and id=#{id}
+    </update>
+    <delete id="deleteProcess">
+        delete from club_board where id=#{id} and club_id=#{club_id};
+
+    </delete>
+<!-- 댓글 리스트 -->
+    <select id="boardCommentList" resultType="com.sixthband.festival.club.dto.ClubBoardCommentDto">
+        select * from club_board_comment cbc where club_id=#{club_id} and club_board_id=#{club_board_id};
+
+    </select>
+    <select id="boardIdCommentList" resultType="com.sixthband.festival.club.dto.ClubBoardCommentDto">
+        select * from club_board_comment cbc where club_board_id=#{club_board_id};
+
+    </select>
+<!-- 댓글 갯수 -->
+    <select id="commentCount" resultType="int">
+        select count(*) from club_board_comment where club_id=#{club_id} and club_board_id=#{club_board_id}
+    </select>
+
+    <delete id="deleteComment">
+        delete from club_board_comment where id=#{id}
+    </delete>
+
+    <update id="updateComment">
+        update club_board_comment set content=#{content} where id=#{id}
+    </update>
+    
+<!-- 사진첩 -->
+    <insert id="registPhoto">
+        insert into club_photo (
+            club_member_id ,club_photo_img ,club_id 
+        )
+        values(
+            #{club_member_id},#{club_photo_img},#{club_id}
+        )
+
+    </insert>
+
+    <select id="photoListAppear" resultType="com.sixthband.festival.club.dto.ClubPhotoDto">
+        select * from club_photo where club_id=#{club_id} 
+    </select>
+    <!-- 사진첩 좋아요구현시작 -->
+    <select id="photoBookLikeExist" resultType="int">
+        select count(*) from club_photo_like where club_photo_id=#{club_photo_id} and club_member_id=#{club_member_id}
+    </select>
+    
+    <insert id="likePhoto">
+        insert into club_photo_like (
+            club_photo_id,club_member_id
+        )
+        values(
+            #{club_photo_id},#{club_member_id}
+        );
+    </insert>
+
+    <delete id="unLikePhoto">
+        delete from club_photo_like where club_photo_id=#{club_photo_id} and club_member_id=#{club_member_id}
+    </delete>
+
+    <select id="photoLikeCount" resultType="int">
+        select count(*) from club_photo_like where club_photo_id =#{club_photo_id}
+    </select>
+
+    <!-- 사진첩 댓글 -->
+    <insert id="photoCommentRegist">
+        insert into club_photo_comment(
+            club_photo_id,club_member_id,content,club_id
+        )
+        values(
+            #{club_photo_id},#{club_member_id},#{content},#{club_id}
+        )
+    </insert>
+
+    <select id="photoCommentAppear" resultType="com.sixthband.festival.club.dto.ClubPhotoCommentDto">
+        select * from club_photo_comment where club_photo_id=#{club_photo_id} and club_id=#{club_id}
+    </select>
+    <delete id="deletePhoto">
+        delete from club_photo where id=#{id}
+
+    </delete>
+    <delete id="deletePhotoComment">
+        delete from club_photo_comment where club_photo_id= #{club_photo_id}
+    </delete>
+    <delete id="deletePhotoLike">
+        delete from club_photo_like where club_photo_id=#{club_photo_id}
+    </delete>
+<!-- 회원이 아닐경우 댓글 접근 막기 -->
+    <select id="clubAndRegistMember" resultType="int">
+        select count(*) 
+        from  club_member_regist cmr  inner join club c  on c.id = cmr.club_id 
+        where cmr.club_id=#{club_id} and (cmr.user_id=#{user_id} or c.user_id =#{user_id} )and cmr.member_activation =2
+    </select>
+
+    <update id="updateClub">
+        update club
+        set club_name=#{club_name},
+        club_explanation=#{club_explanation},
+        question1=#{question1},
+        question2=#{question2},
+        max_members=#{max_members}
+        where id= #{id}
+    </update>
+    <delete id="deleteClub">
+        delete from club where id=#{id}
+    </delete>
+
+    <insert id="registVoteQuestion">
+        insert into club_vote_option(
+            vote_id,question_content,question_image,club_id,club_member_id
+        )
+        values(
+            #{vote_id},#{question_content},#{question_image},#{club_id},#{club_member_id}
+        )
+    </insert>
+    
+    <insert id="registVoteTitle">
+        insert into club_vote(
+            question_title,club_id,club_member_id,final_date
+        )
+        values(
+            #{question_title},#{club_id},#{club_member_id},#{final_date}
+        );
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from club_vote
+        </selectKey>
+    </insert>
+
+    <select id="nowAfterVote" resultType="com.sixthband.festival.club.dto.ClubVoteDto">
+        SELECT * from club_vote where club_id =#{club_id} and DATEDIFF(final_date,NOW())  &gt; 0
+    </select>
+
+    <select id="nowBeforeVote" resultType="com.sixthband.festival.club.dto.ClubVoteDto">
+        SELECT * from club_vote where club_id =#{club_id} and DATEDIFF(final_date,NOW()) &lt; 0
+    </select>
+
+    <select id="nowSameVote" resultType="com.sixthband.festival.club.dto.ClubVoteDto">
+        SELECT * from club_vote where club_id =#{club_id} and DATEDIFF(final_date,NOW()) = 0
+    </select>
+
+    <select id="voteSelectList" resultType="com.sixthband.festival.club.dto.ClubVoteOptionDto">
+        select * from club_vote_option where vote_id=#{vote_id}
+    </select>
+    
+    <!-- 투표상세 페이지 -->
+    <select id="voteDetailTitle" resultType="com.sixthband.festival.club.dto.ClubVoteDto">
+        select * from club_vote where id =#{id} and club_id =#{club_id}
+    </select>
+    <select id="voteDetailSelectList" resultType="com.sixthband.festival.club.dto.ClubVoteOptionDto">
+        select * from club_vote_option where vote_id =#{vote_id} and club_id=#{club_id}
+    </select>
+    <insert id="mySelectVoteOption">
+        insert into my_select_vote(
+            option_id,vote_id,club_member_id,club_id)
+        values(
+        	#{option_id},#{vote_id},#{club_member_id},#{club_id})
+    </insert>
+    <select id="myVoteExist" resultType="int">
+        select count(*) from my_select_vote msv where vote_id=#{vote_id} and club_member_id =#{club_member_id}
+
+    </select>
+    <select id="voteResultByOption" resultType="int">
+        select count(*) from my_select_vote msv where vote_id=#{vote_id} and option_id=#{option_id}
+    </select>
+    <select id="voteTotalMember" resultType="int">
+        select count(*) from my_select_vote msv where vote_id=#{vote_id}
+    </select>
+    <!-- 투표 여성 -->
+    <select id="selectVoteFemale" resultType="int">
+        SELECT count(*) from my_select_vote msv inner join six_user su  
+        on msv.club_member_id = su.id 
+        where su.gender = '여성' 
+        and msv.club_id =#{club_id} 
+        and msv.option_id=#{option_id}
+        and vote_id =#{vote_id}
+
+    </select>
+    <select id="selectVoteMale" resultType="int">
+        SELECT count(*) from my_select_vote msv inner join six_user su  
+        on msv.club_member_id = su.id 
+        where su.gender = '남성' 
+        and msv.club_id =#{club_id} 
+        and msv.option_id=#{option_id}
+        and vote_id =#{vote_id}
+
+    </select>
+
+    <insert id="clubScheduleRegistProcess" useGeneratedKeys="true" keyProperty="schedule_id">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select max(id) from club_schedule
+        </selectKey>
+        insert into club_schedule(
+            schedule_title,schedule_explanation,start_date,end_date,schedule_location,max_members,schedule_image,club_id,club_member_id,weedo,gyungdo
+        )
+        values(
+            #{schedule_title},#{schedule_explanation},#{start_date},#{end_date},#{schedule_location},#{max_members},#{schedule_image},#{club_id},#{club_member_id},#{weedo},#{gyungdo}
+        )
+
+    </insert>
+
+    <insert id="scheduleMamberRegist">
+        insert into club_schedule_member(
+            schedule_id,club_member_id,club_id
+        )
+        values(
+            #{schedule_id},#{club_member_id},#{club_id}
+        )
+    </insert>
+    
+    <select id="clubScheduleAppear" resultType="com.sixthband.festival.club.dto.ClubScheduleDto">
+        SELECT * from club_schedule cs where club_id=#{club_id}
+    </select>
+    <select id="clubScheduleDetail" resultType="com.sixthband.festival.club.dto.ClubScheduleDto"> 
+        select * from club_schedule cs where id = #{id}
+    </select>
+
+    <select id="scheduleTotalMember" resultType="int">
+        select count(*) from club_schedule_member where schedule_id =#{schedule_id}
+    </select>
+    <insert id="attendSchedule">
+        insert into club_schedule_member(
+            schedule_id,club_member_id,club_id
+        )
+        values(
+            #{schedule_id},#{club_member_id},#{club_id}
+        )
+    </insert>
+    <select id="scheduleMemberExist" resultType="int">
+        select count(*) from club_schedule_member where schedule_id =#{schedule_id} and club_member_id =#{club_member_id}
+    </select>
+
+    <!-- 멤버 추가 변화시 알림 뱃지??? -->
+    <update id="updateMemberActive">
+        update club_member_regist set club_member_active='Y' where club_id=#{club_id} and member_activation =0
+    </update>
+
+    <!-- pagination -->
+    <select id="countBoard" resultType="int">
+        select count(*) from club_board
+    </select>
+
+    <!-- 마이페이지  -->
+    <select id="myRegistBoardList" resultType="com.sixthband.festival.club.dto.ClubBoardDto">
+        select * from club_board cb  where club_member_id =#{club_member_id} order by id desc
+    </select>
+    <select id="boardCommentCount" resultType="int">
+        select count(*) from club_board_comment cbc where club_board_id =#{club_board_id}
+    </select>
+    <select id="myRegistBoardComment" resultType="com.sixthband.festival.club.dto.ClubBoardCommentDto">
+        select * from club_board_comment cbc where club_member_id =#{club_member_id}    
+    </select>
+    <select id="clubBoardDetail" resultType="com.sixthband.festival.club.dto.ClubBoardDto">
+        select * from club_board where id =#{id}
+    </select>
+    <select id="myRegistPhotoComment" resultType="com.sixthband.festival.club.dto.ClubPhotoCommentDto">
+        select * from club_photo_comment cpc where club_member_id =#{club_member_id}
+    </select>
+    <select id="myRegistPhotoId" resultType="com.sixthband.festival.club.dto.ClubPhotoDto">
+        select * from club_photo where id =#{id}
+    </select>
+    <!-- Gpt -->
+    <insert id="chatGptReviewInsert">
+        insert into chatGpt_Review(
+            Gpt_Review,comment_id
+        )
+        values(
+            #{Gpt_Review},#{comment_id}
+        )
+    </insert>
+    <select id="chatGptCommentExist" resultType="int">
+        select count(*) from chatGpt_Review where comment_id=#{comment_id}
+    </select>
+    <select id="commentId" resultType="com.sixthband.festival.club.dto.ClubBoardCommentDto">
+        select * from club_board_comment cbc where id=#{id}
+    </select>
+    <select id="gptReview" resultType="com.sixthband.festival.club.dto.ChatGptReviewDto">
+        select * from chatGpt_Review where comment_id=#{comment_id}
+    </select>
+    <select id="boardOrphotoComment" resultType="map">
+        SELECT 
+    'photo' AS type, 
+    p.club_member_id, 
+    NULL AS title,
+    pc.content, 
+    p.club_id, 
+    p.id AS club_photo_id, 
+    null as club_board_id,
+    pc.created_at
+FROM 
+    club_photo p
+JOIN 
+    club_photo_comment pc ON p.id = pc.club_photo_id 
+WHERE 
+    pc.club_member_id = #{club_member_id}
+UNION all
+SELECT 
+    'board' AS type, 
+    b.club_member_id, 
+    b.title, 
+    c.content, 
+    b.club_id, 
+    null as club_photo_id,
+    b.id AS club_board_id,
+    c.created_at
+FROM 
+    club_board b
+JOIN 
+    club_board_comment c ON b.id = c.club_board_id 
+WHERE 
+    c.club_member_id = #{club_member_id}
+ORDER BY 
+    created_at DESC;
+
+    </select>
+    <!-- 관리자......... -->
+    <select id="acceptClubCount" resultType="int">
+        select count(*) from club where club_activation=2
+    </select>
+    <select id="acceptBeforeClubCount" resultType="int">
+        select count(*) from club where club_activation=0
+    </select>
+    <select id="newBoardRegist" resultType="int">
+        SELECT count(*) 
+        FROM club_board cb 
+        WHERE TIMESTAMPDIFF(HOUR, created_at, NOW()) &gt;= 0
+        AND TIMESTAMPDIFF(HOUR, created_at, NOW()) &lt;= 24       
+    </select>
+    <select id="totalClubCount" resultType="int">
+        select count(*) from club
+    </select>
+    <insert id="senMessage">
+        insert into chat_message(
+            sender_id,schedule_id,message
+        )
+        values(
+            #{sender_id},#{schedule_id},#{message}
+        )
+    </insert>
+    <select id="messageContent" resultType="com.sixthband.festival.club.dto.SendMessageDto">
+        select * from chat_message where schedule_id=#{schedule_id}
+    </select>
+</mapper>

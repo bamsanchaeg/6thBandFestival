@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Rental</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <style>
+        .no-focus-outline:focus {
+            outline: none !important;
+            box-shadow: none !important;
+            border-color: #919191 !important;
+        }
+
+        .rating-button {
+            cursor: pointer;
+            background-color: transparent;
+            border: 1px solid #DEE2E6;
+            border-radius: 3px;
+            padding: 9px 13px;
+            margin: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+            transition: background-color 0.3s ease;
+        }
+
+        .rating-button.selected {
+            background-color: #ff6d96;
+            color: white;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+
+        .star-rating span {
+            color: #E0E0E0;
+            font-size: 26px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            margin: 0 1px;
+        }
+
+        /* textarea 높이 설정 */
+        .custom-textarea {
+            font-size: 13px;
+            height: 200px;
+            resize: none;
+            width: 100%;
+            padding-bottom: 20px;
+        }
+
+        /* 글자 수 카운터 스타일 */
+        .char-counter {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            font-size: 12px;
+            color: #2e2e2e;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 2px 5px;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .image-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .image-upload,
+        .image-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 70px;
+            height: 70px;
+            border: 1px solid #DEE2E6;
+            border-radius: 1px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+
+        .image-upload:hover {
+            background-color: #f0f0f0;
+        }
+
+        .image-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .image-preview-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 1px;
+            border: 1px solid #DEE2E6;
+        }
+
+        .remove-image-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 10%;
+            border: none;
+            padding: 2px;
+            cursor: pointer;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            z-index: 1;
+            line-height: 1;
+            opacity: 0.8;
+        }
+
+        .remove-image-btn:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+
+        .material-symbols-outlined {
+            font-size: 14px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<div id="root">
+    <div class="wrapper">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <div class="main">
+            <div class="container" th:data-order-id="${rentalOrderDetail.rentalOrderDto.id}">
+                <div class="row mx-0 align-items-center">
+                    <div class="col-auto ps-0">
+                        <a th:href="@{/rental/myRentalsInfo(id=${rentalOrderDetail.rentalOrderDto.id})}" class="text-decoration-none">
+                    <span class="material-symbols-outlined align-middle new-text-black">
+                        arrow_back_ios
+                    </span>
+                        </a>
+                    </div>
+                    <div class="col py-4 text-center new-text-black">
+                        <span class="fw-bold fs-2">상품 리뷰</span>
+                    </div>
+                    <div class="col-auto"></div> <!-- 빈 열 추가 텍스트 중앙 -->
+                </div>
+
+                <!-- 폼 시작 -->
+                <form id="reviewForm" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="conditionInput" name="condition" value="">
+                    <input type="hidden" id="order_id" name="order_id" th:value="${rentalOrderDetail.rentalOrderDto.id}">
+                    <div class="row mx-0 border new-bg-white">
+                        <div class="col">
+                            <div class="row py-3">
+                                <div class="col-auto">
+                                    <a th:href="@{/rental/details(id=${rentalOrderDetail.rentalItemDto.id})}" class="text-decoration-none">
+                                        <img class="img-fluid" th:src="|/images/${rentalOrderDetail.rentalItemDto.image}|" style="height: 80px;">
+                                    </a>
+                                </div>
+                                <div class="col">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="row pt-1 fw-bold new-text-black">
+                                                <a th:href="@{/rental/details(id=${rentalOrderDetail.rentalItemDto.id})}" class="text-decoration-none">
+                                                    <div class="col new-fs-85" th:text="${rentalOrderDetail.rentalItemDto.title}"></div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-4 border-top border-1">
+                                <div class="col text-center fw-bold new-fs-95">
+                                    상품은 어떠셨나요?
+                                </div>
+                            </div>
+                            <div class="row pt-2 pb-4 text-center">
+                                <div class="col">
+                                    <div id="reviewStars" class="star-rating">
+                                        <span data-value="1">★</span>
+                                        <span data-value="2">★</span>
+                                        <span data-value="3">★</span>
+                                        <span data-value="4">★</span>
+                                        <span data-value="5">★</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-4 border-top border-1">
+                                <div class="col text-center fw-bold new-fs-95">
+                                    상품 상태는 어떤가요?
+                                </div>
+                            </div>
+                            <div class="row pt-3 pb-4 text-center">
+                                <div class="col">
+                                    <button type="button" class="rating-button" data-value="최고예요">최고예요</button>
+                                    <button type="button" class="rating-button" data-value="괜찮아요">괜찮아요</button>
+                                    <button type="button" class="rating-button" data-value="별로예요">별로예요</button>
+                                </div>
+                            </div>
+                            <div class="row pt-3 border-top border-1">
+                                <div class="col fw-bold new-fs-95">
+                                    상품 리뷰를 작성해주세요
+                                </div>
+                            </div>
+                            <div class="row pt-2 pb-3">
+                                <div class="col">
+                                    <!-- 텍스트 영역 래퍼 -->
+                                    <div class="textarea-wrapper">
+                                        <textarea class="form-control no-focus-outline custom-textarea rounded-0"
+                                                  id="reviewContent"
+                                                  name="content"
+                                                  placeholder="솔직한 리뷰를 남겨주세요!"
+                                                  required></textarea>
+                                        <!-- 글자 수 카운터 -->
+                                        <small id="charCount" class="char-counter pe-0">0 / 1,000</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pt-3 border-top border-1">
+                                <div class="col fw-bold new-fs-95">
+                                    사진
+                                </div>
+                            </div>
+                            <div class="row pt-2 pb-2">
+                                <div class="col">
+                                    <!-- 이미지 미리보기 및 업로드 버튼을 위한 컨테이너 -->
+                                    <div id="imageContainer" class="image-container">
+                                        <!-- 이미지 업로드 버튼 -->
+                                        <div class="image-upload">
+                                            <label for="imageInput" class="image-upload-label">
+                                                <span class="material-symbols-outlined new-fw-thin new-text-gray" style="font-size: 35px;">add</span>
+                                            </label>
+                                            <input id="imageInput" type="file" name="images" accept="image/*" style="display:none;">
+                                        </div>
+                                        <!-- 기존 업로드된 이미지를 표시할 요소 -->
+                                        <div class="image-preview" id="imagePreview" style="display: none;">
+                                            <img src="" alt="미리보기" class="image">
+                                            <button type="button" class="remove-image-btn">
+                                                <span class="material-symbols-outlined">close</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pb-2 text-center new-text-light-gray">
+                                <div class="col ps-0 new-fs-75">
+                                    사진은 10MB 이하의 PNG, GIF, JPG 파일만 등록 가능합니다.
+                                </div>
+                            </div>
+
+                            <!--
+                            <div class="row pt-2 pb-2">
+                                <div class="col">
+                                    <input id="imageInput" type="file" name="images" accept="image/*">
+                                    <small class="text-center new-text-light-gray" style="font-size: 12px;">사진은 10MB 이하의 PNG, GIF, JPG 파일만 등록 가능합니다.</small>
+                                </div>
+                            </div>
+                            -->
+                            <div class="row pt-2 border-top border-1">
+                                <div class="col new-text-light-gray new-fs-8">
+                                    • 리뷰는 대여 완료 후 30일 내 작성할 수 있습니다.
+                                </div>
+                            </div>
+                            <div class="row pt-1">
+                                <div class="col new-text-light-gray new-fs-8">
+                                    • 상품과 무관하거나 비속어가 포함된 리뷰는 고지 없이 블라인드 후 경고 조치됩니다.
+                                </div>
+                            </div>
+                            <div class="row pt-1 pb-4">
+                                <div class="col new-text-light-gray new-fs-8">
+                                    • 경고 누적 시 리뷰 작성이 제한될 수 있습니다.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- new-fixed-bottom 영역을 컨테이너 외부로 이동 -->
+        <div class="new-fixed-bottom new-bg-white z-3">
+            <div class="row px-3 py-3">
+                <div class="col text-center d-grid gap-2 mx-auto">
+                    <button type="button" class="btn btn-primary w-100" style="border-radius: 0;" onclick="submitReview()">등록하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNavi}"></div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URL(window.location.href).searchParams;
+        const orderId = urlParams.get("id");
+        // data-order-id 속성에서 대여 주문 ID 가져오기
+        const order_id = document.getElementById("order_id").value;
+
+        console.log("Order ID:", order_id);
+
+        // 별점 UI 초기화
+        const starRatingElements = document.querySelectorAll(".star-rating span");
+        starRatingElements.forEach(star => {
+            star.style.color = '#E0E0E0'; // 비어 있는 별 초기화
+        });
+
+
+       // 별점 클릭 이벤트 핸들러
+        starRatingElements.forEach(star => {
+           star.addEventListener("click", () => {
+               const ratingValue = parseInt(star.getAttribute("data-value"));
+               const parent = star.parentElement;
+               parent.setAttribute("data-rating", ratingValue);
+
+               // 별점 UI 업데이트
+               updateStarUI(parent, ratingValue);
+           });
+        });
+
+        // 상품 상태 버튼 클릭 이벤트 핸들러
+        const ratingButtons = document.querySelectorAll(".rating-button");
+        const conditionInput  = document.getElementById("conditionInput");
+        ratingButtons.forEach(button => {
+           button.addEventListener("click", () => {
+               ratingButtons.forEach(btn => btn.classList.remove("selected"))
+               button.classList.add("selected");
+
+               button.parentElement.setAttribute("data-condition", button.getAttribute("data-value"))
+
+               // 선택된 상품 상태 값을 숨겨진 input 필드에 저장
+               conditionInput.value = button.getAttribute("data-value");
+           });
+        });
+
+        // 문자수 업데이트 이벤트 핸들러
+        const reviewContentElement = document.getElementById("reviewContent");
+        const charCountElement = document.getElementById("charCount");
+        reviewContentElement.addEventListener("input", () => {
+            const charCount = reviewContentElement.value.length;
+            charCountElement.textContent = `${charCount} / 1,000`;
+        });
+
+        // 이미지 업로드 핸들러
+        const imageInput = document.getElementById("imageInput");
+        const imageContainer = document.getElementById("imageContainer");
+
+        imageInput.addEventListener("change", () => {
+            // 기존 미리보기 이미지 제거
+            const existingPreview = document.querySelector('.image-preview');
+            if (existingPreview) {
+                existingPreview.remove();
+            }
+
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imgPreview = document.createElement("div");
+                    imgPreview.classList.add('image-preview');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+
+                    const removeButton = document.createElement('button');
+                    removeButton.classList.add('remove-image-btn');
+                    removeButton.innerHTML = 'x';
+
+                    // 이미지 제거 버튼 클릭 이벤트 핸들러
+                    removeButton.addEventListener('click', () => {
+                        imgPreview.remove(); // 미리보기만 삭제
+                        imageInput.value = ''; // 파일 입력 필드 초기화
+                    });
+
+                    imgPreview.appendChild(img);
+                    imgPreview.appendChild(removeButton);
+                    imageContainer.insertBefore(imgPreview, imageContainer.firstChild); // 업로드 버튼 앞에 삽입
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+    function updateStarUI(parent, ratingValue) {
+        const stars = parent.querySelectorAll('span');
+        stars.forEach((star, index) => {
+            if (index < ratingValue) {
+                star.style.color = '#FFD700'; // 채워진 별의 색상
+            } else {
+                star.style.color = '#E0E0E0'; // 비워진 별의 색상
+            }
+        });
+    }
+
+    // 리뷰 제출 함수
+    function submitReview() {
+        const ratingStarsElement = document.getElementById("reviewStars");
+        const reviewContentElement = document.getElementById("reviewContent");
+        const order_id = document.getElementById("order_id").value;
+
+        // 별점 가져오기
+        const rating = parseInt(ratingStarsElement.getAttribute("data-rating")) || 0;
+
+        // 상품 상태 가져오기
+        const conditionElement = document.querySelector(".rating-button.selected");
+        const item_condition = conditionElement ? conditionElement.getAttribute("data-value") : '';
+
+        console.log('Rating:', rating);
+        console.log('Condition:', item_condition);
+        console.log('Review Content:', reviewContentElement.value);
+
+        // 입력 값 검증
+        if (rating === 0) {
+            alert("별점을 선택해주세요."); // 별점 미선택 시 경고
+            return;
+        }
+
+        if (item_condition === '') {
+            alert("상품 상태를 선택해주세요.");
+            return;
+        }
+
+        if (reviewContentElement.value.length === 0) {
+            alert('리뷰 내용을 입력해주세요.');
+            reviewContentElement.focus(); // 리뷰 입력 창에 포커스
+            return;
+        }
+
+        // 리뷰 데이터 객체 생성
+        const formData = new FormData();
+        formData.append('order_id', order_id);
+        formData.append('rating', rating);
+        formData.append('content', reviewContentElement.value);
+        formData.append('item_condition', item_condition);
+
+        // 이미지 파일 추가
+        const fileInput = document.getElementById("imageInput");
+        if (fileInput && fileInput.files.length > 0) {
+            formData.append('images', fileInput.files[0]);
+        }
+
+        // FormData 내용 콘솔에 출력
+        formData.forEach((value, key) => {
+            console.log(key + ': ', value);
+        });
+
+        // AJAX 요청 보내기
+        fetch('/api/rental/review', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('서버 응답이 실패했습니다.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.result === 'success') {
+                    alert('리뷰가 성공적으로 작성되었습니다.');
+                    window.location.href = '/rental/myRentalsInfo?id=' + order_id;
+                } else {
+                    if (data.reason === '로그인을 하셔야 이용 가능합니다. 로그인 하시겠습니까?') {
+                        alert(data.reason);
+                        window.location.href = '/user/loginPage'; // 로그인 페이지로 리다이렉트
+                    } else {
+                        alert(data.reason || '리뷰 작성에 실패했습니다.');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('현재 시스템에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            });
+    }
+    
+    
+</script>
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

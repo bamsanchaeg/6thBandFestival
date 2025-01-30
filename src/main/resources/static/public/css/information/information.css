@@ -1,0 +1,253 @@
+/*달력일정 추가.. 등*/
+
+
+
+.calendar-container {
+    background: #fff;
+    width: 450px;
+    border-radius: 10px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.calendar-container header {
+    display: flex;
+    align-items: center;
+    padding: 25px 30px 10px;
+    justify-content: space-between;
+}
+
+header .calendar-navigation {
+    display: flex;
+}
+
+header .calendar-navigation span {
+    height: 38px;
+    width: 38px;
+    margin: 0 1px;
+    cursor: pointer;
+    text-align: center;
+    line-height: 38px;
+    border-radius: 50%;
+    user-select: none;
+    color: #aeabab;
+    font-size: 1.9rem;
+}
+
+.calendar-navigation span:last-child {
+    margin-right: -10px;
+}
+
+header .calendar-navigation span:hover {
+    background: #f2f2f2;
+}
+
+header .calendar-current-date {
+    font-weight: 500;
+    font-size: 1.45rem;
+}
+
+.calendar-body {
+    padding: 20px;
+}
+
+.calendar-body ul {
+    list-style: none;
+    flex-wrap: wrap;
+    display: flex;
+    text-align: center;
+}
+
+.calendar-body .calendar-dates {
+    margin-bottom: 20px;
+}
+
+.calendar-body li {
+    width: calc(100% / 7);
+    font-size: 1.07rem;
+    color: #414141;
+}
+
+.calendar-body .calendar-weekdays li {
+    cursor: default;
+    font-weight: 500;
+}
+
+.calendar-body .calendar-dates li {
+    margin-top: 30px;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.calendar-dates li.inactive {
+    color: #aaa;
+}
+
+.calendar-dates li.active {
+    color: #fff;
+}
+
+.calendar-dates li::before {
+    position: absolute;
+    content: "";
+    z-index: -1;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.calendar-dates li.active::before {
+    background: rgba(139, 57, 80, 0.8);;
+}
+
+.calendar-dates li:not(.active):hover::before {
+    background: #e4e1e1;
+}
+
+
+/*페스티벌 메인페이지 및 인포메이션 배경 박스컬러, rgba 로 설정 */
+.bg-boxColor-history{
+    background-color: rgba(10, 10, 10, 0.9);
+}
+/*페스티벌 메인페이지 및 인포메이션 배경 박스컬러, rgba 로 설정 */
+.bg-boxColor-festival{
+    background-color: rgba(139, 57, 80, 0.8);
+}
+
+.boxColorMain{
+    background-color: #8B3950CC;
+    background-blend-mode: multiply;
+
+}
+
+
+/*페스티벌 메인페이지 및 인포메이션 배경 박스컬러, rgba 로 설정 */
+.bg-boxColor-festivalBody{
+    background : linear-gradient(to bottom, rgba(250, 96, 139, 0.8),rgba(0,0,0,0));
+    background-blend-mode: overlay;
+}
+
+
+
+/*그라데이션으로 텍스트 눈에 띄게 하는 컬러*/
+.bg-boxColor-festivalTitle{
+    background : linear-gradient(to bottom,rgba(139, 57, 80, 0.8),rgba(0,0,0,0));
+
+}
+
+/*라인업 탭*/
+.tab-content {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-top: none;
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+
+/*iframe 크기 잡아주는 코드!!! 나중에 참고해서 또 써먹기*/
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+}
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.custom-checkbox {
+    height: 20px;
+    width: 20px;
+    background-color: #eee;
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.custom-checkbox-label input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #2196F3;
+}
+
+.custom-checkbox-label input[type="checkbox"]:checked + .custom-checkbox:after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.align-center {
+    display: flex;
+    align-items: center;
+}
+
+.division-short-line{
+    border-top: 1px solid #2e2e2e;
+    margin: 10px auto;
+    width: 60px;
+}
+
+.division-shortest-line{
+    border-top: 1px solid #2e2e2e;
+    margin: 10px auto;
+    width: 10px;
+}
+
+.division-shortest-line-user{
+    border-top: 1px solid #e4e1e1;
+    margin: 10px auto;
+    width: 10px;
+}
+
+/*메인페이지*/
+
+.MainText{
+    /* 2025 ROCK FESTIVAL */
+
+    font-family: "Inter",sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 38px;
+    line-height: 58px;
+    color: #f8f8f8;
+    /*color: transparent; !* 텍스트 내부를 투명하게 설정 *!*/
+    /*-webkit-text-stroke: 2px #FFFFFF; !* 텍스트 외곽선을 설정 *!*/
+
+}
+
+
+.MainTextCat{
+    /* 2025 ROCK FESTIVAL */
+
+    font-family: "Inter",sans-serif;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 28px;
+    line-height: 58px;
+    color: #f8f8f8;
+    /*color: transparent; !* 텍스트 내부를 투명하게 설정 *!*/
+    /*-webkit-text-stroke: 2px #FFFFFF; !* 텍스트 외곽선을 설정 *!*/
+
+}
+
+.announcement-main{
+    font-size: 0.8em;
+    color: #f8f8f8;
+}

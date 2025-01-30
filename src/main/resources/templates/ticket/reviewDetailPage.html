@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Tickets</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+
+    <style>
+        .custom-option {
+            top : 4.2em;
+            right : -3.4em;
+            width : 8em;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .custom-option.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .custom-option.hide {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+<div id="root">
+    <div class="wrapper bgPatternBlackAndWhite">
+        <!-- /* 헤더 */ -->
+        <div th:replace="~{common/navi::topNavi}"></div>
+        <div th:replace="~{common/navi::allMenuNavi}"></div>
+
+        <!-- /* 컨텐츠 */ -->
+        <div class="main new-text-black">
+            <div class="container">
+
+                <div class="row mx-0 py-3 align-items-center">
+<!--                    뒤로가기.. history.back()-->
+                    <div class="col-1 px-0" onclick="history.back()">
+                        <span class="material-symbols-outlined fs-6 fw-bold d-flex justify-content-start new-text-white">arrow_back_ios</span>
+                    </div>
+                    <div class="col text-center">
+                        <span class="fs-5 fw-semibold new-text-white">후기</span>
+                    </div>
+                    <div class="col-1 px-0"></div>
+                </div>
+
+                <div class="row mx-0 pt-2 new-bg-white">
+                    <div class="col">
+
+                        <div class="row pt-1">
+                            <div class="col new-text-gray new-fs-75">
+                                <span th:text="${reviewInfo.festival_name}"></span>
+                                <span> - </span>
+                                <span th:text="${reviewInfo.day_type}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row pt-1">
+                            <div class="col fw-bold fs-5">
+                                <span id="reviewTitleSpan" class="text-break" th:text="${reviewInfo.title}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row pt-2 align-items-center">
+                            <div class="col-auto pe-0">
+                                <img class="img-fluid image-thumbnail rounded-circle" style="width: 50px;" th:src="|/images/${reviewInfo.profile_img}|">
+                            </div>
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col new-fs-85">
+                                        <span th:text="${reviewInfo.nickname}"></span>
+                                    </div>
+                                </div>
+
+                                <div class="row align-items-center">
+                                    <div class="col-auto new-text-gray new-fs-75">
+                                        <span th:text="${#dates.format(reviewInfo.created_at, 'yyyy.MM.dd HH:mm')}"></span>
+                                    </div>
+                                    <div class="col-auto ps-1 pe-0">
+                                        <span class="material-symbols-outlined new-fs-9 d-flex justify-content-center new-text-gray">visibility</span>
+                                    </div>
+                                    <div class="col ps-2 new-text-gray new-fs-75">
+                                        <span th:text="${reviewInfo.read_count}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-auto text-center position-relative" onclick="optionModalOpen()">
+                                <span id class="material-symbols-outlined new-fw-thin d-flex justify-content-center">more_vert</span>
+                                <div id="optionBox" class="custom-option position-absolute text-start ps-3 pe-4 translate-middle new-bg-white border new-border-gray rounded d-none">
+                                    <div class="row py-2 new-fs-85 align-items-center" th:if="${session.loginUser != null and reviewInfo.user_id == session.loginUser.id}">
+                                        <div class="col">
+
+                                            <div class="row py-1">
+                                                <div class="col">
+                                                    <span onclick="updateModalOpen()">수정하기</span>
+                                                </div>
+                                            </div>
+                                            <div class="row py-1">
+                                                <div class="col">
+                                                    <span onclick="reviewDelete()">삭제하기</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row py-2 new-fs-85 align-items-center" th:if="${session.loginUser != null and reviewInfo.user_id != session.loginUser.id}">
+                                        <div class="col">
+
+                                            <div class="row py-1">
+                                                <div class="col">
+                                                    <span>신고하기</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="row py-2 new-fs-85 align-items-center" th:if="${session.loginUser == null}">
+                                        <div class="col">
+
+                                            <div class="row py-1">
+                                                <div class="col">
+                                                    <span>신고하기</span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row pb-1">
+                            <div class="col new-mx-25 mt-3 border-bottom new-border-darkgray"></div>
+                        </div>
+
+<!--                        <div class="row pt-1">-->
+<!--                            <div class="col new-fs-75 text-end new-text-gray" th:if="${session.loginUser == null}">-->
+<!--                                <span>게시글 신고</span>-->
+<!--                            </div>-->
+<!--                            <div class="col new-fs-75 text-end new-text-gray" th:if="${session.loginUser != null and reviewInfo.user_id != session.loginUser.id}">-->
+<!--                                <span>게시글 신고</span>-->
+<!--                            </div>-->
+<!--                            <div class="col new-fs-75 text-end new-text-gray" th:if="${session.loginUser != null and reviewInfo.user_id == session.loginUser.id}">-->
+<!--                                <span onclick="updateModalOpen()">수정</span>-->
+<!--                                <span class="px-2"> | </span>-->
+<!--                                <span onclick="reviewDelete()">삭제</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+                        <div class="row pt-3" th:if="${reviewImages != null}" th:each="e : ${reviewImages}">
+                            <div class="col">
+                                <img class="img-fluid image-thumbnail" th:src="|/images/${e.url}|">
+                            </div>
+                        </div>
+
+                        <div class="row py-3">
+                            <div class="col new-fs-9">
+<!--                                <span th:text="${reviewInfo.content}"></span>-->
+                                <span id="reviewContentSpan" th:text="${reviewInfo.content}"></span>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center new-text-gray">
+                            <div class="col-auto pe-1">
+                                <span class="material-symbols-outlined fs-4 new-fw-thin d-flex justify-content-center">smart_toy</span>
+                            </div>
+                            <div class="col ps-0 new-fs-8">
+                                <span class="px-2 rounded-3 bg-primary1 new-text-white fw-bold">Chat GPT</span>
+                                <span>가 요약한 후기</span>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center new-text-gray">
+                            <div class="col ps-4 ms-3 new-fs-8">
+                                <span th:text="${gpt}">재미없습니다.</span>
+                            </div>
+                        </div>
+
+                        <div class="row py-2">
+                            <div class="col new-mx-25 my-2 border-bottom new-border-darkgray"></div>
+                        </div>
+
+<!--                        게시글 목록-->
+                        <div class="row pb-2">
+                            <div class="col">
+                                <a href="/ticket/reviewPage">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto pe-1">
+                                            <span class="fw-bold">전체글</span>
+                                        </div>
+                                        <div class="col-auto px-0">
+                                            <span class="pt-1 material-symbols-outlined fs-3 d-flex justify-content-center">chevron_right</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="row align-items-center" th:each="e : ${reviewListFive}">
+                            <div class="col">
+
+                                <div class="row py-2 align-items-center" th:classappend="${pageId == e.id} ? new-bg-gray-translucent">
+                                    <div class="col">
+                                        <a th:href="@{/ticket/reviewDetailPage(id=${e.id})}">
+                                            <div class="row">
+                                                <div class="col-9">
+                                                    <div class="row" th:classappend="${pageId == e.id} ? fw-bold">
+                                                        <div class="col new-fs-9 pb-1">
+                                                            <span class="ellipsis-line-one" th:text="${e.title}">제목</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row align-items-center new-text-gray">
+                                                        <div class="col-auto new-fs-75">
+                                                            <span th:text="${e.nickname}">작성자</span>
+                                                        </div>
+                                                        <div class="col-auto ps-1 new-fs-75">
+                                                            <span th:text="${#dates.format(e.created_at, 'MM.dd HH:mm')}">작성시간</span>
+                                                        </div>
+                                                        <div class="col-auto pe-0" style="padding-top: 2px;">
+                                                            <span class="material-symbols-outlined new-fs-9 d-flex justify-content-center">favorite</span>
+                                                        </div>
+                                                        <div class="col-auto ps-1 new-fs-75">
+                                                            <span th:text="${e.like_count}">좋아요</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-3 ps-0" th:if="${e.review_id != 0}" style="height: 3em;">
+                                                    <img class="image-thumbnail rounded" th:src="|/images/${e.url}|">
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col mx-2 border-bottom new-border-gray"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+<!--                하단 네비바-->
+                <div class="row py-3 px-2 new-fixed-bottom new-bg-white align-items-center">
+                    <div class="col-auto">
+                        <a href="/ticket/reviewPage">
+                            <div class="row align-items-center">
+                                <div class="col-auto pe-0">
+                                    <span class="material-symbols-outlined fs-5 d-flex justify-content-center">toc</span>
+                                </div>
+                                <div class="col-auto ps-1 new-fs-9">
+                                    <span>목록으로</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+
+                    <div class="col-auto ms-auto">
+                        <div class="row align-items-center" onclick="loginCheck()">
+                            <div id="likeButton" class="col-auto pe-0 text-danger">
+                                <span id="likeIcon" class="material-symbols-outlined fs-5 d-flex justify-content-center">favorite</span>
+                            </div>
+                            <div class="col-3 new-text-gray new-fs-9">
+                                <span id="likeCount" th:text="${likeCount}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="row">
+                            <div class="col text-end pe-3" th:onclick="|shareModalOpen(${pageId})|">
+                                <span class="material-symbols-outlined fs-5">ios_share</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!--/* 푸터 */-->
+        <div th:replace="~{common/navi::bottomNavi_wh}"></div>
+        <!-- /* 퀵바 */ -->
+<!--        <div th:replace="~{common/navi::quickNavi}"></div>-->
+    </div>
+</div>
+
+<!-- 수정 모달.. -->
+<div class="modal fade" id="reviewUpdateModal" tabindex="-1" aria-labelledby="reviewUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black">
+        <div class="modal-content new-text-black">
+
+            <div class="modal-header fs-5">
+                <div class="row align-items-center">
+                    <div class="col-auto pe-0 d-flex justify-content-center">
+                        <span class="material-symbols-outlined">edit_square</span>
+                    </div>
+                    <div class="col fw-bold">
+                        <span>후기 수정</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body pt-0">
+                <form id="updateReviewForm" enctype="multipart/form-data">
+                    <input type="hidden" name="id" th:value="${reviewInfo.id}">
+                    <div class="row py-2 align-items-center">
+                        <div class="col-4">
+                            <span class="new-text-red">*</span>
+                            <span>제목</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <input id="inputUpdateTitle" name="title" class="form-control form-control-sm" type="text" th:value="${reviewInfo.title}">
+                        </div>
+                    </div>
+
+                    <div class="row py-2 align-items-center">
+                        <div class="col-4">
+                            <span class="new-text-red">*</span>
+                            <span>내용</span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <textarea id="textareaUpdateContent" name="content" class="form-control form-control-sm" th:text="${reviewInfo.content}" style="height: 200px;"></textarea>
+                        </div>
+                    </div>
+
+<!--                    이미지 수정 어떻게 함??? update는 알겠는데 테이블을 따로 빼 둔 상태에서 가능한지..-->
+<!--                    <div class="row pt-3">-->
+<!--                        <div class="col">-->
+<!--                            <input id="inputReviewImages" name="inputImages" class="form-control form-control-sm" type="file" multiple accept="image/*">-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                    <div class="row pt-2">-->
+<!--                        <div class="col overflow-x-auto custom-scroll">-->
+<!--                            <div id="previewBox" class="row pt-2 align-items-center flex-nowrap">-->
+
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <input onclick="updateModalClose()" type="button" class="btn new-btn-gray px-3" value="취소">
+                <input onclick="submitUpdate()" type="button" class="btn btn-primary px-3" value="수정">
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- 알림 모달... -->
+<div class="modal fade" id="reviewUpdateDoneModal" tabindex="-1" aria-labelledby="reviewUpdateDoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-center">
+        <div class="modal-content new-text-black" style="width: 20em;">
+
+            <div class="modal-body">
+                <div class="row py-2 align-items-center">
+                    <div class="col fw-bold text-center">
+                        <span id="testAlert"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- 공유 모달.. -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-center">
+        <div class="modal-content new-text-black" style="width: 20em;">
+
+            <div class="modal-body">
+                <div class="row py-2 align-items-center">
+                    <div class="col text-center">
+                        <span class="fw-bold"> 공유하기 </span>
+
+                        <div class="row pt-3 px-1 align-items-center">
+                            <div id="twitterShareIcon" class="col-2 px-1 py-1 mx-2 border rounded-2 new-border-gray">
+                                <img class="img-fluid" src="/public/img/ticket/free-icon-twitter-5968830.png">
+                            </div>
+
+                            <div id="kakaoShareIcon" class="col-2 px-1 py-1 me-2 border rounded-2 new-border-gray">
+                                <img class="img-fluid" src="/public/img/ticket/free-icon-kakao-talk-3992630.png">
+                            </div>
+
+                            <div id="naverShareIcon" class="col-2 px-1 py-1 me-2 border rounded-2 new-border-gray">
+                                <img class="img-fluid rounded-1" src="/public/img/ticket/naver_ico_thumb.png">
+                            </div>
+
+                            <div id="facebookShareIcon" class="col-2 px-1 py-1 me-2 border rounded-2 new-border-gray">
+                                <img class="img-fluid" src="/public/img/ticket/free-icon-facebook-logo-61045.png">
+                            </div>
+
+                            <div id="urlCopyIcon" class="col-2 px-1 py-1 me-2 border rounded-2 new-border-gray">
+                                <img class="img-fluid" src="/public/img/ticket/free-icon-url-12359424.png">
+                            </div>
+                        </div>
+
+                        <div class="row pt-3">
+                            <div class="col">
+                                <span id="shareUrl" class="new-fs-8"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- 옵션 모달... -->
+<!--<div class="modal fade" id="optionModal" data-bs-backdrop="false" tabindex="-1" aria-labelledby="optionModalLabel" aria-hidden="true">-->
+<!--    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable new-text-black justify-content-end">-->
+<!--        <div class="modal-content new-bg-white" style="width: 8em;">-->
+
+<!--            <div class="modal-body py-0">-->
+<!--                <div class="row py-2 new-fs-85 align-items-center" th:if="${session.loginUser != null and reviewInfo.user_id == session.loginUser.id}">-->
+<!--                    <div class="col">-->
+
+<!--                        <div class="row py-1">-->
+<!--                            <div class="col">-->
+<!--                                <span onclick="updateModalOpen()">수정하기</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="row py-1">-->
+<!--                            <div class="col">-->
+<!--                                <span onclick="reviewDelete()">삭제하기</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="row py-2 new-fs-85 align-items-center" th:if="${session.loginUser != null and reviewInfo.user_id != session.loginUser.id}">-->
+<!--                    <div class="col">-->
+
+<!--                        <div class="row py-1">-->
+<!--                            <div class="col">-->
+<!--                                <span>신고하기</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--                <div class="row py-2 new-fs-85 align-items-center" th:if="${session.loginUser == null}">-->
+<!--                    <div class="col">-->
+
+<!--                        <div class="row py-1">-->
+<!--                            <div class="col">-->
+<!--                                <span>신고하기</span>-->
+<!--                            </div>-->
+<!--                        </div>-->
+
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--            </div>-->
+
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--/* 사이드바 */-->
+<div th:replace="~{common/navi::sidebarLeft}"></div>
+<script type="text/javascript" src="/public/js/ticket/ticketReview.js"></script>
+<script type="text/javascript" src="/public/js/ticket/ticketMain.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

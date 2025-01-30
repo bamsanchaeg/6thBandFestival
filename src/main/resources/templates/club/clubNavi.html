@@ -1,0 +1,499 @@
+<div th:fragment="clubDetailTab" class="management-tab status-tab custom-scroll custom-shadow">
+    
+    <style>
+        a {
+            text-decoration: none; /* 기본적으로 밑줄 제거 */
+        }
+        .box-shadow{
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        }
+        .management-tab div.on a {
+            font-weight: bold; /* 글자를 두껍게 */
+        }
+
+        .management-tab div.on a::after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #2e2e2e;
+        }
+
+    </style>
+    
+    <div class="container box-shadow">
+        <nav class="py-3 ">
+            <div class="nav nav-underdivne  tab-container text-center management-tab" id="nav-tab" role="tabdivst">
+                <div class="tab-item" style="flex: 1;">
+                    <div  th:classappend="${requestURI.startsWith('/club/detail/home')} ? 'on'"><a th:href="@{/club/detail/home(id=${param.id})}" class=" position-relative py-1">홈</a></div>
+                </div>
+                <div class="tab-item"  style="flex: 1;">
+                    <div  th:classappend="${requestURI.startsWith('/club/detail/freeboard')} ? 'on'"><a th:href="@{/club/detail/freeboard(id=${param.id})}" class=" position-relative py-1" >게시판</a></div>
+                </div>
+                <div class="tab-item"  style="flex: 1;">
+                    <div th:classappend="${requestURI.startsWith('/club/detail/photo')} ? 'on'"><a th:href="@{/club/detail/photo(id=${param.id})}" class=" position-relative py-1">사진첩</a></div>
+                </div>
+                <div class="tab-item"  style="flex: 1;">
+                    <div th:classappend="${requestURI.startsWith('/club/detail/vote')} ? 'on'"><a th:href="@{/club/detail/vote(id=${param.id})}" class=" position-relative py-1">투표</a></div>
+                </div>
+                <div class="tab-item"  style="flex: 1;">
+                    <div th:classappend="${requestURI.startsWith('/club/detail/schedule')} ? 'on'"><a th:href="@{/club/detail/schedule(id=${param.id})}" class=" position-relative py-1">일정</a></div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
+
+
+
+<div th:fragment="clubListTab" class="management-tab status-tab custom-shadow">
+    
+    <style>
+        a {
+            text-decoration: none; /* 기본적으로 밑줄 제거 */
+        }
+
+        .management-tab div.on a {
+            font-weight: bold; /* 글자를 두껍게 */
+        }
+        .management-tab div.on a::after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #2e2e2e;
+            font-weight:700
+        }
+
+    </style>
+    
+    <div class="container box-shadow">
+        <nav class=" border-bottom pb-1">
+            <div class="nav nav-underdivne  tab-container text-center management-tab" id="nav-tab" role="tabdivst">
+                <div class="tab-item" style="flex: 1;">
+                    <div  th:classappend="${requestURI.startsWith('/club/myClub')} ? 'on'"><a th:href="@{/club/myClub}" class=" position-relative py-1" style="font-size: 19px;">내모임</a></div>
+                </div>
+                <div class="tab-item"  style="flex: 1;">
+                    <div  th:classappend="${requestURI.startsWith('/club/clubListAll')} ? 'on'"><a th:href="@{/club/clubListAll}" class=" position-relative py-1" style="font-size: 19px;">전체 모임</a></div>
+                </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
+<div th:fragment="topNavi" class="header border-bottom border-dark bg-white pt-3">
+    <script>
+
+        function clubList(){
+            let searchWord = "";
+
+// 검색어 입력 시 변수에 저장
+            const searchWordInput = document.getElementById("searchWord");
+            searchWord = searchWordInput.value;
+
+            const url = "/api/club/searchClub?searchWord="+searchWord;
+                fetch(url)
+                .then(response => response.json())
+                .then((response) => {
+                    searchWordInput.value = searchWord;
+                    let searchWords = JSON.parse(sessionStorage.getItem('searchWords')) || [];
+
+                    if(searchWords.length <= 5){
+                        searchWords = searchWords.filter(word => word !== searchWord);
+                        searchWords.unshift(searchWord);
+                        sessionStorage.setItem('searchWords', JSON.stringify(searchWords));
+                    
+                    }
+                    else if (searchWords.length > 5) {
+
+                        searchWords.pop();
+                        searchWords = searchWords.filter(word => word !== searchWord);
+                        searchWords.unshift(searchWord);
+                        sessionStorage.setItem('searchWords', JSON.stringify(searchWords));
+                    }
+                recentSearchList();
+
+                const mySearchClubListBox = document.getElementById("mySearchClubListBox");
+                mySearchClubListBox.innerHTML="";
+
+                const clubWrapperSearchTemplate = document.querySelector("#clubSearchTemplate .clubWrapper")
+                
+                    for(e of response.data.clubList){
+                        if(e.clubDto.club_activation ==2 ){
+                            const newClubWrapperSearchTemplate = clubWrapperSearchTemplate.cloneNode(true);
+                            
+                            const imageContainer = newClubWrapperSearchTemplate.querySelector(".imageContainer");
+
+                            const clubName = newClubWrapperSearchTemplate.querySelector(".clubName");
+                            clubName.innerText = e.clubDto.club_name;
+
+                            const clubCategory = newClubWrapperSearchTemplate.querySelector(".clubCategory");
+                            clubCategory.innerText=e.clubCategory;
+                            (function(clubId) {
+
+                                newClubWrapperSearchTemplate.addEventListener('click', function() {
+                                    // 클릭 시 이동할 링크 설정
+                                    window.location.href = `/club/clubDetailPage?id=${clubId}`;
+                                });
+                                })(e.clubDto.id); // 클로저 내부에서 e.clubBoardDto.id 값을 boardId로 전달
+
+                            const img = document.createElement('img');
+                            img.src = `/images/${e.clubDto.club_logo}`;
+                            img.classList.add("img-fluid","rounded-4","image-thumbnail");
+                            img.style.width="4em";
+                            img.style.height="4em";
+                            imageContainer.appendChild(img);
+                                
+                            
+
+                            const clubExplanation = newClubWrapperSearchTemplate.querySelector(".clubExplanation");
+                            clubExplanation.innerText = e.clubDto.club_explanation;
+                            const memberCount = newClubWrapperSearchTemplate.querySelector(".memberCount");
+                            memberCount.innerText=e.userCount;
+                            
+                            const maxMembers = newClubWrapperSearchTemplate.querySelector(".maxMembers");
+                            maxMembers.innerText=e.clubDto.max_members;
+
+                            const clubLocation = newClubWrapperSearchTemplate.querySelector(".clubLocation");
+                            clubLocation.innerText = e.clubDto.club_location;
+
+
+                            mySearchClubListBox.appendChild(newClubWrapperSearchTemplate);
+                        }
+                    }
+
+                })
+            }
+            
+            function offcanvasClose(){
+                const searchWord = document.getElementById("searchWord");
+                searchWord.value="";
+
+                const mySearchClubListBox = document.getElementById("mySearchClubListBox");
+                mySearchClubListBox.innerHTML="";
+            }
+
+            function recentSearchList(){
+                let searchWords = JSON.parse(sessionStorage.getItem('searchWords')) || [];
+                const recentSearchContentBox = document.getElementById("recentSearchContentBox");
+                recentSearchContentBox.innerHTML = "";
+
+                const myRecentSearchContentWrapperTemplate= document.querySelector("#mySearchContentTemplate .searchClubWrapper");
+                let currentRow = null;
+
+                searchWords.forEach((element, index) => {
+                    if(index % 2 == 0){
+                        currentRow = document.createElement('div');
+                        currentRow.classList.add('row','py-1');
+                    }
+                    const newMyRegistListTemplateWrapper = myRecentSearchContentWrapperTemplate.cloneNode(true);
+
+                    const searchClub = newMyRegistListTemplateWrapper.querySelector(".searchClub");
+                    searchClub.innerText=element;
+
+                    currentRow.appendChild(newMyRegistListTemplateWrapper);
+                    recentSearchContentBox.appendChild(currentRow);
+
+                });
+            }
+
+            function deleteSearchContent(thisButton){
+                const wrapper = thisButton.closest(".searchClubWrapper");
+                const searchClub = wrapper.querySelector(".searchClub");
+                const searchWord = searchClub.innerText;
+                let searchWords = JSON.parse(sessionStorage.getItem('searchWords')) || [];
+                //내부 배열의 단어와 searchWord가 같지 않은것만 남기겠다.
+                searchWords = searchWords.filter(word => word !== searchWord);  
+                
+                sessionStorage.setItem('searchWords', JSON.stringify(searchWords));
+                recentSearchList();
+            }
+
+            function searchIntoContent(thisContent){
+                const wrapper = thisContent.closest(".searchClubWrapper");
+                const searchClub = wrapper.querySelector(".searchClub");
+                const searchIntoWord = searchClub.innerText;
+
+                const searchWord = document.getElementById("searchWord");
+                searchWord.value=searchIntoWord;
+            }
+
+
+            window.addEventListener("DOMContentLoaded", () => {
+                recentSearchList();
+
+            });
+    </script>
+    <div class="container">
+        <div class="header-box d-flex align-items-center">
+            <div class="logo-box fw-semibold lh-sm">
+                <a href="/" class="d-block">
+                    <img src="/public/img/header_logo2.png" alt="">
+                    <!-- 6th <br>ROCK FESTIVAL -->
+                </a>
+            </div>
+            
+            <div class="col-7 justify-content-end d-flex align-self-center">
+
+                <a class="material-symbols-outlined fs-1" data-bs-toggle="offcanvas" href="#offcanvasExample" role="button" aria-controls="offcanvasExample">
+                    search            
+                </a>
+
+            </div>
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+                <div class="offcanvas-header pt-4 pb-3">
+                    <h4 class="offcanvas-title fw-semibold" id="offcanvasExampleLabel">모임 검색</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" onclick="offcanvasClose()"></button>
+                </div>
+                <div class="offcanvas-body pt-0">
+                   
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="search-container rounded-2">
+                                <button class="search-button px-2" type="submit">
+                                    <i class="bi bi-search search-icon text-secondary"></i>
+                                </button>
+                                <input name="searchWord" onkeydown="if(event.key == 'Enter')clubList()" id="searchWord" type="text" class="search-input col-10" placeholder="모임을 검색 하세요.">
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row pt-3 pb-1">
+                        <div class="col new-fs-9">
+                            최근 검색어
+                        </div>
+                    </div>
+                    <div class="row pb-2">
+                        <div id="recentSearchContentBox"></div>     
+                    </div>
+                    
+                    <div id="mySearchContentTemplate" class="d-none">
+                        <div class="searchClubWrapper" style="width: 50%;">
+                            <div class="d-flex justify-content-between" style="border-bottom:0.1px solid #9f9f9f; width: 100%;">
+                            <span class="searchClub text-truncate" onclick="searchIntoContent(this)"></span><span class="material-symbols-outlined fs-5" onclick="deleteSearchContent(this)">close</span>
+                        </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col" id="mySearchClubListBox">
+                        </div>
+                    </div>
+                        
+
+
+                    
+                    <div id="clubSearchTemplate" class="d-none">
+                            
+                            
+                        <div class="py-2 clubWrapper align-items-center fixed-height" onclick="memberLoginCheck()">
+                            <div class="row py-2 align-items-center border-bottom">
+                                <div class="text-center imageContainer" style="width: 30%;">
+                                    
+                                </div>
+                                <div class="col-8 px-0">
+                                    <div class="row">
+                                        <div class="fw-bold  fs-6" style="width: 60%;">
+                                            <div class="clubName text-truncate"></div>
+                                        </div>
+                                        <div class="col-auto px-0">
+                                            <div class="badge clubCategory" style="background-color: #ff6d96; font-weight: 500;"></div>
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 new-fs-85 ">
+                                            <span class="clubExplanation ellipsis-line-one"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-1 pe-4">
+                                            <div class="material-symbols-outlined fill-1 pt-2 fs-4"style="color: rgb(173, 173, 173);">person</div>
+                                        </div>
+                                        <div class="col-auto  new-fs-8 ps-0 fw-bold" style="color: rgb(173, 173, 173);">
+                                            <span class="memberCount"></span>
+                                            <span class=" pb-2" ></span><span>/</span><span class="fw-bold pb-2 maxMembers" style="color: rgb(173, 173, 173);">최대정원</span>
+                                        </div>
+                                        <div class="col-1 px-0">
+                                            <span class="material-symbols-outlined fill-1 pt-2 px-0 fs-5" style="color: rgb(173, 173, 173);">location_on</span>
+                                        </div>
+                                        <div class="col-7  new-fs-75 ps-0 fw-bold  text-truncate" style="color: rgb(173, 173, 173);">
+                                            <span class="clubLocation pb-2" style="color: rgb(173, 173, 173);"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/javascript" src="/public/js/club/clubListAll.js"></script>
+
+            </div>
+
+
+            
+    
+            <!-- <div class="ms-3">일정</div> -->
+            <div class="ms-auto fs-2 lh-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                <i class="bi bi-list"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /* 전체 메뉴 */ -->
+<div th:fragment="allMenuNavi" class="all-menu">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header new-bg-white">
+            <h5 class="offcanvas-title d-flex align-items-center justify-content-end" id="offcanvasRightLabel">
+                <a href="/" style="text-decoration: inherit; color: #2e2e2e">
+                    <span class="material-symbols-outlined fw-light" style="font-size: 30px;">
+                        home
+                    </span>
+                </a>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body p-0" style="overflow-x: hidden;">
+            <!--로그인-->
+            <div class="row text-end py-3 px-3 new-bg-white"  th:if="${session.loginUser == null} "  >
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/user/registerPage">
+                        <button type="button" class="btn btn-outline-dark py-1 new-fs-85" style="border-radius: 2px;">
+                            <div class="col">회원가입</div>
+                        </button>
+                    </a>
+                    <a href="/user/loginPage">
+                        <div th:classappend="${requestURI.startsWith('/user/loginPage')} ? 'text-primary'" class="">
+                            <button type="button" class="btn btn-primary py-1 new-fs-85" style="border-radius: 2px;">
+                                <div class="col">로그인</div>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <!--로그인 상태인 경우-->
+            <div class="row text-end py-3 px-3 new-bg-white"  th:unless="${session.loginUser == null}">
+                <div class="d-flex justify-content-end align-items-center gap-2">
+                    <!--회원 닉네임-->
+                    <div class="flex-grow-1 text-start">
+                        <a th:href="@{/user/myPage(id=${session.loginUser.id})}">
+                            <img class="image-thumbnail" th:src="|/images/${session.loginUser.profile_img}|" style="width: 40px; height: 40px; border-radius: 50%">
+                            <span class="new-fs-95 fw-bold ps-1" th:text="${session.loginUser.nickname} + ' 님'"></span>
+                        </a>
+                    </div>
+                    <a href="/user/logoutProcess">
+                        <div th:classappend="${requestURI.startsWith('/user/loginPage')} ? 'text-primary'" class="">
+                            <button type="button" class="btn btn-primary py-1 new-fs-85" style="border-radius: 2px;">
+                                <div class="col">로그아웃</div>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <!--대분류 Festival-->
+            <div class="row pt-3 px-3 new-text-black fs-5 fw-medium align-items-center">
+                <div class="col mb-1">
+                    <span class="category-title">Festival</span>
+                </div>
+            </div>
+            <!--희원 information 경로-->
+            <a href="/information/mainPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 new-pt-25 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/information/mainPage')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">안내</div>
+                    <div th:classappend="${requestURI.startsWith('/information/mainPage')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Information</div>
+                </div>
+            </a>
+            <!--라인업 임시메뉴-->
+            <a href="/information/lineUpPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/information/lineUpPage')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">라인업 & 아티스트</div>
+                    <div th:classappend="${requestURI.startsWith('/information/lineUpPage')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Lineup & Artists</div>
+                </div>
+            </a>
+            <!--Tickets 임시메뉴 -->
+            <a href="/ticket" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/ticket')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">티켓</div>
+                    <div th:classappend="${requestURI.startsWith('/ticket')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Tickets</div>
+                </div>
+            </a>
+            <!--희원 History 경로-->
+            <a href="/information/festivalHistory" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-3 align-items-center border-bottom">
+                    <div th:classappend="${requestURI.startsWith('/information/festivalHistory')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">히스토리</div>
+                    <div th:classappend="${requestURI.startsWith('/information/festivalHistory')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">History</div>
+                </div>
+            </a>
+            <!--대분류 Shop-->
+            <div class="row px-3 new-text-black fs-5 fw-medium align-items-center">
+                <div class="col pt-3 mb-1">
+                    <span class="category-title">Shop</span>
+                </div>
+            </div>
+            <!--Store 임시메뉴-->
+            <a href="/goods/mainPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 new-pt-25 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/goods')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">
+                        상품 스토어
+                    </div>
+                    <div th:classappend="${requestURI.startsWith('/goods')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">
+                        Merchandise & Store
+                    </div>
+                </div>
+            </a>
+            <!--Rental 임시메뉴-->
+            <a href="/rental/preview" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/rental')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">
+                        대여
+                    </div>
+                    <div th:classappend="${requestURI.startsWith('/rental')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">
+                        Rental
+                    </div>
+                </div>
+            </a>
+            <!--Funding 임시메뉴-->
+            <a href="/funding" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-3 align-items-center border-bottom">
+                    <div th:classappend="${requestURI.startsWith('/funding')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">
+                        펀딩
+                    </div>
+                    <div th:classappend="${requestURI.startsWith('/funding')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">
+                        Funding
+                    </div>
+                </div>
+            </a>
+            <!--대분류 Communication-->
+            <div class="row px-3 new-text-black fs-5 fw-medium align-items-center">
+                <div class="col pt-3 mb-1">
+                    <span class="category-title">Communication</span>
+                </div>
+            </div>
+            <!--Community 임시메뉴-->
+            <a href="/club/myClub" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 new-pt-25 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/club')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">커뮤니티</div>
+                    <div th:classappend="${requestURI.startsWith('/club')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Community</div>
+                </div>
+            </a>
+            <!--희원 information 경로-->
+            <a href="/bubble/bubbleCommonPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/bubble')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">버블</div>
+                    <div th:classappend="${requestURI.startsWith('/bubble')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Bubble</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

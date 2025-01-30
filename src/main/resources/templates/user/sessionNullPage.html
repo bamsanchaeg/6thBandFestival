@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th band</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper error-wrapper">
+            <div class="main">
+                <div class="container">
+                    <div class="image-box mx-auto" style="max-width: 39%;">
+                        <img src="/public/img/img_interceptor.jpg" alt="로그인 필요해요!" class="img-fluid">
+                    </div>
+                    <div class="text-box mt-5 new-fs-9">
+                        <p class="fw-semibold fs-3">로그인이 필요한 서비스 입니다.</p>
+                        <p class="mt-4">로그인 후 이용해 주시기 바랍니다.</p>
+                        <p></p>
+                    </div>
+                    <div class="btn-box mt-5 new-fs-95">
+                        <a href="/user/registerPage" class="px-3 py-1 border rounded-1">회원가입</a>
+                        <a th:if="${loginUrl != null}" th:href="${loginUrl}" class="ms-2 px-3 py-1 bg-dark rounded-1 fw-medium text-white">로그인페이지</a>
+                        <a th:if="${loginUrl == null}" href="/user/loginPage" class="ms-2 px-3 py-1 bg-dark rounded-1 fw-medium text-white">로그인페이지</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

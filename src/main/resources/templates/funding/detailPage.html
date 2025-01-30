@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <link rel="icon" href="/public/img/favicon.ico">
+    <title>6th BAND - Funding</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/funding/funding.css">
+</head>
+<body>
+    <div id="root">
+        <div class="wrapper">
+            <!--/* 헤더 */-->
+            <div th:replace="~{common/navi::topNavi}"></div>
+            <div th:replace="~{common/navi::allMenuNavi}"></div>
+            <!--/* 펀딩 카테고리 */-->
+            <div th:replace="~{funding/fundingNavi::detailHeader}"></div>
+
+            <!--/* 컨텐츠 */-->
+            <div class="main">
+                <div class="sub-content sub-detail-content new-bg-gray pb-5">
+                    <div class="thumbnail-box">
+                        <div class="img-p-box new-pb-100">
+                            <img th:src="|/images/${projectData.project.thumbnail_location}|" alt="썸네일 이미지" class="img image-thumbnail">
+                        </div>
+                    </div>
+                    <div class="project-info-box new-pt-45 bg-white">
+                        <div class="container">
+                            <div class="category new-fs-8">
+                                <span th:text="${projectData.project.category_name}" class="px-2 border fw-medium">카테고리</span>
+                            </div>
+                            <div th:text="${projectData.project.project_title}" class="title new-mt-25 fs-5 fw-medium text-dark">제목</div>
+                            <div class="status-box d-flex justify-content-between mt-4 new-fs-8">
+                                <div class="funding-status">
+                                    <div class="">모인 금액</div>
+                                    <div th:if="${pledgeStatus != null}" class="">
+                                        <span th:text="${#numbers.formatInteger(pledgeStatus.total_amount, 0, 'COMMA')}" class="font-roboto fs-5"></span>
+                                        <span>원</span>
+                                        <span th:text="|${pledgeStatus.percentage}%|" class="font-roboto fw-medium">%</span>
+                                    </div>
+                                    <div th:unless="${pledgeStatus != null}" class="">
+                                        <span class="font-roboto fs-5">0</span>
+                                        <span>원</span>
+                                        <span class="font-roboto fw-medium">0%</span>
+                                    </div>
+                                </div>
+                                <div class="rest-day">
+                                    <div class="">남은 시간</div>
+                                    <div th:if="${projectData.project.rest_day > 0}">
+                                        <span th:text="${projectData.project.rest_day}" class="font-roboto fs-5"></span>
+                                        <span>일</span>
+                                    </div>
+                                    <div th:if="${projectData.project.rest_day == 0 and projectData.project.rest_hour > 0}">
+                                        <span th:text="${projectData.project.rest_hour}" class="font-roboto fs-5"></span>
+                                        <span>시간</span>
+                                    </div>
+                                    <div th:if="${projectData.project.rest_day == 0 and projectData.project.rest_hour == 0}">
+                                        <span th:text="${projectData.project.rest_minutes}" class="font-roboto fs-5"></span>
+                                        <span>분</span>
+                                    </div>
+                                    <div th:if="${projectData.project.rest_day lt 0}">
+                                        <span class="font-roboto fs-5">0</span>
+                                        <span>초</span>
+                                    </div>
+                                </div>
+                                <div class="backers">
+                                    <div class="">후원자</div>
+                                    <div class="">
+                                        <span th:if="${pledgeStatus != null}" th:text="${pledgeStatus.fs_count}" class="font-roboto fs-5"></span>
+                                        <span th:unless="${pledgeStatus != null}" class="font-roboto fs-5">0</span>
+                                        <span>명</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="funding-info-box border-top mt-4 py-4">
+                                <div class="d-flex">
+                                    <span class="col-3 fw-medium new-fs-8">목표 금액</span>
+                                    <span th:text="|${#numbers.formatInteger(projectData.project.expect_amount, '0', 'COMMA')}원 달성|" class="new-fs-8 text-body-secondary"></span>
+                                </div>
+                                <div class="d-flex mt-2">
+                                    <span class="col-3 fw-medium new-fs-8">펀딩 기간</span>
+                                    <div class="new-fs-8 text-body-secondary">
+                                        <span th:text="${#dates.format(projectData.project.start_at, 'yyyy-MM-dd')}"></span> ~
+                                        <span th:text="${#dates.format(projectData.project.end_at, 'yyyy-MM-dd')}"></span>
+                                        <span th:if="${projectData.project.status == '진행중'}" th:text="|${projectData.project.rest_day}일 남음|" class="new-d-inline-block text-primary ms-1 px-2 rounded-1 new-bg-pick fw-medium new-fs-7 lh-1" style="padding: 3px 0"></span>
+                                        <span th:unless="${projectData.project.status == '진행중'}" class="new-d-inline-block ms-1 px-2 rounded-1 new-bg-gray fw-medium new-fs-7 lh-1" style="padding: 3px 0">마감</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex mt-2">
+                                    <span class="col-3 fw-medium new-fs-8">결제</span>
+                                    <div class="new-fs-8 text-body-secondary">목표금액 미달시 환불 진행</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="creator-box border-top py-3 bg-white">
+                        <div class="container">
+                            <div class="profile-box d-flex align-items-center">
+                                <div class="profile-img col-2">
+                                    <div class="img-p-box new-pb-100 rounded-pill">
+                                        <img th:src="|/images/${projectData.creatorDto.profile_location}|" alt="회원프로필" class="img">
+                                    </div>
+                                </div>
+                                <div class="profile-text col-10 ps-3 new-fs-85">
+                                    <div th:text="${projectData.creatorDto.creator_name}" class="fw-medium">창작자명</div>
+                                    <div th:text="${projectData.creatorDto.introduce}" class="">간단한 소개</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-tab-box sticky-top mt-2 bg-white custom-shadow">
+                        <div class="container">
+                            <ul class="tab-list d-flex align-items-center new-fs-9">
+                                <li data-detail="plan" class="active">프로젝트 계획</li>
+                                <li data-detail="update" class="d-flex align-items-center ms-3">
+                                    업데이트<span th:if="${updateListCount != null and updateListCount != 0}" th:text="${updateListCount}" class="font-roboto new-fs-8 lh-1"></span>
+                                </li>
+                                <li data-detail="community" class="d-flex align-items-center ms-3">
+                                    커뮤니티<span th:if="${communityListCount != null and communityListCount != 0}" th:text="${communityListCount}" class="font-roboto new-fs-8 lh-1"></span>
+                                </li>
+                                <li data-detail="review" class="d-flex align-items-center ms-3">
+                                    후기<span th:if="${reviewListCount != null and reviewListCount != 0}" th:text="${reviewListCount}" class="font-roboto new-fs-8 lh-1"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="project-detail-box">
+
+                        <!--/* 프로젝트 계획 */-->
+                        <div class="active project-wrapper pb-4 bg-white" id="plan-wrapper">
+                            <div class="container">
+                                <div class="project-plan-box new-py-45">
+                                    <div class="title title-bar fw-medium">프로젝트 소개</div>
+                                    <div class="content-box mt-3">
+                                        <div th:utext="${projectData.project.project_introduce}" class="content-text new-fs-9"></div>
+                                        <div th:unless="${#lists.isEmpty(projectFile.introduceFileList)}" class="file-box introduce-file-box mt-3">
+                                            <div class="file-preview">
+                                                <div th:each="introduceFile, stat : ${projectFile.introduceFileList}" class="file-preview-row">
+                                                    <img th:src="|/images/${introduceFile.location}|" alt="소개이미지" class="img-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div th:if="${projectData.project.youtube_url != null and !#strings.isEmpty(projectData.project.youtube_url)}" class="youtube-box mt-3">
+                                        <div class="video_wrap">
+                                            <iframe width="100%" height="720" th:src="|${projectData.project.youtube_url}&mute=1&volumn=0&showinfo=0&ps=blogger&autohide=1&modestbranding=1&rel=0|" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="project-plan-box new-py-45 border-top">
+                                    <div class="title title-bar fw-medium">프로젝트 예산</div>
+                                    <div th:utext="${projectData.project.budget_desc}" class="content mt-3 new-fs-9"></div>
+                                </div>
+                                <div class="project-plan-box new-py-45 border-top">
+                                    <div class="title title-bar fw-medium">프로젝트 일정</div>
+                                    <div th:utext="${projectData.project.schedule_desc}" class="content mt-3 new-fs-9"></div>
+                                </div>
+                                <div class="project-plan-box new-py-45 border-top">
+                                    <div class="title title-bar fw-medium">프로젝트 팀 소개</div>
+                                    <div class="content-box mt-3">
+                                        <div th:utext="${projectData.project.team_desc}" class="content-text new-fs-9"></div>
+                                        <div th:unless="${#lists.isEmpty(projectFile.teamdescFileList)}" class="file-box introduce-file-box mt-3">
+                                            <div class="file-preview">
+                                                <div th:each="teamdescFile, stat : ${projectFile.teamdescFileList}" class="file-preview-row">
+                                                    <img th:src="|/images/${teamdescFile.location}|" alt="소개이미지" class="img-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="project-plan-box new-py-45 border-top">
+                                    <div class="title title-bar fw-medium">선물 설명</div>
+                                    <div class="content-box mt-3">
+                                        <div th:utext="${projectData.project.reward_desc}" class="content-text new-fs-9"></div>
+                                        <div th:unless="${#lists.isEmpty(projectFile.rewarddescFileList)}" class="file-box introduce-file-box mt-3">
+                                            <div class="file-preview">
+                                                <div th:each="rewarddescFile, stat : ${projectFile.rewarddescFileList}" class="file-preview-row">
+                                                    <img th:src="|/images/${rewarddescFile.location}|" alt="소개이미지" class="img-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--/* 업데이트 */-->
+                        <div class="project-wrapper bg-white" id="update-wrapper">
+                            <div class="container">
+                                <div th:if="${isCreator}" class="write-box pt-4">
+                                    <button type="button" onclick="showUpdateForm()" class="w-100 d-flex align-items-center new-btn-none border rounded-2 custom-shadow">
+                                        <div class="flex-grow-1 p-3 new-fs-85 text-body-tertiary text-start">후원자들에게 소식을 전해보세요.</div>
+                                        <div class="material-symbols-outlined px-3 text-body-tertiary">edit</div>
+                                    </button>
+                                </div>
+                                <div class="update-list pt-2 pb-4"></div>
+                            </div>
+                        </div>
+
+                        <!--/* 커뮤니티 */-->
+                        <div class="project-wrapper py-4 bg-white" id="community-wrapper">
+                            <div class="write-box">
+                                <div class="container">
+                                    <div th:if="${!isSupporter}" class="overflow-hidden new-bg-gray d-flex align-items-center border rounded-2 custom-shadow">
+                                        <textarea class="textarea-write flex-grow-1 new-input-none p-3 new-fs-85" disabled placeholder="후원자만 글을 쓸 수 있습니다."></textarea>
+                                        <button type="button" disabled class="new-btn-none px-3 material-symbols-outlined text-body-tertiary">edit</button>
+                                    </div>
+                                    <div th:if="${isSupporter}" class="overflow-hidden d-flex align-items-center border rounded-2 custom-shadow">
+                                        <textarea name="community_content" class="textarea-write flex-grow-1 new-input-none p-3 new-fs-85" placeholder="창작자에게 응원의 한마디!"></textarea>
+                                        <button type="button" onclick="writeCommunity()" class="new-btn-none px-3 material-symbols-outlined text-body-tertiary">edit</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="community-list pt-2 pb-4"></div>
+                        </div>
+
+                        <!--/* 후기 */-->
+                        <div class="project-wrapper pb-4 bg-white" id="review-wrapper">
+                            <div class="container">
+                                <div class="review-list"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+
+                <!--/* 버튼 */-->
+                <div class="pledge-btn-box new-fixed-bottom z-1030 py-2 border-top bg-white">
+                    <div class="container">
+                        <div class="d-flex align-items-center">
+                            <!--/* 회원 : 좋아요 유 */-->
+                            <div th:if="${projectIsLiked}" onclick="projectUnLike()" class="btn-like px-3 py-1 d-flex align-items-center flex-column">
+                                <div class="like-icon material-symbols-outlined fw-light text-danger fill-1">favorite</div>
+                                <div th:text="${projectLikeCount}" class="like-count mt-1 font-roboto new-fs-8 lh-1"></div>
+                            </div>
+                            <!--/* 회원 : 좋아요 무 */-->
+                            <div th:if="${!projectIsLiked}" onclick="projectLike()" class="btn-like px-3 py-1 d-flex align-items-center flex-column">
+                                <div class="like-icon material-symbols-outlined fw-light">favorite</div>
+                                <div th:text="${projectLikeCount}" class="like-count mt-1 font-roboto new-fs-8 lh-1"></div>
+                            </div>
+                            <!--/* 창작자 : 구매 불가 */-->
+                            <div th:if="${isCreator}" class="flex-grow-1">
+                                <a th:href="@{/funding/projectEditorManagement(id=${projectData.project.id})}" class="btn w-100 new-py-25 rounded-0 bg-body-secondary">프로젝트 확인하기</a>
+                            </div>
+                            <!--/* 후원자 */-->
+                            <div th:if="${!isCreator and isSupporter}" class="flex-grow-1">
+                                <a th:href="@{/funding/pledgeDetail(id=${supportId})}" class="btn w-100 new-py-25 rounded-0 bg-body-secondary">후원 정보 확인하기</a>
+                            </div>
+                            <div th:if="${!isCreator and !isSupporter}" class="flex-grow-1">
+                                <button th:if="${projectData.project.status == '진행중'}" type="button" onclick="openPledgeBtn()" class="btn btn-primary w-100 new-py-25 rounded-0">프로젝트 후원하기</button>
+                                <button th:if="${projectData.project.status != '진행중'}" type="button" disabled class="btn btn-primary w-100 new-py-25 rounded-0">펀딩이 마감되었습니다</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!--/* 오프캔버스 : 선물 선택 후원 폼으로 활용 */-->
+            <div class="offcanvas offcanvas-bottom offcanvas-pledge" tabindex="-1" id="offcanvasWrapper" aria-labelledby="offcanvasBottomLabel">
+                <div class="offcanvas-header new-p-25">
+                    <button type="button" class="btn-close" onclick="closePledgeCanvas()"></button>
+                </div>
+                <div class="offcanvas-body small p-0 border-top">
+                    <div class="reward-wrapper first">
+                        <div class="reward-list" id="project-reward-list">
+                            <div th:each="projectRewardData : ${projectRewardDataList}" th:unless="${#lists.isEmpty(projectRewardDataList)}" class="reward-row">
+                                <label class="form-check-label" th:for="|reward-${projectRewardData.projectRewardDto.id}|">
+                                    <div class="reward-count">
+                                        <div class="supported-count">
+                                            <span class="material-symbols-outlined">check</span>
+                                            <span th:text="${projectRewardData.rewardSupportQty}" class="count">20</span>개 선택
+                                        </div>
+                                        <div th:if="${projectRewardData.projectRewardDto.count_limit > 0}" class="rest-count"><span th:text="${projectRewardData.projectRewardDto.count_limit}">37</span>개 남음</div>
+                                    </div>
+                                    <div class="reward-info">
+                                        <div class="reward-radio">
+                                            <input type="radio" name="rewards" th:value="${projectRewardData.projectRewardDto.id}" th:id="|reward-${projectRewardData.projectRewardDto.id}|" class="form-check-input m-0 fs-5">
+                                            <div class="reward-amount">
+                                                <span th:text="${#numbers.formatInteger(projectRewardData.projectRewardDto.amount, '0', 'COMMA')}">150000</span>원 +
+                                            </div>
+                                        </div>
+                                        <div th:text="${projectRewardData.projectRewardDto.title}" class="reward-title">선물명</div>
+                                    </div>
+                                    <ul th:each="itemData : ${projectRewardData.projectItemDataList}" th:unless="${#lists.isEmpty(projectRewardData.projectItemDataList)}" class="reward-item-list">
+                                        <li class="">
+                                            <div th:text="${itemData.projectItemDto.name}" class="option-name">아이템명</div>
+                                            <div th:unless="${#lists.isEmpty(itemData.itemOptionList)}" class="option-select-box d-none">
+                                                <!--/* 객관식 옵션 */-->
+                                                <select th:if="${itemData.projectItemDto.option_type == '2'}" name="option_id" class="form-select option-box">
+                                                    <option value="">옵션을 선택해주세요.</option>
+                                                    <option th:text="${itemOption.option_name}" th:value="${itemOption.id}" th:each="itemOption : ${itemData.itemOptionList}"></option>
+                                                </select>
+                                                <!--/* 주관식 옵션 */-->
+                                                <div th:if="${itemData.projectItemDto.option_type == '1'}" th:each="itemOption : ${itemData.itemOptionList}" class="">
+                                                    <input type="hidden" name="option_id" th:value="${itemOption.id}">
+                                                    <input type="text" name="option_content" th:placeholder="${itemOption.option_name}" class="option-box form-control py-1 rounded-0 new-fs-85">
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </label>
+                            </div>
+                            <div class="reward-btn-box reward-select-btn-box new-fixed-bottom">
+                                <div class="container">
+                                    <button type="button" onclick="selectRewardBtn()" class="reward-btn">선물 선택</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reward-list py-2" id="pledge-reward-list">
+                            <div class="container">
+                                <div class="new-mb-25">
+                                    <p class="mb-2">선물</p>
+                                    <button type="button" onclick="changeRewardList()" class="form-select rounded-0 new-fs-85 text-body-secondary text-start">선택해주세요.</button>
+                                </div>
+                                <div class="select-reward-list">
+                                    <form action="" id="pledge-reward-form">
+                                        
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- /* 모달 */ -->
+            <div class="modal modal-custom fade" id="modalWrapper" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content rounded-2">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-6" id="exampleModalLabel">Modal title</h1>
+                            <button type="button" onclick="closeModal(event)" class="btn-close"></button>
+                        </div>
+                        <div class="modal-body"></div>
+                        <div class="modal-footer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-none" id="template-wrapper">
+            <!--/* 선택한 선물 */-->
+            <div class="reward-template">
+                <div class="reward-row position-relative new-p-25 border new-bg-gray">
+                    <input type="hidden" name="reward_id[]" value="">
+                    <input type="hidden" name="option_id[]" value="">
+                    <input type="hidden" name="option_content[]" value="">
+                    <div class="reward-title mt-0 mb-1">선물명</div>
+                    <div class="reward-content">
+                        <div class="reward-selected-item">
+                            <ul class="">
+                                <li>
+                                    <p class="selected-item-name">아이템명</p>
+                                    <p class="selected-option">옵션 : 옵션명</p>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="reward-action d-flex align-items-center new-mt-25">
+                            <div class="count-box d-flex align-items-center border rounded-1 bg-white">
+                                <button type="button" class="minus-btn new-btn-none px-2 lh-1">
+                                    <span class="material-symbols-outlined fs-6 text-dark">remove</span>
+                                </button>
+                                <input type="number" name="quantity[]" value="1" readonly class="p-0 border-0 text-end font-roboto">
+                                <button type="button" class="plus-btn new-btn-none px-2 lh-1">
+                                    <span class="material-symbols-outlined fs-6 text-dark">add</span>
+                                </button>
+                            </div>
+                            <div class="reward-price ms-auto fw-semibold fs-6 text-primary">10,000원</div>
+                        </div>
+                    </div>
+                    <button type="button" class="delete-btn new-btn-none position-absolute top-0 end-0 p-2 lh-1 text-dark">
+                        <span class="material-symbols-outlined fs-6">close</span>
+                    </button>
+                </div>
+            </div>
+
+            <!--/* 업데이트 */-->
+            <div class="update-template">
+                <!--/* 장성폼 */-->
+                <div class="update-write-box">
+                    <div class="">
+                        <div class="title new-fs-9 fw-medium">
+                            업데이트 글 작성 가이드
+                        </div>
+                        <div class="desc new-fs-8 mt-2">
+                            활발하고 진정성 있는 소통은 후원자의 신뢰를 얻는 가장 중요한 요소입니다. 프로젝트의 진행 과정 동안 꾸준한 업데이트를 통해 후원자들과 소통해주세요.
+                        </div>
+                        <div class="info-box new-bg-gray mt-2 new-p-25 text-body-secondary">
+                            <div class="new-fs-8 d-flex align-items-center fw-medium lh-1"><span class="material-symbols-outlined me-1 fs-6">error</span>유의사항</div>
+                            <ul class="new-fs-75 mt-1 ms-3">
+                                <li class="list-dot">달성 현황을 공유하고 감사의 인사를 전해보세요.</li>
+                                <li class="list-dot">달성 전이라면 더 많은 주변 홍보를 독려해보세요.</li>
+                                <li class="list-dot">제작 계획이 늦어지거나 변경된다면 알려주세요.</li>
+                                <li class="list-dot">개인정보가 노출되지 않도록 유의해주세요.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <textarea name="update_content" class="new-input-none w-100 new-h-150 p-2 border rounded-0 new-fs-9 resize-none"></textarea>
+                    </div>
+                </div>
+                <!--/* 글 목록 */-->
+                <div class="update-row py-4">
+                    <div class="review-title d-flex align-items-center">
+                        <div class="profile d-flex align-items-center">
+                            <div class="profile-box">
+                                <div class="overflow-hidden img-p-box new-pb-96 border rounded-pill" style="width: 36px;">
+                                    <img src="/public/img/funding/defaultAvatar.png" alt="프로필 이미지" class="profile-image img">
+                                </div>
+                            </div>
+                            <div class="ms-2 fw-semibold new-fs-85">
+                                <div class="nickname">닉네임</div>
+                                <div class="creator d-flex align-items-center mt-1 lh-1 new-fs-7 text-primary">
+                                    <span class="material-symbols-outlined fill-1 new-fs-9">star</span>창작자
+                                </div>
+                            </div>
+                        </div>
+                        <div class="util-box ms-auto">
+                            <button type="button" class="new-btn-none outline-none" data-bs-toggle="dropdown" aria-expanded="false"><span class="material-symbols-outlined fs-5 text-body-tertiary">more_vert</span></button>
+                            <div class="dropdown">
+                                <ul class="dropdown-menu custom-shadow">
+                                    <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start new-fs-9 text-dark">신고하기</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="update-content position-relative mt-3 cursor-pointer">
+                        <div class="content-box content-view-box mt-3 new-fs-85 text-body-secondary">내용</div>
+                    </div>
+                    <div class="update-date d-flex align-items-center mt-2 new-fs-8 text-secondary">
+                        <div class="date-box font-roboto"></div>
+                        <div class="comment-box ms-auto">댓글 0개</div>
+                    </div>
+                </div>
+                <!--/* 글 본문 */-->
+                <div class="update-view py-4">
+                    <div class="update-title d-flex align-items-center">
+                        <div class="creator-profile profile d-flex align-items-center">
+                            <div class="profile-box">
+                                <div class="overflow-hidden img-p-box new-pb-96 border rounded-pill" style="width: 36px;">
+                                    <img src="/public/img/funding/defaultAvatar.png" alt="프로필 이미지" class="profile-image img">
+                                </div>
+                            </div>
+                            <div class="ms-2 new-fs-85">
+                                <div class="nickname fw-semibold">닉네임</div>
+                                <div class="creator d-flex align-items-center mt-1 lh-1">
+                                    <div class="d-flex align-items-center new-fs-7 fw-semibold text-primary">
+                                        <span class="material-symbols-outlined fill-1 new-fs-9">star</span>창작자
+                                    </div>
+                                    <div class="update-date ms-2">
+                                        <div class="date-box new-fs-75 font-roboto text-secondary">2022.02.01</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="util-box ms-auto">
+                            <button type="button" class="new-btn-none outline-none" data-bs-toggle="dropdown" aria-expanded="false"><span class="material-symbols-outlined fs-5 text-body-tertiary">more_vert</span></button>
+                            <div class="dropdown">
+                                <ul class="dropdown-menu custom-shadow">
+                                    <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start new-fs-9 text-dark">신고하기</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="update-content mt-3">
+                        <div class="content-box mt-3 new-fs-85 text-body-secondary">내용</div>
+                    </div>
+                    <div class="update-comment pt-4">
+                        <div class="comment-info new-mb-25">
+                            <div class="new-fs-8 text-body-secondary">댓글 <span class="fw-semibold">0</span></div>
+                        </div>
+                        <div class="comment-list border-top">
+                            <div class="comment-row new-py-25 border-bottom">
+                                <div class="comment-title d-flex align-items-center">
+                                    <div class="profile d-flex align-items-center">
+                                        <div class="profile-box">
+                                            <div class="overflow-hidden img-p-box new-pb-96 border rounded-pill" style="width: 32px;">
+                                                <img src="/public/img/funding/defaultAvatar.png" alt="프로필 이미지" class="profile-image img">
+                                            </div>
+                                        </div>
+                                        <div class="ms-2 new-fs-85">
+                                            <div class="nickname fw-semibold">닉네임</div>
+                                            <div class="update-date mt-1">
+                                                <div class="date-box new-fs-75 font-roboto text-secondary">2022.02.01</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="util-box ms-auto">
+                                        <button type="button" class="new-btn-none outline-none" data-bs-toggle="dropdown" aria-expanded="false"><span class="material-symbols-outlined fs-5 text-body-tertiary">more_vert</span></button>
+                                        <div class="dropdown">
+                                            <ul class="dropdown-menu custom-shadow">
+                                                <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start new-fs-9 text-dark">신고하기</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-content mt-2" style="margin-left: 2.5rem;">
+                                    <div class="content-box new-fs-85 text-body-secondary">내용</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="comment-write-form mt-3">
+                        <div class="d-flex">
+                            <input type="text" name="comment_content" placeholder="댓글을 작성해주세요." class="flex-grow-1 new-input-none border p-2 new-fs-8">
+                            <button type="button" class="btn-comment-write new-btn-none ms-2 px-3 new-bg-dark new-fs-85 text-white">등록</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--/* 커뮤니티 목록 row */-->
+            <div class="cummunity-template">
+                <div class="community-row">
+                    <!--/* 본문 */-->
+                    <div class="cummunity-container container">
+                        <div class="community-col py-3">
+                            <div class="community-title d-flex align-items-center">
+                                <div class="profile d-flex align-items-center">
+                                    <div class="profile-box">
+                                        <div class="overflow-hidden img-p-box new-pb-96 border rounded-pill" style="width: 36px;">
+                                            <img src="/public/img/funding/defaultAvatar.png" alt="프로필 이미지" class="profile-image img">
+                                        </div>
+                                    </div>
+                                    <div class="nickname ms-2 fw-semibold new-fs-85">닉네임</div>
+                                </div>
+                                <div class="util-box ms-auto">
+                                    <button type="button" class="new-btn-none outline-none" data-bs-toggle="dropdown" aria-expanded="false"><span class="material-symbols-outlined fs-5 text-body-tertiary">more_vert</span></button>
+                                    <div class="dropdown">
+                                        <ul class="dropdown-menu custom-shadow">
+                                            <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start new-fs-9 text-dark">신고하기</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="community-content new-mt-25">
+                                <div class="content-box new-fs-85 text-body-secondary">내용</div>
+                            </div>
+                            <div class="community-date d-flex align-items-center new-mt-25">
+                                <div class="date-box new-fs-8 font-roboto text-secondary">2024.02.14</div>
+                                <button type="button" class="btn-community-comment new-btn-none ms-auto new-fs-85">답글달기</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/* 답글 */-->
+                    <div class="community-comment py-3">
+                        <div class="container">
+                            <div class="community-title d-flex align-items-center">
+                                <div class="profile d-flex align-items-center">
+                                    <div class="profile-box">
+                                        <div class="overflow-hidden img-p-box new-pb-96 border rounded-pill" style="width: 30px;">
+                                            <img src="/public/img/funding/defaultAvatar.png" alt="프로필 이미지" class="profile-image img">
+                                        </div>
+                                    </div>
+                                    <div class="ms-2 fw-semibold new-fs-85">
+                                        <div class="nickname">닉네임</div>
+                                        <div class="creator d-flex align-items-center mt-1 lh-1 new-fs-7 text-primary">
+                                            <span class="material-symbols-outlined fill-1 new-fs-9">star</span>창작자
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="util-box ms-auto">
+                                    <button type="button" class="new-btn-none outline-none" data-bs-toggle="dropdown" aria-expanded="false"><span class="material-symbols-outlined fs-5 text-body-tertiary">more_vert</span></button>
+                                    <div class="dropdown">
+                                        <ul class="dropdown-menu custom-shadow">
+                                            <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start new-fs-9 text-dark">신고하기</button></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="community-content ps-5 new-mt-25">
+                                <div class="content-box new-fs-85 text-body-secondary">내용</div>
+                            </div>
+                            <div class="community-date ps-5 new-mt-25">
+                                <div class="date-box new-fs-8 font-roboto text-secondary">2024.02.14</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!--/* 후기 목록 row */-->
+            <div class="review-template">
+                <div class="review-row py-4">
+                    <div class="review-title d-flex align-items-center">
+                        <div class="profile d-flex align-items-center">
+                            <div class="profile-box">
+                                <div class="overflow-hidden img-p-box new-pb-96 border rounded-pill" style="width: 36px;">
+                                    <img src="/public/img/funding/defaultAvatar.png" alt="프로필 이미지" class="profile-image img">
+                                </div>
+                            </div>
+                            <div class="nickname ms-2 fw-semibold new-fs-85"></div>
+                        </div>
+                        <div class="util-box ms-auto">
+                            <button type="button" class="new-btn-none outline-none" data-bs-toggle="dropdown" aria-expanded="false"><span class="material-symbols-outlined fs-5 text-body-tertiary">more_vert</span></button>
+                            <div class="dropdown">
+                                <ul class="dropdown-menu custom-shadow">
+                                    <li><button type="button" class="new-btn-none w-100 py-1 px-3 text-start new-fs-9 text-dark">신고하기</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="review-content mt-3">
+                        <div class="image-box overflow-x-auto custom-scroll">
+                            <ul class="image-list d-flex new-mb-25"></ul>
+                        </div>
+                        <div class="review-summary-box d-flex align-items-center">
+                            <div class="review-gpt d-flex align-items-center me-2 px-2 py-1 border border-light rounded-1 new-fs-7 new-text-gray lh-1" style="min-width: 141px;">
+                                <div class="me-1" style="width: 16px;">
+                                    <img src="/public/img/funding/icon_openai.png" alt="open ai icon" class="img-fluid">
+                                </div>
+                                <span class="me-1 fw-bold new-fs-75 text-primary1">Chat GPT</span> 활용 요약
+                            </div>
+                            <div class="review-summary new-fs-8"></div>
+                        </div>
+                        <div class="content-box mt-2 new-fs-85 text-body-secondary">내용</div>
+                        <div class="review-keyword-box mt-2">
+                            <ul class="keyword-list d-flex flex-wrap new-fs-75"></ul>
+                        </div>
+                    </div>
+                    <div class="review-date mt-2">
+                        <div class="date-box new-fs-8 font-roboto text-secondary"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!--/* 사이드바 */-->
+    <div th:replace="~{common/navi::sidebarLeft}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/js/funding/funding.js"></script>
+    <script src="/public/js/funding/project.js"></script>
+</body>
+</html>

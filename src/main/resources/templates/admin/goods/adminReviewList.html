@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th BAND - Admin</title>
+    <link rel="icon" href="/public/img/favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="/public/css/common.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="admin-container">
+            <div class="d-flex">
+                <!--/* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */-->
+                <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                    <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+                </div>
+
+                <!--/* 우측 컨텐츠 */-->
+                <div class="page-right flex-grow-1">
+                    <!--/* 헤더 */-->
+                    <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                    <!--/* 컨텐츠 */-->
+                    <div class="main py-4 px-4">
+                            <!--/* 굿즈 리뷰 리스트 페이지 */-->
+                        <div class="row pb-4">
+                            <div class="col fs-5 fw-medium">
+                                <span>굿즈 판매리뷰 관리</span>
+                            </div>
+                        </div>
+
+                        <div class="search-box px-4 py-3 new-bg-gray border new-fs-9">
+                            <form action="" method="get">
+
+                                <div class="d-flex align-items-center mb-1 pb-1 border-bottom">
+                                    <div class="search-col col-6 d-flex align-items-center">
+                                        <div class="search-title px-3 fw-medium">작성일</div>
+                                        <div class="search-con d-flex align-items-center px-2">
+                                            <input type="date" id="startDate" class="form-control new-w-150 py-1 rounded-0 new-fs-8">
+                                            <span class="mx-2 font-roboto">~</span>
+                                            <input type="date" id="endDate" class="form-control new-w-150 py-1 rounded-0 new-fs-8">
+                                        </div>
+                                    </div>
+                                </div>
+                        
+                                <!-- 검색어 입력 -->
+                                <div class="d-flex align-items-center pb-1 border-bottom">
+                                    <div class="search-title px-3 fw-medium">검색어</div>
+                                    <div class="search-con d-flex pe-3 flex-grow-1">
+                                        <div class="flex-grow-1 px-2">
+                                            <input id="searchText" name="searchText" type="text" placeholder="검색어를 입력하세요" class="form-control py-1 rounded-0 new-fs-8">
+                                        </div>
+                                        <div>
+                                            <button type="button" onclick="search()" class="btn btn-dark new-bg-dark new-w-150 py-1 px-4 rounded-0 new-fs-8 text-white">검색하기</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="row pb-2 pt-4 mt-4">
+                            <div class="col new-fs-9">
+                                총 <span id="reviewCountDisplay"></span>개
+                            </div>
+                        </div>
+
+                        <div class="row fw-medium text-center py-2 border-top border-black new-fs-9 new-bg-gray">
+                            <div class="col-1 text-center">리뷰번호</div>
+                            <div class="col-1 text-center">작성자</div>
+                            <div class="col-1 text-center">닉네임</div>
+                            <div class="col-2 text-center">상품명</div>
+                            <div class="col text-center">리뷰내용</div>
+                            <div class="col-1 text-center">별점</div>
+                            <div class="col-1 text-center">연락처</div>
+                            <div class="col-1 text-center">작성일</div>
+                            <div class="col-auto text-center" style="flex-basis: 100px;">관리</div>
+                            <div class="col-auto text-center" style="flex-basis: 100px;">삭제</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col text-center">
+                                <div id="reviewListBox"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--/* 푸터 */-->
+                    <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--/* 리스트 출력 */-->
+    <div id="template" class="d-none">
+
+        <li class="page-item">
+            <a class="page-link"></a>
+        </li>
+
+        <div class="reviewWrapper row py-2 border-bottom align-items-center new-fs-9">
+            <div class="reviewId col-1">
+                리뷰번호
+            </div>
+            <div class="userName col-1">
+                작성자
+            </div>
+            <div class="userNickName col-1 new-text-gray text-start">
+                닉네임
+            </div>
+            <div class="goodsTitle col-2 ellipsis-line-one text-start">
+                상품명
+            </div>
+            <div class="reviewContent ellipsis-line-one col fw-medium text-start">
+                리뷰내용
+            </div>
+            <div class="reviewRating col-1">
+                별점
+            </div>
+            <div class="userPhone col-1 new-text-gray">
+                연락처
+            </div>
+            <div class="reviewCreatedAt col-1 new-text-gray">
+                작성일
+            </div>
+            <div class="reviewDetail col-auto text-center" style="flex-basis: 100px;">
+                <a class="reviewDetailLink border new-fs-8 px-2">상세
+                </a>
+            </div>
+            <div class="col-auto deleteReview" onclick="" style="flex-basis: 100px;">
+                <span class="new-fs-75 border border-danger px-2 text-danger">삭제</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="/public/js/goods/adminReviewList.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

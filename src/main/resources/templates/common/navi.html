@@ -1,0 +1,479 @@
+<!-- /* 메인 헤더 */ -->
+<!--pt-3 이건 캡쳐용 나중에 배포시 수정....!!!  -->
+<div th:fragment="topNavi" class="header border-bottom border-dark bg-white">
+    <div class="container">
+        <div class="header-box d-flex align-items-center">
+            <div class="logo-box fw-semibold lh-sm">
+                <a href="/" class="d-block">
+                    <img src="/public/img/header_logo2.png" alt="">
+                    <!-- 6th <br>ROCK FESTIVAL -->
+                </a>
+            </div>
+            <div></div>
+            <!-- <div class="ms-3">일정</div> -->
+            <div class="ms-auto fs-2 lh-1" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                <i class="bi bi-list"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- /* 서브 헤더 */ -->
+<div th:fragment="subNavi" class="sub-header">
+    <div class="container">
+        
+    </div>
+</div>
+
+<!-- /* 전체 메뉴 */ -->
+<div th:fragment="allMenuNavi" class="all-menu">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel" style="border: 0;">
+        <div class="offcanvas-header new-bg-white">
+            <h5 class="offcanvas-title d-flex align-items-center justify-content-end" id="offcanvasRightLabel">
+                <a href="/" style="text-decoration: inherit; color: #2e2e2e">
+                    <span class="material-symbols-outlined fw-light" style="font-size: 30px;">
+                        home
+                    </span>
+                </a>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body p-0" style="overflow-x: hidden;">
+            <!--로그인-->
+            <div class="row text-end py-3 px-3 new-bg-white"  th:if="${session.loginUser == null} "  >
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="/user/registerPage">
+                        <button type="button" class="btn btn-outline-dark py-1 new-fs-85" style="border-radius: 2px;">
+                            <div class="col">회원가입</div>
+                        </button>
+                    </a>
+                    <a href="/user/loginPage">
+                        <div th:classappend="${requestURI.startsWith('/user/loginPage')} ? 'text-primary'" class="">
+                            <button type="button" class="btn btn-primary py-1 new-fs-85" style="border-radius: 2px;">
+                                <div class="col">로그인</div>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <!--로그인 상태인 경우-->
+            <div class="row text-end py-3 px-3 new-bg-white"  th:unless="${session.loginUser == null}">
+                <div class="d-flex justify-content-end align-items-center gap-2">
+                    <!--회원 닉네임-->
+                    <div class="flex-grow-1 text-start">
+                        <a th:href="@{/user/myPage(id=${session.loginUser.id})}">
+                            <img class="image-thumbnail" th:src="|/images/${session.loginUser.profile_img}|" style="width: 40px; height: 40px; border-radius: 50%">
+                            <span class="new-fs-95 fw-bold ps-1" th:text="${session.loginUser.nickname} + ' 님'"></span>
+                        </a>
+                    </div>
+                    <a href="/user/logoutProcess">
+                        <div th:classappend="${requestURI.startsWith('/user/loginPage')} ? 'text-primary'" class="">
+                            <button type="button" class="btn btn-primary py-1 new-fs-85" style="border-radius: 2px;">
+                                <div class="col">로그아웃</div>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            <!--대분류 Festival-->
+            <div class="row pt-3 px-3 new-text-black fs-5 fw-medium align-items-center">
+                <div class="col mb-1">
+                    <span class="category-title">Festival</span>
+                </div>
+            </div>
+            <!--희원 information 경로-->
+            <a href="/information/mainPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 new-pt-25 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/information/mainPage')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">안내</div>
+                    <div th:classappend="${requestURI.startsWith('/information/mainPage')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Information</div>
+                </div>
+            </a>
+            <!--라인업 임시메뉴-->
+            <a href="/information/lineUpPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/information/lineUpPage')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">라인업 & 아티스트</div>
+                    <div th:classappend="${requestURI.startsWith('/information/lineUpPage')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Lineup & Artists</div>
+                </div>
+            </a>
+            <!--Tickets 임시메뉴 -->
+            <a href="/ticket" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/ticket')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">티켓</div>
+                    <div th:classappend="${requestURI.startsWith('/ticket')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Tickets</div>
+                </div>
+            </a>
+            <!--희원 History 경로-->
+            <a href="/information/festivalHistory" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-3 align-items-center border-bottom">
+                    <div th:classappend="${requestURI.startsWith('/information/festivalHistory')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">히스토리</div>
+                    <div th:classappend="${requestURI.startsWith('/information/festivalHistory')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">History</div>
+                </div>
+            </a>
+            <!--대분류 Shop-->
+            <div class="row px-3 new-text-black fs-5 fw-medium align-items-center">
+                <div class="col pt-3 mb-1">
+                    <span class="category-title">Shop</span>
+                </div>
+            </div>
+            <!--Store 임시메뉴-->
+            <a href="/goods/mainPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 new-pt-25 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/goods')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">
+                        상품 스토어
+                    </div>
+                    <div th:classappend="${requestURI.startsWith('/goods')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">
+                        Merchandise & Store
+                    </div>
+                </div>
+            </a>
+            <!--Rental 임시메뉴-->
+            <a href="/rental/preview" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/rental')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">
+                        대여
+                    </div>
+                    <div th:classappend="${requestURI.startsWith('/rental')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">
+                        Rental
+                    </div>
+                </div>
+            </a>
+            <!--Funding 임시메뉴-->
+            <a href="/funding" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 pb-3 align-items-center border-bottom">
+                    <div th:classappend="${requestURI.startsWith('/funding')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">
+                        펀딩
+                    </div>
+                    <div th:classappend="${requestURI.startsWith('/funding')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">
+                        Funding
+                    </div>
+                </div>
+            </a>
+            <!--대분류 Communication-->
+            <div class="row px-3 new-text-black fs-5 fw-medium align-items-center">
+                <div class="col pt-3 mb-1">
+                    <span class="category-title">Communication</span>
+                </div>
+            </div>
+            <!--Community 임시메뉴-->
+            <a href="/club/myClub" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 new-pt-25 pb-2 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/club')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">커뮤니티</div>
+                    <div th:classappend="${requestURI.startsWith('/club')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Community</div>
+                </div>
+            </a>
+            <!--희원 information 경로-->
+            <a href="/bubble/bubbleCommonPage" style="text-decoration: inherit; color: #2e2e2e">
+                <div class="row ps-4 align-items-center">
+                    <div th:classappend="${requestURI.startsWith('/bubble')} ? 'text-primary'" class="col-auto ms-2 pe-0 fs-6 fw-medium">버블</div>
+                    <div th:classappend="${requestURI.startsWith('/bubble')} ? 'text-primary'" class="col-auto new-fs-75 ps-1 new-text-gray">Bubble</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- /* 공통 푸터 배경 화이트버전 */ -->
+<div th:fragment="bottomNavi" class="footer bg-white" style="padding: 2.5rem 0 6rem 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <img src="/public/img/footer_logo_bk.png" class="img-fluid" style="height:3em;">
+            </div>
+        </div>
+        <div class="row my-3 justify-content-center align-items-center">
+            <div class="col-auto fs-5 text-center"><i class="bi bi-facebook"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-twitter"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-youtube"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-instagram"></i></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">대표번호: 02-561-1954</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">사업자등록번호: 912-39-8799</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">법인명: 여섯번째밴드 | 회사명: (주)페스티벌컴퍼니</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto text-center new-fs-75"></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">주소: 서울특별시 강남구 에스코빌딩 6층(본사)</div>
+        </div>
+        <!-- <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">통신판매업 신고번호: 제 2024-서울강남-98799호</div>
+        </div> -->
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">개인정보 관리책임자 : 여섯번째밴드 / OfficialBand@6thBand.com</div>
+        </div>
+        <div class="row mt-3">
+            <div class="col text-center text-body-tertiary new-fs-75">6th Band의 모든 콘텐츠는 저작권의 보호를 받고 있습니다.</div>
+        </div>
+        <div class="copyright new-fs-75 text-body-tertiary text-center">Copyright 2024. 6th Band Co. All rights reserved.</div>
+    </div>
+</div>
+
+<!-- /* 공통 푸터 배경-투명 텍스트-블랙*/ -->
+<div th:fragment="bottomNavi_bk" class="footer" style="padding: 2.5rem 0 6rem 0;">
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <img src="/public/img/footer_logo_bk.png" class="img-fluid" style="height:3em;">
+            </div>
+        </div>
+        <div class="row my-3 justify-content-center align-items-center">
+            <div class="col-auto fs-5 text-center"><i class="bi bi-facebook"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-twitter"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-youtube"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-instagram"></i></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">대표번호: 02-561-1954</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">사업자등록번호: 912-39-8799</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">법인명: 여섯번째밴드 | 회사명: (주)페스티벌컴퍼니</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto text-center new-fs-75"></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">주소: 서울특별시 강남구 에스코빌딩 6층(본사)</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">개인정보 관리책임자 : 여섯번째밴드 / OfficialBand@6thBand.com</div>
+        </div>
+        <div class="row mt-3">
+            <div class="col text-center text-body-tertiary new-fs-75">6th Band의 모든 콘텐츠는 저작권의 보호를 받고 있습니다.</div>
+        </div>
+        <div class="copyright new-fs-75 text-body-tertiary text-center">Copyright 2024. 6th Band Co. All rights reserved.</div>
+    </div>
+</div>
+
+<!-- /* 공통 푸터 배경-투명 텍스트-화이트*/ -->
+<div th:fragment="bottomNavi_wh" class="footer" style="padding: 2.5rem 0 6rem 0;">
+    <div class="container text-white">
+        <div class="row">
+            <div class="col text-center">
+                <img src="/public/img/footer_logo_wh.png" class="img-fluid" style="height:3em;">
+            </div>
+        </div>
+        <div class="row my-3 justify-content-center align-items-center">
+            <div class="col-auto fs-5 text-center"><i class="bi bi-facebook"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-twitter"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-youtube"></i></div>
+            <div class="col-auto fs-5 text-center"><i class="bi bi-instagram"></i></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">대표번호: 02-561-1954</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">사업자등록번호: 912-39-8799</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">법인명: 여섯번째밴드 | 회사명: (주)페스티벌컴퍼니</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto text-center new-fs-75"></div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">주소: 서울특별시 강남구 에스코빌딩 6층(본사)</div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-auto new-fs-75">개인정보 관리책임자 : 여섯번째밴드 / OfficialBand@6thBand.com</div>
+        </div>
+        <div class="row mt-3">
+            <div class="col text-center new-fs-75">6th Band의 모든 콘텐츠는 저작권의 보호를 받고 있습니다.</div>
+        </div>
+        <div class="copyright new-fs-75 text-center">Copyright 2024. 6th Band Co. All rights reserved.</div>
+    </div>
+</div>
+
+
+<!-- /* 공통 푸터 화이티*/ -->
+<div th:fragment="bottomNaviWhite" class="footer py-5">
+    <div class="container">
+        <div class="copyright new-fs-75 text-center " style="color: #9f9f9f">Copyright 2024. 6th Band Co. All rights reserved.</div>
+    </div>
+</div>
+
+
+<!--/* 하단 퀵바  */-->
+<div th:fragment="quickNavi" class="quick-navi new-fixed-bottom z-3 bg-white" style="height: 60px;">
+    <div class="container" style="height: 100%;">
+        <ul class="d-flex w-100 align-items-center" style="height: 100%;">
+            <li class="col">
+                <a href="/" class="d-block new-pb-25 lh-1 text-center">
+                    <div class="icon-box"><span class="material-symbols-outlined fw-light fs-1">home</span></div>
+                    <div class="text-box new-fs-7">홈</div>
+                </a>
+            </li>
+            <li class="col btn-group dropup">
+                <a href="" class="d-block lh-1 text-center btn border-0" type="button" data-bs-toggle="dropdown" aria-expanded="true">
+                    <div class="icon-box"><span class="material-symbols-outlined fw-light fs-2">storefront</span></div>
+                    <div class="text-box new-fs-7 new-mt">샵</div>
+                </a>
+                <ul class="dropdown-menu" style="min-width: 6rem;">
+                    <li><a class="dropdown-item d-flex" href="/goods/mainPage">
+                        <span class="material-symbols-outlined fw-light fs-2 ms-3">shopping_bag</span>
+                        <div class="text-box new-fs-8 new-mt ms-1">굿즈</div>
+                    </a></li>
+                    <li><a class="dropdown-item d-flex" href="/rental/preview">
+                        <span class="material-symbols-outlined fw-light fs-2 ms-3">credit_card_clock</span>
+                        <div class="text-box new-fs-8 new-mt ms-1">대여</div>
+                    </a></li>
+                    <li><a class="dropdown-item d-flex" href="/funding">
+                        <span class="material-symbols-outlined fw-light fs-2 ms-3">redeem</span>
+                        <div class="text-box new-fs-8 new-mt ms-1">펀딩</div>
+                    </a></li>
+                </ul>
+            </li>
+            <li class="col">
+                <a href="" class="d-block lh-1 text-center btn border-0" type="button" data-bs-toggle="dropdown" aria-expanded="true">
+                    <div class="icon-box"><span class="material-symbols-outlined fw-light fs-2">festival</span></div>
+                    <div class="text-box new-fs-7 new-mt">페스티벌</div>
+                </a>
+                <ul class="dropdown-menu" style="min-width: 6rem;">
+                    <li><a class="dropdown-item d-flex" href="/information/mainPage">
+                        <span class="material-symbols-outlined fw-light fs-2 ms-3">lightbulb</span>
+                        <div class="text-box new-fs-8 new-mt ms-1">인포</div>
+                    </a></li>
+                    <li><a class="dropdown-item d-flex" href="/ticket">
+                        <span class="material-symbols-outlined fw-light fs-2 ms-3">local_activity</span>
+                        <div class="text-box new-fs-8 new-mt ms-1">티켓</div>
+                    </a></li>
+                    <li><a class="dropdown-item d-flex" href="/bubble/bubbleCommonPage">
+                        <span class="material-symbols-outlined fw-light fs-2 ms-3">bubble_chart</span>
+                        <div class="text-box new-fs-8 new-mt ms-1">버블</div>
+                    </a></li>
+                </ul>
+            </li>
+            <li class="col">
+                <a href="/club/myClub" class="d-block lh-1 text-center">
+                    <div class="icon-box"><span class="material-symbols-outlined fw-light fs-1">local_cafe</span></div>
+                    <div class="text-box new-fs-7">커뮤니티</div>
+                </a>
+            </li>
+            <li class="col">
+                <a th:if="${session.loginUser == null}" href="/user/loginPage"  class="d-block lh-1 text-center">
+                    <div class="icon-box"><span class="material-symbols-outlined fw-light fs-1">person</span></div>
+                    <div class="text-box new-fs-7">마이</div>
+                </a>
+                <a th:if="${session.loginUser != null}" th:href="@{/user/myPage(id=${session.loginUser.id})}" class="d-block lh-1 text-center">
+                    <div class="icon-box"><span class="material-symbols-outlined fw-light fs-1">person</span></div>
+                    <div class="text-box new-fs-7">마이</div>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!--/* 사이드바 */-->
+<div th:fragment="sidebarLeft" class="sidebar bg-white">
+    <style>
+        .sidebar {
+            position: fixed;
+            left: 3em;
+            top: 3em;
+            width: 15em;
+            height: 35em;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: rgba(0, 0, 0, 0.05) 0px 2px 10px
+        }
+        .sidebar-container { padding: 1rem }
+        .sidebar .logo-box { padding: 2.25rem .5rem}
+        .sidebar .qr-box { margin: 2.25rem 1.5rem;}
+
+        @media (max-width: 1120px) {
+            .sidebar {
+                left: 1em;
+                width: 8em;
+                height: 32em;
+            }
+            .sidebar-container { padding: 0.5rem }
+            .sidebar .logo-box { padding: 2.25rem 0;}
+            .sidebar .qr-box { margin: 2.25rem 0;}
+        }
+        @media (max-width: 900px) {
+            .sidebar { display: none;}
+        }
+    </style>
+    <div class="sidebar-container">
+        <div class="logo-box">
+            <img src="/public/img/header_logo2.png" alt="" class="img-fluid">
+        </div>
+        <div class="text-box mt-2 fw-medium new-fs-9 text-center text-body-secondary">
+            <p>유저 사이트는 <span class="fw-semibold text-dark">모바일</span> 환경에</p>
+            <p>최적화 되어 있습니다.</p>
+        </div>
+        <div class="qr-box position-relative">
+            <!-- <p class="position-absolute bg-white new-fs-8 text-center">↓QR 을 통해 모바일 접속</p> -->
+            <img src="/public/img/festivalQrcode.png" alt="큐알 이미지" class="img-fluid">
+        </div>
+        <div class="admin-box text-center">
+            <a href="/" class="new-d-inline-block py-1 fw-medium new-fs-9 text-primary">메인 페이지</a>
+        </div>
+        <div class="admin-box text-center">
+            <a href="/admin/loginPage" class="new-d-inline-block py-1 fw-medium new-fs-9 text-primary">관리자 페이지</a>
+        </div>
+        <div class="admin-box text-center">
+            <a href="/serviceTeam" class="new-d-inline-block py-1 fw-medium new-fs-9 text-primary">서비스팀 페이지</a>
+        </div>
+    </div>
+</div>
+
+<!--/* 사이드바 - 관리자 */-->
+<div th:fragment="sidebarLeftAdmin" class="sidebar bg-white">
+    <div class="sidebar-container">
+        <div class="logo-box">
+            <img src="/public/img/header_logo2.png" alt="" class="img-fluid">
+        </div>
+        <div class="text-box mt-2 fw-medium new-fs-9 text-center text-body-secondary">
+            <p>관리자 사이트는 <span class="fw-semibold text-dark">PC</span> 환경에</p>
+            <p>최적화 되어 있습니다.</p>
+        </div>
+        <div class="qr-box position-relative">
+            <!-- <p class="position-absolute bg-white new-fs-8 text-center">↓QR 을 통해 모바일 접속</p> -->
+            <img src="/public/img/festivalQrcode.png" alt="큐알 이미지" class="img-fluid">
+        </div>
+        <div class="admin-box text-center">
+            <a href="/" class="new-d-inline-block px-2 py-1 fw-medium new-fs-9 text-primary">메인 페이지</a>
+        </div>
+        <div class="admin-box text-center">
+            <a href="/admin/loginPage" class="new-d-inline-block px-2 py-1 fw-medium new-fs-9 text-primary">관리자 페이지</a>
+        </div>
+        <div class="admin-box text-center">
+            <a href="/serviceTeam" class="new-d-inline-block px-2 py-1 fw-medium new-fs-9 text-primary">서비스팀 페이지</a>
+        </div>
+    </div>
+</div>
+
+<!--/* 사이드바 - 서비스팀 */-->
+<div th:fragment="sidebarLeftAdmin" class="sidebar bg-white">
+    <div class="sidebar-container">
+        <div class="logo-box">
+            <img src="/public/img/header_logo2.png" alt="" class="img-fluid">
+        </div>
+        <div class="text-box mt-2 fw-medium new-fs-9 text-center text-body-secondary">
+            <p>서비스팀 사이트는 <span class="fw-semibold text-dark">PC</span> 환경에</p>
+            <p>최적화 되어 있습니다.</p>
+        </div>
+        <div class="qr-box position-relative">
+            <!-- <p class="position-absolute bg-white new-fs-8 text-center">↓QR 을 통해 모바일 접속</p> -->
+            <img src="/public/img/festivalQrcode.png" alt="큐알 이미지" class="img-fluid">
+        </div>
+        <div class="admin-box text-center">
+            <a href="/" class="new-d-inline-block px-2 py-1 fw-medium new-fs-9 text-primary">메인 페이지</a>
+        </div>
+        <div class="admin-box text-center">
+            <a href="/admin/loginPage" class="new-d-inline-block px-2 py-1 fw-medium new-fs-9 text-primary">관리자 페이지</a>
+        </div>
+        <div class="admin-box text-center">
+            <a href="/serviceTeam" class="new-d-inline-block px-2 py-1 fw-medium new-fs-9 text-primary">서비스팀 페이지</a>
+        </div>
+    </div>
+</div>

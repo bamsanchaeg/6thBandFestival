@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6th BAND - Admin</title>
+    <link rel="icon" href="/public/img/favicon.ico">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="stylesheet" href="/public/css/common.css">
+    <link rel="stylesheet" href="/public/css/goods/goods.css">
+</head>
+<body>
+    <div class="admin-wrapper">
+        <div class="admin-container">
+            <div class="d-flex">
+                <!--/* 좌측 메뉴 : 메뉴 추가될 경우 해당 navi 에 추가 필요 */-->
+                <div class="page-left position-fixed top-0 bottom-0 border-end border-dark">
+                    <div th:replace="~{common/adminNavi::leftMenuNavi}"></div>
+                </div>
+
+                <!--/* 우측 컨텐츠 */-->
+                <div class="page-right flex-grow-1">
+                    <!--/* 헤더 */-->
+                    <div th:replace="~{common/adminNavi::topNavi}"></div>
+
+                    <!--/* 컨텐츠 */-->
+                    <div class="main py-4 px-4 mx-2">
+                        <!--/* 굿즈 리뷰 상세 */-->
+                        <div class="row pb-3">
+                            <div class="col fs-5 fw-medium">
+                                <span>리뷰 상세관리</span>
+                            </div>
+                        </div>
+
+                        <div class="row new-bg-gray new-fs-9 mb-3">
+                            <div class="col">
+
+                                <div class="row py-2 px-0">
+                                    <div class="col-auto text-secondary">
+                                        아이디
+                                    </div>
+                                    <div id="userAccountName" class="col-auto"></div>
+                                    <div class="col-auto text-secondary">
+                                        | 닉네임
+                                    </div>
+                                    <div id="userNickName" class="col-auto"></div>
+                                    <div class="col-auto text-secondary">
+                                        | 작성일
+                                    </div>
+                                    <div id="reviewCreatedAt" class="col-auto"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row pb-2 pt-4">
+                            <div class="col fw-medium fs-6">
+                                리뷰정보
+                            </div>
+                        </div>
+                        <div class="row border-top border-dark">
+                            <div class="col">
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        리뷰번호
+                                    </div>
+                                    <div id="reviewId" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        별점
+                                    </div>
+                                    <div id="rating" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-stretch">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        작성내용
+                                    </div>
+                                    <div id="content" class="col align-items-center my-2"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-stretch">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        등록이미지
+                                    </div>
+                                    <div class="col mt-1">
+                                        
+                                        <div id="reviewImagesWrapper">
+                                            <div id="reviewImagesContainer" style="height: 20em;"></div>
+                                        </div>
+                                        <p id="noImageMessage"></p>
+                                    </div>
+                                </div>
+
+                                <div class="row border-bottom align-items-stretch">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        리뷰 좋아요 수
+                                    </div>
+                                    <div id="reviewLikes" class="col"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row pb-2 pt-5">
+                            <div class="col fw-medium fs-6">
+                                판매자 답글
+                            </div>
+                        </div>
+                        <div class="row border-top border-dark">
+                            <div class="col">
+
+                                <div class="row border-bottom align-items-stretch">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        등록된 답글
+                                    </div>
+                                    <div id="reviewRecommends" class="col-auto my-2"></div>
+                                    <div id="deleteRecommend" class="col-auto deleteReviewRecommend text-start my-2">
+                                        <span class="delete-button border-bottom new-fs-7 new-text-gray fw-medium">답글삭제</span>
+                                    </div>
+                                    <div id="reviewRecommendsContainer"></div>
+                                </div>
+
+                                <div class="row border-bottom">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        새로등록하기
+                                    </div>
+                                    <div class="col">
+                                        <textarea id="reviewRecommendText" class="form-control mt-3" placeholder="관리자 답글을 입력하세요" rows="3"></textarea>
+                                        <div class="d-flex mt-1 py-3 border-light-subtle text-center">
+                                            <div onclick="registerReviewCommend()" class="d-block py-2 px-4 border border-dark fw-medium new-fs-95">답변등록</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="row pb-2 pt-5">
+                            <div class="col fw-medium fs-6">
+                                사용자정보
+                            </div>
+                        </div>
+                        <div class="row border-top border-dark">
+                            <div class="col">
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        이메일
+                                    </div>
+                                    <div id="email" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        성별
+                                    </div>
+                                    <div class="col">
+                                        <div id="gender" class="col"></div>
+                                    </div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        연락처
+                                    </div>
+                                    <div id="phone" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        가입일
+                                    </div>
+                                    <div id="userCreatedAt" class="col"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="row pb-2 pt-5">
+                            <div class="col fw-medium fs-6">
+                                주문정보
+                            </div>
+                        </div>
+                        <div class="row border-top border-dark">
+                            <div class="col">
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        주문번호
+                                    </div>
+                                    <div id="orderId" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        주문상품
+                                    </div>
+                                    <div id="goodsGoodsTitle" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        결제금액
+                                    </div>
+                                    <div id="orderPrice" class="col"></div>
+                                </div>
+
+                                <div class="row border-bottom align-items-center">
+                                    <div class="col-2 border-end new-bg-gray fw-medium new-fs-9 py-2">
+                                        주문일
+                                    </div>
+                                    <div id="orderCreatedAt" class="col"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-center new-mt-45 new-py-45 border-light-subtle text-center">
+                            <a href="/admin/goods/adminReviewList" class="d-block py-2 px-4 border border-dark fw-medium new-fs-95">
+                                리뷰목록
+                            </a>
+                        </div>
+
+                    </div>
+
+
+                    <!--/* 푸터 */-->
+                    <div th:replace="~{common/adminNavi::bottomNavi}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script type="text/javascript" src="/public/js/goods/adminReviewListDetail.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

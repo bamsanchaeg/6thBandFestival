@@ -1,0 +1,88 @@
+/* 관리자페이지 : 공통 */
+.new-w-150 { width: 150px;}
+.new-ms-45 { margin-left: 1.25rem;}
+.new-pb-75 { padding-bottom: 75%;}
+.new-pb-90 { padding-bottom: 90%; }
+.z-1030 { z-index: 1030}
+
+.img-p-box {
+    overflow: hidden;
+    position: relative;
+    background-color: #f3f3f3;
+}
+.img-p-box .img {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+}
+.no-img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    color: #dee2e6; /* bootstrap border color*/
+}
+
+.admin-wrapper .search-box .search-title { width: 180px; }
+.admin-wrapper .search-box .search-con { width: calc(100% - 180px);}
+
+.form-check-input:checked {
+    background-color: #353535;
+    border-color: #353535;
+}
+
+/* 프로젝트 관리 : 상세 */
+.bar-list .bar { position: relative }
+.bar-list .bar + .bar {
+    margin-left: 12px;
+    padding-left: 12px;
+}
+.bar-list .bar + .bar::before {
+    display: block;
+    position: absolute;
+    left: 0;
+    content: "";
+    width: 1px;
+    height: 12px;
+    margin-top: 6px;
+    background-color: #888
+}
+.profile-box {
+    width: 100px;
+    padding-bottom: 100px;
+}
+.second-border-top .bd-top + .bd-top { border-top: 1px solid #dee2e6 }
+
+.story-box .file-box {
+    overflow: hidden auto;
+    min-width: 25%;
+    max-height: 250px;
+}
+.story-box .file-preview {
+    margin-right: -.5rem;
+    margin-bottom: -.5rem;
+}
+.story-box .content-text {
+    overflow-y: auto;
+    max-height: 250px;
+}
+
+/* 후원자 관리 : 목록 */
+.status-dot {
+    position: relative;
+    padding-left: .75rem;
+}
+.status-dot::before {
+    display: block;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-radius: 50%;
+}
+.status-dot.status-success::before { background-color: #198754; }
+.status-dot.status-fail::before { background-color: #dc3545; }
