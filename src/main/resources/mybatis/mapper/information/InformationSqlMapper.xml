@@ -8,26 +8,26 @@
             select max(id) from festival_information
         </selectKey>
         INSERT INTO festival_information(
-                festival_name,
-                festival_location,
-                festival_content,
-                festival_reservationMethod,
-                festival_caution,
-                thumbnail,
-                age_limit,
-                starting_date,
-                end_date
+        festival_name,
+        festival_location,
+        festival_content,
+        festival_reservationMethod,
+        festival_caution,
+        thumbnail,
+        age_limit,
+        starting_date,
+        end_date
         )VALUES(
-                #{festival_name},
-                #{festival_location},
-                #{festival_content},
-                #{festival_reservationMethod},
-                #{festival_caution},
-                #{thumbnail},
-                #{age_limit},
-                #{starting_date},
-                #{end_date}
-                       )
+        #{festival_name},
+        #{festival_location},
+        #{festival_content},
+        #{festival_reservationMethod},
+        #{festival_caution},
+        #{thumbnail},
+        #{age_limit},
+        #{starting_date},
+        #{end_date}
+        )
     </insert>
 
     <!--게시물 업데이트.. 무슨 아이디의 글을 수정하겠다-->

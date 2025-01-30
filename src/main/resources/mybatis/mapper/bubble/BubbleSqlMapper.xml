@@ -7,13 +7,13 @@
             select max(id) from bubble_post
         </selectKey>
         INSERT INTO bubble_post(
-                user_id,
-                title,
-                content
+        user_id,
+        title,
+        content
         )VALUES(
-                #{user_id},
-                #{title},
-                #{content}
+        #{user_id},
+        #{title},
+        #{content}
         )
     </insert>
 

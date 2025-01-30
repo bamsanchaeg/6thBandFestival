@@ -2,26 +2,26 @@
 
 
 //페이지 리로드
-function reloadPage(){
+function reloadPage() {
     location.reload(true);
 }
 
 //페스티벌 메인 페이지로 돌아가기
-function backToFestivalList(){
-    window.location.href="/information/mainPage";
+function backToFestivalList() {
+    window.location.href = "/information/mainPage";
 }
 
-function backToHistoryMain(){
-    window.location.href="/information/festivalHistory";
+function backToHistoryMain() {
+    window.location.href = "/information/festivalHistory";
 }
 
 //라인업에서 뒤로가기
-function backToPreviousPage(){
+function backToPreviousPage() {
     history.back();
 }
 
 //날짜변환함수..
-function formDate(dateString){
+function formDate(dateString) {
     const date = new Date(dateString);
     const year = date.getFullYear();
     const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -29,8 +29,8 @@ function formDate(dateString){
     return `${year}/${month}/${day}`;
 }
 
-function backToFestivalDetailPage(){
-    window.location.href="/admin/festivalDetailPage?id" + festivalId;
+function backToFestivalDetailPage() {
+    window.location.href = "/admin/festivalDetailPage?id" + festivalId;
 }
 
 // 캔버스 열기

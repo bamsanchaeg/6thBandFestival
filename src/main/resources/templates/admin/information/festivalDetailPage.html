@@ -4,9 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=82f1c58e1a81c1b92f6b88ceea9549bd&libraries=services"></script>
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=82f1c58e1a81c1b92f6b88ceea9549bd&libraries=services"></script>
 
 </head>
 <style>
@@ -56,17 +58,17 @@
 
     const urlParams = new URL(window.location.href).searchParams;
     const festivalId = urlParams.get("id");
-    const festivalUrl ="/api/information/festivalDetailPageForAdmin?id=" + festivalId;
+    const festivalUrl = "/api/information/festivalDetailPageForAdmin?id=" + festivalId;
     console.log(festivalId);
 
     //전역변수
     let FestivalLocation;
 
-    function gertFestivalDetailForAdmin(){
+    function gertFestivalDetailForAdmin() {
 
         fetch(festivalUrl)
             .then(response => response.json())
-            .then(response =>{
+            .then(response => {
                 const e = response.data.festivalData;
 
                 const festivalName = document.getElementById("festivalName");
@@ -78,7 +80,7 @@
                 FestivalLocation = e.festivalDetail.festival_location;
 
                 const posterImage = document.getElementById("posterImage");
-                posterImage.src ='/images/' + e.festivalDetail.thumbnail;
+                posterImage.src = '/images/' + e.festivalDetail.thumbnail;
 
                 //페스티벌 소개
                 const festivalIntro = document.getElementById("festivalIntro");
@@ -96,7 +98,7 @@
                 const festivalDelete = document.getElementById("festivalDelete");
                 // festivalDelete.href = '/admin/information/festivalDeleteProcess?id=' + e.festivalDetail.id;
                 console.log(e.festivalDetail.id);
-                festivalDelete.onclick = function() {
+                festivalDelete.onclick = function () {
                     event.preventDefault();
                     confirmDeletion('/admin/information/festivalDeleteProcess?id=' + e.festivalDetail.id);
                 };
@@ -107,8 +109,7 @@
 
                 //새창으로 이동하는 주소를 생성하는 것을 의미한다. 이동은 성공했으나 Controller쪽에서 주소 설정이 잘못되어서 수정함.
                 const registerLineUplink = document.getElementById("registerLineUplink");
-                registerLineUplink.href= "/admin/information/registerPerformanceDate?id=" + e.festivalDetail.id;
-
+                registerLineUplink.href = "/admin/information/registerPerformanceDate?id=" + e.festivalDetail.id;
 
 
             });
@@ -118,7 +119,7 @@
 
     function confirmDeletion(url) {
         if (confirm("정말로 삭제하시겠습니까?삭제된 데이터는 복구할 수 없습니다.")) {
-            window.location.href=url;
+            window.location.href = url;
             window.location.href = "/admin/information/festivalListPage";
         }
     }
@@ -126,12 +127,12 @@
     let map;
 
     //복붙하지말고 이해하기...지피티믿지마
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const tabs = document.querySelectorAll('.nav-link');
         const tabContents = document.querySelectorAll('.tab-content');
 
         tabs.forEach(tab => {
-            tab.addEventListener('click', function(event) {
+            tab.addEventListener('click', function (event) {
                 event.preventDefault(); // 링크 기본 동작 방지
                 if (tab.classList.contains('disabled')) return; // Disabled 탭 무시
 
@@ -149,13 +150,13 @@
         });
     });
 
-    function getAMap(){
+    function getAMap() {
         const tabEl = document.querySelector('a[data-tab="tab4"]');
         console.log("Tab shown event triggered", tabEl);
 
 
         //왜 탭전환이 안되냐..
-        tabEl.addEventListener('click', function() {
+        tabEl.addEventListener('click', function () {
             console.log("Tab shown event triggered2", tabEl);
             getKakaoMap();
 
@@ -210,7 +211,7 @@
 
 
     //function 밖에 있어야함.
-    window.addEventListener("DOMContentLoaded",()=>{
+    window.addEventListener("DOMContentLoaded", () => {
         gertFestivalDetailForAdmin()
     })
 </script>
@@ -238,7 +239,7 @@
                                         <div class="col">
                                             <image class="img-fluid" id="posterImage"></image>
                                         </div>
-                                        <div class="col" >
+                                        <div class="col">
                                             <div class="row">
                                                 <div class="col h4" id="festivalName">
                                                     페스티벌 이름
@@ -251,7 +252,8 @@
                                                 <div class="col">
                                                     <a id="registerLineUplink">
                                                         <div class="btn ps-0">
-                                                            <input type="button" value="라인업 등록" class="btn btn-outline-secondary rounded-0">
+                                                            <input type="button" value="라인업 등록"
+                                                                   class="btn btn-outline-secondary rounded-0">
                                                         </div>
                                                     </a>
                                                     <a id="festivalUpdate" class="btn btn-outline-secondary rounded-0">
@@ -280,7 +282,8 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" data-tab="tab4" onclick="getAMap()">위치</a>
-                                </li><li class="nav-item">
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" data-tab="tab5">연령제한</a>
                                 </li>
                                 <!--<li class="nav-item">-->
@@ -312,7 +315,8 @@
                                         <div class="col" id="festivalLocation">
                                         </div>
                                     </div>
-                                </div><div id="tab5" class="tab-content">
+                                </div>
+                                <div id="tab5" class="tab-content">
                                     <div class="row">
                                         <div class="col" id="festivalAgeLimit">
                                         </div>
@@ -321,7 +325,8 @@
                             </div>
                             <div class="row new-my-45">
                                 <div class="col">
-                                    <button class="btn btn-outline-secondary rounded-0" id="festivalDelete">삭제하기</button>
+                                    <button class="btn btn-outline-secondary rounded-0" id="festivalDelete">삭제하기
+                                    </button>
                                 </div>
                             </div>
                         </div>

@@ -1,20 +1,19 @@
 //세션 로그인으로 내가 진행했던 채팅 리스트 가져옴, 여기서 클릭하면 other_user_id를 receiver 정보로 맞춰서 채팅 내역 가져오는걸로 해야할 것 같음
 const chatUrl = "/api/bubble/getBubbleUserChatRoomList"
 
-function getChatListBySession(){
+function getChatListBySession() {
     fetch(chatUrl)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
 
 
             const chatListData = response.data.chatRoomList;
 
 
-
-            console.log("데이터리스트",chatListData);
+            console.log("데이터리스트", chatListData);
 
             //메세지 반복문 출력
-            const messageListBox = document.getElementById("messageListBox") ;
+            const messageListBox = document.getElementById("messageListBox");
             messageListBox.innerHTML = "";
 
             const messageWrapperTemplete = document.querySelector("#templete .messageListWrapper");
@@ -29,7 +28,7 @@ function getChatListBySession(){
             }
 
 
-            for(let e of chatListData){
+            for (let e of chatListData) {
 
                 const newMessageWrapper = messageWrapperTemplete.cloneNode(true);
 
@@ -67,14 +66,14 @@ function getChatListBySession(){
 
                 // 경과 시간 표시 설정
                 let timeDisplay;
-                if(hoursAgo<24){
+                if (hoursAgo < 24) {
                     if (hoursAgo === 0) {
                         timeDisplay = "sent now"; // 0시간 전인 경우
-                    }else{
+                    } else {
                         timeDisplay = `${hoursAgo}시간 전`;
 
                     }
-                }else{
+                } else {
                     // 24시간 이상인 경우 날짜로 표시
                     const year = lastMessageTime.getFullYear();
                     const month = ('0' + (lastMessageTime.getMonth() + 1)).slice(-2); // 월은 0부터 시작하므로 1을 더해줌
@@ -98,9 +97,6 @@ function getChatListBySession(){
 }
 
 
-
-
-
-window.addEventListener("DOMContentLoaded",() =>{
+window.addEventListener("DOMContentLoaded", () => {
     getChatListBySession();
 })

@@ -15,17 +15,17 @@ public class BubbleAdminController {
     BubbleService bubbleService;
 
     @RequestMapping("")
-    public String bubbleHomePage(){
+    public String bubbleHomePage() {
         return "admin/bubble/bubbleHome";
     }
 
     @RequestMapping("bubbleArtistPage")
-    public String bubbleArtistPage(){
+    public String bubbleArtistPage() {
         return "admin/bubble/artistAcceptPage";
     }
 
     @RequestMapping("applicationDetail")
-    public String applicationDetail(){
+    public String applicationDetail() {
         return "admin/bubble/applicationDetail";
     }
 

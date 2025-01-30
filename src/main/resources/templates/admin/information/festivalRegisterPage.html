@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
 </head>
 <style>
@@ -12,9 +13,11 @@
         height: 38px; /* 원하는 높이로 설정 */
         padding: 5px 10px; /* 패딩 조정 */
     }
+
     .error {
         border: 2px solid red;
     }
+
     .error-message {
         color: red;
         font-size: 14px;
@@ -44,32 +47,30 @@
     }
 
 
-
-
     .error-message {
         color: #ff0000;
         font-size: 12px;
         margin-top: 5px;
     }
 
-    .announcement{
+    .announcement {
         font-size: 0.9em;
         color: #9f9f9f;
     }
 
 </style>
 <script>
-    document.getElementById('registerFestival').addEventListener('submit', function(event) {
-        const inputTitle =document.getElementById("festivalTitle");
+    document.getElementById('registerFestival').addEventListener('submit', function (event) {
+        const inputTitle = document.getElementById("festivalTitle");
         const titleError = document.getElementById('titleError');
         const thumbnail = document.getElementById('thumbnail_image');
         const thumbnailError = document.getElementById('thumbnailError');
         let isValid = true;
 
-        if(inputTitle.value.trim() === ''){
+        if (inputTitle.value.trim() === '') {
             inputTitle.classList.add('error');
             titleError.innerText = "타이틀을 등록해주세요";
-        }else {
+        } else {
             inputTitle.classList.remove('error');
             titleError.innerText = "";
         }
@@ -110,182 +111,192 @@
                 <!-- /* 컨텐츠 */ -->
                 <div class="main py-4 px-4">
                     <!--사진등록 및 동작실행-->
-                 <div class="row">
-                     <div class="col">
-                         <div class="row">
-                             <div class="col">
-                                 <h4>페스티벌 등록</h4>
-                             </div>
-                         </div>
-                         <!--여기 페스티벌 등록하는 폼-->
-                         <div class="row">
-                             <div class="col">
-                                 <form action="/admin/information/festivalInformationRegisterProcess" method="post" enctype="multipart/form-data" id="registerFestival">
-                                     <!--*/페스티벌 포스터/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             포스터 이미지 등록
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col-auto ps-3 border-end fw-medium
+                    <div class="row">
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <h4>페스티벌 등록</h4>
+                                </div>
+                            </div>
+                            <!--여기 페스티벌 등록하는 폼-->
+                            <div class="row">
+                                <div class="col">
+                                    <form action="/admin/information/festivalInformationRegisterProcess" method="post"
+                                          enctype="multipart/form-data" id="registerFestival">
+                                        <!--*/페스티벌 포스터/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                포스터 이미지 등록
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col-auto ps-3 border-end fw-medium
                                                      d-flex align-items-center justify-content-center">
-                                             포스터 이미지 업로드
-                                         </div>
-                                         <div class="col d-grid" >
-                                             <label class="file-upload-label">
-                                                 <input name="thumbnail_image" type="file" accept="image/*" class="form-control" >
-                                                 <div id="thumbnailError" class="error-message"></div>
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col announcement">
-                                             * 한번 등록된 이미지는 수정이 어렵습니다. 전달받은 내용 확인 후 신중히 기입바랍니다.
-                                         </div>
-                                     </div>
-                                     <div class="row my-1">
-                                         <div class="col announcement">
-                                             * 파일 양식은 JPG, PNG 및 1:1 비율의 정방형 사이즈 사진만 가능합니다.
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 이름 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             페스티벌 이름
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col d-grid">
-                                             <input name="festival_name" type="text" id="festivalTitle" placeholder="*ex)August Rock Festival" class="form-control">
-                                             <div id="titleError" class="error-message"></div>
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 소개 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             페스티벌 소개
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col d-grid">
-                                             <label>
-                                                 <label class="d-grid">
+                                                포스터 이미지 업로드
+                                            </div>
+                                            <div class="col d-grid">
+                                                <label class="file-upload-label">
+                                                    <input name="thumbnail_image" type="file" accept="image/*"
+                                                           class="form-control">
+                                                    <div id="thumbnailError" class="error-message"></div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col announcement">
+                                                * 한번 등록된 이미지는 수정이 어렵습니다. 전달받은 내용 확인 후 신중히 기입바랍니다.
+                                            </div>
+                                        </div>
+                                        <div class="row my-1">
+                                            <div class="col announcement">
+                                                * 파일 양식은 JPG, PNG 및 1:1 비율의 정방형 사이즈 사진만 가능합니다.
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 이름 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                페스티벌 이름
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col d-grid">
+                                                <input name="festival_name" type="text" id="festivalTitle"
+                                                       placeholder="*ex)August Rock Festival" class="form-control">
+                                                <div id="titleError" class="error-message"></div>
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 소개 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                페스티벌 소개
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col d-grid">
+                                                <label>
+                                                    <label class="d-grid">
                                                     <textarea name="festival_content" type="text"
-                                                              class="form-control modern-input" placeholder="*페스티벌 소개 내용에 대해 작성하세요." rows="9"
+                                                              class="form-control modern-input"
+                                                              placeholder="*페스티벌 소개 내용에 대해 작성하세요." rows="9"
                                                     ></textarea>
-                                                 </label>
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 예매방법 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             예매방법
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col d-grid">
-                                             <label>
-                                                 <label class="d-grid">
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 예매방법 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                예매방법
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col d-grid">
+                                                <label>
+                                                    <label class="d-grid">
                                                     <textarea name="festival_reservationMethod" type="text"
-                                                              class="form-control" placeholder="*페스티벌 예매정보에 대해 작성하세요." rows="9"
+                                                              class="form-control" placeholder="*페스티벌 예매정보에 대해 작성하세요."
+                                                              rows="9"
                                                     ></textarea>
-                                                 </label>
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 주의사항 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             주의사항 기입
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col d-grid">
-                                             <label>
-                                                 <label class="d-grid">
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 주의사항 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                주의사항 기입
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col d-grid">
+                                                <label>
+                                                    <label class="d-grid">
                                                     <textarea name="festival_caution" type="text"
-                                                              class="form-control" placeholder="*페스티벌 주의사항에 대해 작성하세요." rows="9"
+                                                              class="form-control" placeholder="*페스티벌 주의사항에 대해 작성하세요."
+                                                              rows="9"
                                                     ></textarea>
-                                                 </label>
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 연령제한 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                         페스티벌 장소등록
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col d-grid">
-                                             <label>
-                                                 <input name="festival_location" type="text" class="form-control" placeholder="*ex)서울특별시 송파구 올림픽로 424 올림픽공원.">
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 연령제한 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             연령제한 등록
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col d-grid">
-                                             <label>
-                                                 <input name="age_limit" type="text" class="form-control" placeholder="*보호자 동반이 필요한 페스티벌의 경우 연령제한 나이를 기입하시기 바랍니다.">
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <!--*/페스티벌 날짜 등록/*-->
-                                     <div class="row new-mt-25">
-                                         <div class="col new-bg-gray border-top border-black fw-bold py-1">
-                                             페스티벌 기간 등록
-                                         </div>
-                                     </div>
-                                     <div class="row border-bottom py-2">
-                                             <div class="col-1 fw-medium border-end
+                                                    </label>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 연령제한 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                페스티벌 장소등록
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col d-grid">
+                                                <label>
+                                                    <input name="festival_location" type="text" class="form-control"
+                                                           placeholder="*ex)서울특별시 송파구 올림픽로 424 올림픽공원.">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 연령제한 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                연령제한 등록
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col d-grid">
+                                                <label>
+                                                    <input name="age_limit" type="text" class="form-control"
+                                                           placeholder="*보호자 동반이 필요한 페스티벌의 경우 연령제한 나이를 기입하시기 바랍니다.">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <!--*/페스티벌 날짜 등록/*-->
+                                        <div class="row new-mt-25">
+                                            <div class="col new-bg-gray border-top border-black fw-bold py-1">
+                                                페스티벌 기간 등록
+                                            </div>
+                                        </div>
+                                        <div class="row border-bottom py-2">
+                                            <div class="col-1 fw-medium border-end
                                                          d-flex align-items-center justify-content-center">
-                                               시작날짜
-                                             </div>
-                                         <div class="col">
-                                             <label>
-                                                 <input name="starting_date" type="date" class="form-control rounded-0">
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <div class="row border-bottom py-2">
-                                         <div class="col-1 fw-medium border-end
+                                                시작날짜
+                                            </div>
+                                            <div class="col">
+                                                <label>
+                                                    <input name="starting_date" type="date"
+                                                           class="form-control rounded-0">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row border-bottom py-2">
+                                            <div class="col-1 fw-medium border-end
                                                      d-flex align-items-center justify-content-center">
-                                             종료날짜
-                                         </div>
-                                         <div class="col">
-                                             <label>
-                                                 <input name="end_date" type="date" class="form-control rounded-0">
-                                             </label>
-                                         </div>
-                                     </div>
-                                     <div class="row new-mt-25">
-                                         <div class="col announcement">
-                                             * 한번 등록된 이미지는 수정이 어렵습니다. 전달받은 내용 확인 후 신중히 기입바랍니다.
-                                         </div>
-                                     </div>
-                                     <div class="row my-1">
-                                         <div class="col announcement">
-                                             * 등록된 페스티벌의 경우 고객에게 혼선을 주지 않게 신중한 정보기입을 원칙으로 합니다. 라인업 및 아티스트 연동에 혼선 없도록 등록 부탁드립니다.
-                                         </div>
-                                     </div>
-                                     <div class="row">
-                                         <div class="col text-end">
-                                             <button class="btn btn-secondary my-3 rounded-0" >등록하기</button>
-                                         </div>
-                                     </div>
-                                 </form>
-                             </div>
-                         </div>
-                     </div>
-                 </div>
+                                                종료날짜
+                                            </div>
+                                            <div class="col">
+                                                <label>
+                                                    <input name="end_date" type="date" class="form-control rounded-0">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="row new-mt-25">
+                                            <div class="col announcement">
+                                                * 한번 등록된 이미지는 수정이 어렵습니다. 전달받은 내용 확인 후 신중히 기입바랍니다.
+                                            </div>
+                                        </div>
+                                        <div class="row my-1">
+                                            <div class="col announcement">
+                                                * 등록된 페스티벌의 경우 고객에게 혼선을 주지 않게 신중한 정보기입을 원칙으로 합니다. 라인업 및 아티스트 연동에 혼선 없도록
+                                                등록 부탁드립니다.
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col text-end">
+                                                <button class="btn btn-secondary my-3 rounded-0">등록하기</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- /* 푸터 */ -->

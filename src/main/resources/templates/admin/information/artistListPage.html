@@ -4,22 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <link rel="stylesheet" href="/public/css/information/information.css">
 </head>
 <script>
-    function getArtistList(){
-        const url ="/api/information/getAllArtistListForAdmin";
+    function getArtistList() {
+        const url = "/api/information/getAllArtistListForAdmin";
         fetch(url)
             .then(response => response.json())
-            .then(response =>{
+            .then(response => {
                 const artistListBox = document.getElementById("artistListBox");
-                artistListBox.innerHTML="";
+                artistListBox.innerHTML = "";
 
                 const artistWrapperTemplete = document.querySelector("#templete .artistListWrapper");
 
-                for(e of response.data.artistList){
+                for (e of response.data.artistList) {
 
                     const newArtistWrapper = artistWrapperTemplete.cloneNode(true);
 
@@ -39,7 +40,6 @@
                     createdDate.innerText = addNineHours(e.artistDto.created_at).toISOString().split('T')[0];
 
 
-
                     artistListBox.appendChild(newArtistWrapper);
                 }
             })
@@ -56,7 +56,7 @@
 
 
     //function 밖에 있어야함.
-    window.addEventListener("DOMContentLoaded",()=>{
+    window.addEventListener("DOMContentLoaded", () => {
         getArtistList();
     })
 </script>
@@ -93,7 +93,7 @@
         margin-right: 20px; /* 버튼과 페이지네이션 사이의 간격 조정 */
     }
 
-    .artistThumbnail{
+    .artistThumbnail {
         justify-content: center;
         height: 5em;
         width: auto;
@@ -134,37 +134,47 @@
                             </div>
                             <!--검색창 기능-->
                             <div class="container-fluid py-3 mb-3">
-                                    <div class="d-flex align-items-center mb-1 pb-1 border-bottom">
-                                        <div class="search-col col-6 d-flex align-items-center">
-                                            <div class="search-title px-3 fw-medium">등록일자</div>
-                                            <div class="search-con d-flex align-items-center">
-                                                <input type="date" name="fromStartDate" class="form-control new-w-150 py-1 rounded-0 new-fs-8">
-                                                <span class="mx-2  font-roboto">~</span>
-                                                <input type="date" name="toStartDate" class="form-control new-w-150 py-1 rounded-0 new-fs-8">
-                                            </div>
+                                <div class="d-flex align-items-center mb-1 pb-1 border-bottom">
+                                    <div class="search-col col-6 d-flex align-items-center">
+                                        <div class="search-title px-3 fw-medium">등록일자</div>
+                                        <div class="search-con d-flex align-items-center">
+                                            <input type="date" name="fromStartDate"
+                                                   class="form-control new-w-150 py-1 rounded-0 new-fs-8">
+                                            <span class="mx-2  font-roboto">~</span>
+                                            <input type="date" name="toStartDate"
+                                                   class="form-control new-w-150 py-1 rounded-0 new-fs-8">
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center pb-1 border-bottom">
-                                        <div class="search-title px-3 fw-medium">검색어</div>
-                                        <div class="search-con d-flex ms-3 pe-3">
-                                            <div class="">
-                                                <select name="searchOption" class="form-select new-w-150 py-1 rounded-0 new-fs-8">
-                                                    <option value="nickname">아티스트 번호</option>
-                                                    <option value="title">아티스트 이름</option>
-                                                </select>
-                                            </div>
-                                            <div class="flex-grow-1 px-2">
-                                                <input name="searchWord" type="text" class="form-control py-1 rounded-0 new-fs-8">
-                                            </div>
-                                            <div class="">
-                                                <button class="btn new-bg-dark new-w-150 py-1 px-4 rounded-0 new-fs-8 text-white">검색하기</button>
-                                            </div>
+                                </div>
+                                <div class="d-flex align-items-center pb-1 border-bottom">
+                                    <div class="search-title px-3 fw-medium">검색어</div>
+                                    <div class="search-con d-flex ms-3 pe-3">
+                                        <div class="">
+                                            <select name="searchOption"
+                                                    class="form-select new-w-150 py-1 rounded-0 new-fs-8">
+                                                <option value="nickname">아티스트 번호</option>
+                                                <option value="title">아티스트 이름</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex-grow-1 px-2">
+                                            <input name="searchWord" type="text"
+                                                   class="form-control py-1 rounded-0 new-fs-8">
+                                        </div>
+                                        <div class="">
+                                            <button class="btn new-bg-dark new-w-150 py-1 px-4 rounded-0 new-fs-8 text-white">
+                                                검색하기
+                                            </button>
                                         </div>
                                     </div>
-                                    <div class="mt-2 text-center d-none">
-                                        <button class="btn btn-dark new-bg-dark new-w-150 py-1 px-4 new-fs-8 text-white" style="border-radius: 2px;">검색하기</button>
-                                        <button class="btn new-w-150 py-1 px-4 border new-fs-8" style="border-radius: 2px;">초기화</button>
-                                    </div>
+                                </div>
+                                <div class="mt-2 text-center d-none">
+                                    <button class="btn btn-dark new-bg-dark new-w-150 py-1 px-4 new-fs-8 text-white"
+                                            style="border-radius: 2px;">검색하기
+                                    </button>
+                                    <button class="btn new-w-150 py-1 px-4 border new-fs-8" style="border-radius: 2px;">
+                                        초기화
+                                    </button>
+                                </div>
                             </div>
 
 
@@ -209,7 +219,8 @@
                                     <div class="col-3 text-center createdDate"></div>
                                     <div class="col-2 pe-0 d-flex align-items-center justify-content-center ">
                                         <a class="artistDetailPage text-center">
-                                            <input type="button" value="세부정보 보기" class="btn btn-outline-secondary rounded-0">
+                                            <input type="button" value="세부정보 보기"
+                                                   class="btn btn-outline-secondary rounded-0">
                                         </a>
                                     </div>
                                 </div>
@@ -218,46 +229,48 @@
                     </div>
                 </div>
 
-                                 <!--페이징 처리 필요할듯-->
-                                <div class="row new-my-45 px-2">
-                                    <!-- justify-content-between로 두 요소가 양 끝에 배치되도록 함 -->
-                                    <div class="col d-flex justify-content-between align-items-center flex-nowrap">
-                                        <!-- 버튼 -->
-                                        <button class="btn btn-outline-secondary rounded-0 px-3 py-1" onclick="backToAdminInformationPage()" style="font-size: 16px; line-height: 1.5; width:100px;">
-                                            메인으로
-                                        </button>
+                <!--페이징 처리 필요할듯-->
+                <div class="row new-my-45 px-2">
+                    <!-- justify-content-between로 두 요소가 양 끝에 배치되도록 함 -->
+                    <div class="col d-flex justify-content-between align-items-center flex-nowrap">
+                        <!-- 버튼 -->
+                        <button class="btn btn-outline-secondary rounded-0 px-3 py-1"
+                                onclick="backToAdminInformationPage()"
+                                style="font-size: 16px; line-height: 1.5; width:100px;">
+                            메인으로
+                        </button>
 
-                                        <!-- 페이징 처리 -->
-                                        <div class="pagination-box w-100 d-flex justify-content-center">
-                                            <nav aria-label="Page navigation">
-                                                <ul class="pagination mb-0">
-                                                    <li class="page-item">
-                                                        <a class="page-link py-1 rounded-0 text-dark" href="#" aria-label="Previous">
-                                                            <span aria-hidden="true">&laquo;</span>
-                                                        </a>
-                                                    </li>
-                                                    <li class="page-item"><a class="page-link py-1 text-dark" href="#">1</a></li>
-                                                    <li class="page-item"><a class="page-link py-1 text-dark" href="#">2</a></li>
-                                                    <li class="page-item">
-                                                        <a class="page-link py-1 rounded-0 text-dark" href="#" aria-label="Next">
-                                                            <span aria-hidden="true">&raquo;</span>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </nav>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- 페이징 처리 -->
+                        <div class="pagination-box w-100 d-flex justify-content-center">
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination mb-0">
+                                    <li class="page-item">
+                                        <a class="page-link py-1 rounded-0 text-dark" href="#" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item"><a class="page-link py-1 text-dark" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link py-1 text-dark" href="#">2</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link py-1 rounded-0 text-dark" href="#" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
-
-                <!-- /* 푸터 */ -->
-                <div th:replace="~{common/adminNavi::bottomNavi}"></div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- /* 푸터 */ -->
+<div th:replace="~{common/adminNavi::bottomNavi}"></div>
+</div>
+</div>
+</div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

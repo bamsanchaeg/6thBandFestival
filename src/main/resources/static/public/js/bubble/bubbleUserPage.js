@@ -3,15 +3,13 @@
 const urlParams = new URL(window.location.href).searchParams;
 const userId = urlParams.get("id");
 const userUrl = "/api/bubble/bubbleUserMyPage"
-console.log( userId);
+console.log(userId);
 
 
-
-function getUserInformationForUserPage(){
+function getUserInformationForUserPage() {
     fetch(userUrl)
         .then(response => response.json())
-        .then(response =>{
-
+        .then(response => {
 
 
             const e = response.data.userInfo;
@@ -37,7 +35,7 @@ function getUserInformationForUserPage(){
 
             const follower = document.getElementById("follower");
             follower.innerText = e.userId.follower;
-            console.log("팔로워출력",follower);
+            console.log("팔로워출력", follower);
 
             //postListBox의 Html을 비워놓겠다.
             const postBox = document.getElementById("postBox");
@@ -56,14 +54,13 @@ function getUserInformationForUserPage(){
             }
 
 
-
             /**
              *    1.	newPostWrapper 사용: 복제된 노드(newPostWrapper)의 자식 요소를 수정하도록 변경했습니다. 이 부분이 핵심입니다.
              *    2.    기존 코드는 원본 템플릿(postimageWrapperTemplete)의 요소를 수정하고 있었기 때문에, 결과적으로 마지막 이미지 정보만 덮어쓰여지고 있었습니다.
              *    3.	postBox에 newPostWrapper 추가: 수정된 newPostWrapper를 postBox에 추가하도록 했습니다.**/
 
             const images = e.postImages;
-            console.log("이미지",images);
+            console.log("이미지", images);
 
             // 작성된 게시물이 없을 경우 "작성된 게시물이 없습니다" 문구 추가
             if (images.length === 0) {
@@ -96,7 +93,7 @@ function getUserInformationForUserPage(){
 
 let receiverId = null;
 
-function createMessenger(userId){
+function createMessenger(userId) {
     receiverId = userId;
     console.log("receiver", userId);
     const url = "/bubble/bubbleChatPage?id=" + receiverId;
@@ -114,10 +111,8 @@ function hideOverlay() {
 }
 
 
-
-
 //function 밖에 있어야함.
-window.addEventListener("DOMContentLoaded",()=>{
+window.addEventListener("DOMContentLoaded", () => {
     getUserInformationForUserPage();
     //유저 아이디 가져오기, 유효성 검사. 이 부분 나중에 배포 전에 다 돌려놓고 테스트
     // setSessionId();

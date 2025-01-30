@@ -1,7 +1,6 @@
 /*달력일정 추가.. 등*/
 
 
-
 .calendar-container {
     background: #fff;
     width: 450px;
@@ -109,15 +108,16 @@ header .calendar-current-date {
 
 
 /*페스티벌 메인페이지 및 인포메이션 배경 박스컬러, rgba 로 설정 */
-.bg-boxColor-history{
+.bg-boxColor-history {
     background-color: rgba(10, 10, 10, 0.9);
 }
+
 /*페스티벌 메인페이지 및 인포메이션 배경 박스컬러, rgba 로 설정 */
-.bg-boxColor-festival{
+.bg-boxColor-festival {
     background-color: rgba(139, 57, 80, 0.8);
 }
 
-.boxColorMain{
+.boxColorMain {
     background-color: #8B3950CC;
     background-blend-mode: multiply;
 
@@ -125,16 +125,15 @@ header .calendar-current-date {
 
 
 /*페스티벌 메인페이지 및 인포메이션 배경 박스컬러, rgba 로 설정 */
-.bg-boxColor-festivalBody{
-    background : linear-gradient(to bottom, rgba(250, 96, 139, 0.8),rgba(0,0,0,0));
+.bg-boxColor-festivalBody {
+    background: linear-gradient(to bottom, rgba(250, 96, 139, 0.8), rgba(0, 0, 0, 0));
     background-blend-mode: overlay;
 }
 
 
-
 /*그라데이션으로 텍스트 눈에 띄게 하는 컬러*/
-.bg-boxColor-festivalTitle{
-    background : linear-gradient(to bottom,rgba(139, 57, 80, 0.8),rgba(0,0,0,0));
+.bg-boxColor-festivalTitle {
+    background: linear-gradient(to bottom, rgba(139, 57, 80, 0.8), rgba(0, 0, 0, 0));
 
 }
 
@@ -145,6 +144,7 @@ header .calendar-current-date {
     border-top: none;
     display: none;
 }
+
 .tab-content.active {
     display: block;
 }
@@ -158,6 +158,7 @@ header .calendar-current-date {
     max-width: 100%;
     background: #000;
 }
+
 .video-container iframe {
     position: absolute;
     top: 0;
@@ -198,19 +199,19 @@ header .calendar-current-date {
     align-items: center;
 }
 
-.division-short-line{
+.division-short-line {
     border-top: 1px solid #2e2e2e;
     margin: 10px auto;
     width: 60px;
 }
 
-.division-shortest-line{
+.division-shortest-line {
     border-top: 1px solid #2e2e2e;
     margin: 10px auto;
     width: 10px;
 }
 
-.division-shortest-line-user{
+.division-shortest-line-user {
     border-top: 1px solid #e4e1e1;
     margin: 10px auto;
     width: 10px;
@@ -218,10 +219,10 @@ header .calendar-current-date {
 
 /*메인페이지*/
 
-.MainText{
+.MainText {
     /* 2025 ROCK FESTIVAL */
 
-    font-family: "Inter",sans-serif;
+    font-family: "Inter", sans-serif;
     font-style: normal;
     font-weight: 700;
     font-size: 38px;
@@ -233,10 +234,10 @@ header .calendar-current-date {
 }
 
 
-.MainTextCat{
+.MainTextCat {
     /* 2025 ROCK FESTIVAL */
 
-    font-family: "Inter",sans-serif;
+    font-family: "Inter", sans-serif;
     font-style: normal;
     font-weight: 700;
     font-size: 28px;
@@ -247,7 +248,7 @@ header .calendar-current-date {
 
 }
 
-.announcement-main{
+.announcement-main {
     font-size: 0.8em;
     color: #f8f8f8;
 }

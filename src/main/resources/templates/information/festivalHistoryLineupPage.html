@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <link rel="stylesheet" href="/public/css/information/information.css">
 
@@ -14,17 +15,17 @@
     const urlParams = new URL(window.location.href).searchParams;
     const festivalId = urlParams.get("id");
     const lineUpUrlByFestivalId = "/api/information/getLineupListByFestivalId?id=" + festivalId;
-    console.log("페스티벌아이디",festivalId);
+    console.log("페스티벌아이디", festivalId);
 
     //날짜 카테고리화 하기
-    function getLineUpListByFestivalId(){
+    function getLineUpListByFestivalId() {
         //사용자 페이지임 관리자페이지랑 헷갈리지말기
         fetch(lineUpUrlByFestivalId)
             .then(response => response.json())
-            .then(response =>{
+            .then(response => {
 
                 const artistListBox = document.getElementById("artistListBox");
-                artistListBox.innerHTML="";
+                artistListBox.innerHTML = "";
 
                 const artistWrapperTemplete = document.querySelector("#templete .artistListWrapper");
 
@@ -54,7 +55,7 @@
                 }, {});
 
 
-                for(const date in groupedByDate){
+                for (const date in groupedByDate) {
 
                     //날짜 출력
                     const dateHeader = document.createElement("div");
@@ -62,7 +63,7 @@
                     dateHeader.innerText = date;
                     artistListBox.appendChild(dateHeader);
 
-                    groupedByDate[date].forEach(artist =>{
+                    groupedByDate[date].forEach(artist => {
 
                         const newArtistWrapper = artistWrapperTemplete.cloneNode(true);
 
@@ -73,7 +74,7 @@
                         artistThumbnail.src = '/images/' + artist.thumbnail;
 
                         const artistDetail = newArtistWrapper.querySelector(".artistDetail");
-                        artistDetail.innerText= artist.artist_detail;
+                        artistDetail.innerText = artist.artist_detail;
 
                         //반복문을 돌렸는데 템플릿 복사 중 클래스가 고정되어  변경이 되지 않아 똑같은 친구가 계속 열림..
                         //그래서 클래스가 반복이 되면서 id를 다르게 넣어주는 방법을 아래 두 방법에서 진행하게됨. class와 id에 대한 이해 필요
@@ -104,7 +105,7 @@
 
     //날짜 하나에만 해당하는 아티스트를 어떻게 출력할지에 대해서도 고민해야할듯..
     //날짜변환함수..
-    function formDate(dateString){
+    function formDate(dateString) {
         const date = new Date(dateString);
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -113,7 +114,7 @@
     }
 
 
-    window.addEventListener("DOMContentLoaded",() =>{
+    window.addEventListener("DOMContentLoaded", () => {
         getLineUpListByFestivalId();
     })
 
@@ -193,7 +194,8 @@
                                                         <p class="gap-1 new-text-white d-grid">
                                                             <button class="artistInformation new-text-white rounded-0 btn btn-dark"
                                                                     type="button" data-bs-toggle="collapse"
-                                                                    aria-expanded="false" aria-controls="collapseExample">
+                                                                    aria-expanded="false"
+                                                                    aria-controls="collapseExample">
                                                                 아티스트 정보
                                                             </button>
                                                         </p>
@@ -219,14 +221,14 @@
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
+        </div>
         <!-- /* 푸터 */ -->
         <div th:replace="~{common/navi::bottomNaviWhite}"></div>
         <!--/* 퀵바 */-->
         <div th:replace="~{common/navi::quickNavi}"></div>
-        </div>
     </div>
+</div>
 <!--/* 사이드바 */-->
 <div th:replace="~{common/navi::sidebarLeft}"></div>
 <script src="/public/js/information/informationUser.js"></script>

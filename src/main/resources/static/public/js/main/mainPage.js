@@ -1,11 +1,11 @@
 //슬라이드 함수, 분석 필요
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     // Festival 이미지 슬라이드 인 처리
     const festivalImages = document.querySelectorAll('.img-fluid-festival');
     const slideElements = document.querySelectorAll('.slide-in-elementFestival');
 
-    festivalImages.forEach(function(img) {
-        img.addEventListener('load', function() {
+    festivalImages.forEach(function (img) {
+        img.addEventListener('load', function () {
             img.classList.add('img-slide-in');
             slideInTextElements();
         });
@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function slideInTextElements() {
-        slideElements.forEach(function(element, index) {
-            setTimeout(function() {
+        slideElements.forEach(function (element, index) {
+            setTimeout(function () {
                 element.classList.add('slide-in-active');
             }, (index + 1) * 500); // 각 요소가 순차적으로 0.5초 간격으로 슬라이드되게 설정
         });
@@ -45,11 +45,11 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 
-function getInformationGoodsAndRentalItems(){
+function getInformationGoodsAndRentalItems() {
     const url = "api/main/getProductInformation";
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
 
             const goods = response.data.goodsList;
             const rentalItem = response.data.rentalItems;
@@ -66,7 +66,7 @@ function getInformationGoodsAndRentalItems(){
 
             const rentalItemWrapperTemplete = document.querySelector("#templeteRental .rentalItemWrapper");
 
-            for(let e of goods){
+            for (let e of goods) {
 
                 const newGoodsWrapper = goodsWrapperTemplete.cloneNode(true);
 
@@ -89,7 +89,7 @@ function getInformationGoodsAndRentalItems(){
 
             }
 
-            for(let rental of rentalItem){
+            for (let rental of rentalItem) {
 
                 const newRentalWrapper = rentalItemWrapperTemplete.cloneNode(true);
 
@@ -113,6 +113,6 @@ function getInformationGoodsAndRentalItems(){
         })
 }
 
-window.addEventListener("DOMContentLoaded",() =>{
+window.addEventListener("DOMContentLoaded", () => {
     getInformationGoodsAndRentalItems();
 })

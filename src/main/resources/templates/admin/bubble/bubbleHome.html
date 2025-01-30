@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <!-- Chart.js CDN 추가 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -14,9 +15,9 @@
 
     //chartJS
     // 페이지가 로드된 후 그래프를 그리기 위한 함수
-    function loadChart(){
+    function loadChart() {
         const genderChart = document.getElementById('myChart').getContext('2d');
-        const myChart = new Chart(genderChart,{
+        const myChart = new Chart(genderChart, {
             type: 'pie',
             data: {
                 datasets: [{
@@ -29,7 +30,7 @@
                     ],
                     hoverOffset: 4
                 }]
-            },  options: {
+            }, options: {
                 responsive: true,
                 maintainAspectRatio: false,  // 비율을 유지하지 않도록 설정
             }
@@ -37,7 +38,7 @@
     }
 
 
-    window.addEventListener("DOMContentLoaded",() =>{
+    window.addEventListener("DOMContentLoaded", () => {
         loadChart();
 
     })
@@ -62,7 +63,8 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="col">
-                                <img class="img-fluid" src="/public/img/bubble/bubble_logo.png" style="height: 40px; width: auto">
+                                <img class="img-fluid" src="/public/img/bubble/bubble_logo.png"
+                                     style="height: 40px; width: auto">
                             </div>
                         </div>
                         <div class="row">
@@ -72,7 +74,7 @@
                             <div class="col-4">
                                 <div class="row">
                                     <div class="col">
-                                        <canvas id="myChart" height="150" width="150" ></canvas>
+                                        <canvas id="myChart" height="150" width="150"></canvas>
                                     </div>
                                 </div>
                                 <div class="row">

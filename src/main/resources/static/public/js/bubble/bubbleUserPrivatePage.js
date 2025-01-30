@@ -6,14 +6,14 @@ const userId = urlParams.get("id");
 //유저 개인 정보 페이지, 유저가 쓴 게시물하고 이미지까지 다 불러옴, 여기서 썸네일을 어떻게 풀어내는지가 중요할듯
 const userPrivateUrl = "/api/bubble/bubbleUserPrivatePage?following_id=" + userId;
 
-function getUserInformationForUserPage(){
+function getUserInformationForUserPage() {
     fetch(userPrivateUrl)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
             const e = response.data.userInfo;
             //배열에 들어가 있어서 아래와 같이 명시함, 리스트의 경우 배열번호로 명시해야함(getElementById의 경우)
             //자료구조를 맵 형식으로 바꿈
-            console.log("e 출력",e);
+            console.log("e 출력", e);
 
             // const userName = document.getElementById("userName");
             // userName.innerText = e.userId.name;
@@ -45,7 +45,7 @@ function getUserInformationForUserPage(){
 
             const follower = document.getElementById("follower");
             follower.innerText = e.userId.follower;
-            console.log("팔로워출력",follower);
+            console.log("팔로워출력", follower);
 
             // 팔로우/언팔로우 버튼 설정
             const userFollow = document.getElementById("userFollow");
@@ -57,12 +57,12 @@ function getUserInformationForUserPage(){
             followButton.textContent = isFollowing ? "언팔로우하기" : "팔로우하기";
             followButton.classList.toggle('unfollow', isFollowing);
             followButton.classList.toggle('follow', !isFollowing);
-            followButton.addEventListener('click',function (){
+            followButton.addEventListener('click', function () {
                 const userId = userFollow.getAttribute("following_id");
                 console.log("userId:", userId); // userId 값 확인
-                console.log("세션출력",response.data.sessionStatement);
+                console.log("세션출력", response.data.sessionStatement);
 
-                if(response.data.sessionStatement.sessionNull === null){
+                if (response.data.sessionStatement.sessionNull === null) {
                     alert("권한이 없습니다.");
                     return;
                 }
@@ -72,7 +72,7 @@ function getUserInformationForUserPage(){
                     return;
                 }
 
-                if(isFollowing){
+                if (isFollowing) {
                     fetch(`/api/bubble/unfollowUser`, {
                         method: 'POST',
                         headers: {
@@ -100,11 +100,11 @@ function getUserInformationForUserPage(){
                         .catch(error => {
                             console.error("Error unfollowing:", error);
                         });
-                }else{
-                    fetch(`/api/bubble/followUser?following_id=${userId}`,{method:'POST'})
+                } else {
+                    fetch(`/api/bubble/followUser?following_id=${userId}`, {method: 'POST'})
                         .then(response => response.json())
-                        .then(data =>{
-                            if(data.result === "success"){
+                        .then(data => {
+                            if (data.result === "success") {
                                 // 성공적으로 팔로우 한 경우
                                 followButton.textContent = "언팔로우하기";
                                 followButton.classList.remove('follow');
@@ -112,7 +112,7 @@ function getUserInformationForUserPage(){
                                 isFollowing = true; // 상태 업데이트
                                 location.reload();
                             }
-                        }) .catch(error => {
+                        }).catch(error => {
                         console.error("Error following:", error);
                     });
                 }
@@ -120,16 +120,13 @@ function getUserInformationForUserPage(){
             })
 
 
-
             const receiver = document.getElementById("receiver");
             //여기서 이미 채팅방 생성되었으면 링크로 보내주고, 아니면 새로 만들기 해야할듯
-            receiver.onclick =() => createMessenger(userId);
-
-
+            receiver.onclick = () => createMessenger(userId);
 
 
             const images = e.postImages;
-            console.log("이미지",images);
+            console.log("이미지", images);
 
             const postListBox = document.getElementById("postListBox");
             postListBox.innerHTML = "";
@@ -165,7 +162,7 @@ function getUserInformationForUserPage(){
 
 let receiverId = null;
 
-function createMessenger(userId){
+function createMessenger(userId) {
     receiverId = userId;
     console.log("receiver", userId);
     const url = "/bubble/bubbleChatPage?id=" + receiverId;
@@ -173,6 +170,6 @@ function createMessenger(userId){
 }
 
 //function 밖에 있어야함.
-window.addEventListener("DOMContentLoaded",()=>{
+window.addEventListener("DOMContentLoaded", () => {
     getUserInformationForUserPage();
 })

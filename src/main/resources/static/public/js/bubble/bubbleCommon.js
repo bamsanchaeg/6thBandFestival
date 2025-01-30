@@ -1,27 +1,27 @@
 /**인스타그램 공용페이지 불러오기 기능**/
 
-function writingPost(event){
+function writingPost(event) {
     event.preventDefault(); // 기본 링크 동작 방지
     const getSessionUrl = "/api/bubble/getSessionUserId";
 
     fetch(getSessionUrl)
-        .then(response =>response.json())
-        .then(data =>{
-            if(data && data.user_id){
-                window.location.href="/bubble/postWritingPage";
-            }else{
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.user_id) {
+                window.location.href = "/bubble/postWritingPage";
+            } else {
                 alert("글쓰기 권한이 없습니다.");
                 return;
             }
         })
-        .catch(error =>{
+        .catch(error => {
             console.error("Error fetching session data:", error);
             alert("오류가 발생했습니다.");
         });
 }
 
-function getPostList(){
-    const url ="/api/bubble/myBubblePage"
+function getPostList() {
+    const url = "/api/bubble/myBubblePage"
 
     /**
      * for 루프에서 let을 사용하면 각 반복마다 새로운 postId가 생성되므로,
@@ -30,22 +30,22 @@ function getPostList(){
      * */
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
 
             const postListBox = document.getElementById("postListBox");
             postListBox.innerHTML = "";
 
             const postWrapperTemplete = document.querySelector("#templete .postListWrapper");
 
-            console.log('데이터 출력',response.data.postList);
+            console.log('데이터 출력', response.data.postList);
 
-            for(let e of response.data.postList){
+            for (let e of response.data.postList) {
 
                 const newPostWrapper = postWrapperTemplete.cloneNode(true);
 
                 // 프로필 이미지를 처리하는 로직
                 const profilePic = newPostWrapper.querySelector(".profilePic");// 프로필 이미지를 감싸는 컨테이너 선택
-                profilePic.src = '/images/'+ e.postDto.profile_img;
+                profilePic.src = '/images/' + e.postDto.profile_img;
 
 
                 const postContent = newPostWrapper.querySelector(".postContent");
@@ -83,10 +83,10 @@ function getPostList(){
 
                 const bubbleLikecount = newPostWrapper.querySelector(".bubbleLike");
                 const likeCount = e.postDto.like_count;
-                if(likeCount === 0){
+                if (likeCount === 0) {
                     // like_count가 0일 경우 요소를 숨깁니다.
                     bubbleLikecount.style.display = 'none';
-                }else{
+                } else {
                     // like_count가 0이 아닐 경우 텍스트를 설정하고 요소를 표시
                     bubbleLikecount.innerText = "like" + " " + e.postDto.like_count;
                     bubbleLikecount.style.display = 'block'; // 혹시 요소가 숨겨져 있을 경우를 대비해 다시 표시
@@ -94,12 +94,11 @@ function getPostList(){
 
                 const commentCount = newPostWrapper.querySelector(".commentCount");
                 const numberOfComment = e.numberOfComment;
-                if(numberOfComment === 0){
+                if (numberOfComment === 0) {
                     commentCount.style.display = 'none';
-                }else{
+                } else {
                     commentCount.innerText = "comment" + " " + e.numberOfComment;
                 }
-
 
 
                 const postHeart = newPostWrapper.querySelector(".postHeart");
@@ -112,7 +111,7 @@ function getPostList(){
                 }
 
                 // 클릭 이벤트 설정
-                postHeart.addEventListener('click', function() {
+                postHeart.addEventListener('click', function () {
                     const isLiked = postHeart.classList.contains('liked');
                     const postId = postHeart.getAttribute('data-post-id');
                     console.log("게시물 아이디", postId);
@@ -141,21 +140,23 @@ function getPostList(){
         })
 
 }
+
 //이걸 어디다가 넣어줘야 하는지가 제일 고민인듯
 let userId = null;
-function setSessionId(){
+
+function setSessionId() {
     const url = "/api/bubble/getSessionUserId";
     //필수
     fetch(url)
         .then(response => response.json())//then은 콜백, 응답한 시점
-        .then(response =>{
+        .then(response => {
             userId = response.data.id;
         })
 }
 
 
 //댓글작성
-function registerComment(){
+function registerComment() {
 
     //링크를 넣어주겠습니다, 여기 코드 잘못됨 체크해야함
     //post 방식은 데이터를 get처럼 링크로 보내는게 아니기 때문에 body에다 보내야함
@@ -225,7 +226,7 @@ let currentPostId = null; // 현재 선택된 게시물 ID를 저장할 변수
 
 function showOffcanvas(postId) {
     currentPostId = postId; // 클릭한 게시물의 postId 저장
-    console.log("postId : " , postId);
+    console.log("postId : ", postId);
     var offcanvas = new bootstrap.Offcanvas(document.getElementById("offcanvasBottom"));
     offcanvas.show();
 
@@ -255,7 +256,7 @@ function loadComments(postId) {
 
                 commentData.forEach(item => {
                     if (item.comment) {
-                        const { comment } = item;
+                        const {comment} = item;
                         const commentElement = document.createElement("div");
                         commentElement.className = "comment";
                         commentElement.innerHTML = `
@@ -291,30 +292,30 @@ function loadComments(postId) {
 }
 
 //좋아요 작성
-function doLike(postId){
+function doLike(postId) {
     currentPostId = postId;
     const url = "/api/bubble/createLike?id=" + currentPostId;
-    console.log("post_id : " , postId);
+    console.log("post_id : ", postId);
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
             console.log("After fetch response:", response); // 응답 확인 후 로그 찍기
             // 좋아요 성공 시 하트 모양 변경
             location.reload();
-        }) .catch(error => console.error("Error during fetch:", error)); // 오류가 발생할 경우 로그 찍기
+        }).catch(error => console.error("Error during fetch:", error)); // 오류가 발생할 경우 로그 찍기
 
 }
 
 
 //좋아요 취소
-function undoLike(postId){
+function undoLike(postId) {
     currentPostId = postId; // 클릭한 게시물의 postId 저장
-    console.log("postId : " , postId);
+    console.log("postId : ", postId);
 
-    const url ="/api/bubble/deleteLike?post_id=" + currentPostId;
+    const url = "/api/bubble/deleteLike?post_id=" + currentPostId;
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
             console.log("After fetch response:", response); // 응답 확인 후 로그 찍기
             // 좋아요 성공 시 하트 모양 변경
             location.reload();
@@ -325,7 +326,7 @@ function undoLike(postId){
 document.addEventListener('DOMContentLoaded', (event) => {
     const searchInput = document.getElementById('artistSearchInput');
 
-    searchInput.addEventListener('keypress', function(event) {
+    searchInput.addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             // 엔터 키를 눌렀을 때 실행할 코드
             const query = searchInput.value;
@@ -343,6 +344,6 @@ function searchArtist(query) {
 }
 
 
-window.addEventListener("DOMContentLoaded",() =>{
+window.addEventListener("DOMContentLoaded", () => {
     getPostList();
 })

@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
 </head>
 <!-- jQuery -->
@@ -70,21 +71,21 @@
     }
 
     /*댓글 row 패딩 준 것*/
-    .postComments{
+    .postComments {
         padding-left: 20px;
         padding-right: 20px;
     }
 
     /*댓글 내용 폰트 사이즈 키운것*/
-    .commentContents{
+    .commentContents {
         font-size: 1rem;
     }
 
-    .commentUserId{
+    .commentUserId {
         font-size: 1rem;
     }
 
-    .chat_bubble{
+    .chat_bubble {
         color: #9a9a9a;
     }
 
@@ -128,6 +129,7 @@
         max-width: 300px; /* 최대 너비를 설정, 필요에 따라 조정 */
         height: auto; /* 자동으로 높이를 설정 */
     }
+
     /* 오버레이 스타일 */
     #overlay {
         position: fixed;
@@ -138,7 +140,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background-color: rgba(255,255,255,1); /* 반투명 검정 */
+        background-color: rgba(255, 255, 255, 1); /* 반투명 검정 */
         z-index: 1000; /* 가장 앞에 표시 */
         cursor: pointer;
     }
@@ -153,7 +155,8 @@
         justify-content: center; /* 수평 가운데 정렬 */
         align-items: center; /* 수직 가운데 정렬 */
     }
-    .profilePic{
+
+    .profilePic {
         height: 30px;
         width: auto;
         border-radius: 50%;
@@ -163,10 +166,10 @@
     .artistStatement {
         display: flex;
         align-items: center;
-        height: 100%;            /* 부모의 높이를 꽉 채우도록 설정 (필요한 경우) */
+        height: 100%; /* 부모의 높이를 꽉 채우도록 설정 (필요한 경우) */
     }
 
-    .no-subscription-message{
+    .no-subscription-message {
         justify-content: center;
         text-align: center;
     }
@@ -212,7 +215,8 @@
                                     <div class="col ps-0 artistStatement blue-background">
                                     </div>
                                     <!--더보기 버튼-->
-                                    <div class="col-auto text-end" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <div class="col-auto text-end" type="button" id="dropdownMenuButton"
+                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="colIcon material-symbols-outlined">
                                             more_horiz
                                         </span>
@@ -275,10 +279,12 @@
                                     </div>
                                 </div>
                                 <!-- Offcanvas 구조 -->
-                                <div class="offcanvas offcanvas-bottom bubbleOffcanvas" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+                                <div class="offcanvas offcanvas-bottom bubbleOffcanvas" tabindex="-1"
+                                     id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
                                     <div class="offcanvas-header">
                                         <h5 class="offcanvas-title" id="offcanvasBottomLabel">댓글</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                                aria-label="Close"></button>
                                     </div>
                                     <div class="offcanvas-body small">
                                         <div class="comment-list content px-2">
@@ -287,8 +293,10 @@
                                             <!-- ... -->
                                         </div>
                                         <div class="comment-input">
-                                            <input type="text" placeholder="Add a comment..." class="form-control" id="inputComment">
-                                            <input class="send-button" type="button" value="Submit" onclick="registerCommentForSubscribe()">
+                                            <input type="text" placeholder="Add a comment..." class="form-control"
+                                                   id="inputComment">
+                                            <input class="send-button" type="button" value="Submit"
+                                                   onclick="registerCommentForSubscribe()">
                                         </div>
                                     </div>
                                 </div>
@@ -299,9 +307,9 @@
             </div>
         </div>
 
-            <!-- /* 푸터 */ -->
-            <div th:replace="~{common/navi::bottomNavi}"></div>
-            <div th:replace="~{bubble/bubbleNavigation::bottomBubbleNavi}"></div>
+        <!-- /* 푸터 */ -->
+        <div th:replace="~{common/navi::bottomNavi}"></div>
+        <div th:replace="~{bubble/bubbleNavigation::bottomBubbleNavi}"></div>
     </div>
 </div>
 <!--/* 사이드바 */-->

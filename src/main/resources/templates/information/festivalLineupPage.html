@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <link rel="stylesheet" href="/public/css/information/information.css">
 
@@ -14,7 +15,7 @@
     const urlParams = new URL(window.location.href).searchParams;
     const festivalId = urlParams.get("id");
     const lineUpUrlByFestivalId = "/api/information/getLineupListByFestivalId?id=" + festivalId;
-    console.log("페스티벌아이디",festivalId);
+    console.log("페스티벌아이디", festivalId);
 
     // 날짜 카테고리화 하기
     function getLineUpListByFestivalId() {
@@ -83,7 +84,7 @@
 
     //날짜 하나에만 해당하는 아티스트를 어떻게 출력할지에 대해서도 고민해야할듯..
     //날짜변환함수..
-    function formDate(dateString){
+    function formDate(dateString) {
         const date = new Date(dateString);
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -92,7 +93,7 @@
     }
 
 
-    window.addEventListener("DOMContentLoaded",() =>{
+    window.addEventListener("DOMContentLoaded", () => {
         getLineUpListByFestivalId();
     })
 
@@ -160,59 +161,60 @@
                                 <div class="row">
                                     <div class="col d-grid text-center">
                                         <a class="artistDetailPage">
-                                            <button class="btn btn-dark rounded-0 new-text-white w-100">아티스트 정보 보기</button>
+                                            <button class="btn btn-dark rounded-0 new-text-white w-100">아티스트 정보 보기
+                                            </button>
                                         </a>
                                     </div>
                                 </div>
                                 <!--상세정보.. -->
-<!--                                <div class="row">-->
-<!--                                    &lt;!&ndash;상세정보 한번 감싸주는 것&ndash;&gt;-->
-<!--                                    <div class="col">-->
-<!--                                        &lt;!&ndash;아티스트 사진&ndash;&gt;-->
-<!--                                        &lt;!&ndash;세부정보.. 이 부분에 대해서 이해가 필요할듯&ndash;&gt;-->
-<!--                                        <div class="row">-->
-<!--                                            <div class="col">-->
-<!--                                                <div class="row">-->
-<!--                                                    <div class="col text-center">-->
-<!--                                                        &lt;!&ndash;아래 디테일을 불러오는 버튼&ndash;&gt;-->
-<!--                                                        &lt;!&ndash;d-inline-flex&ndash;&gt;-->
-<!--                                                        <p class="gap-1 new-text-white d-grid">-->
-<!--                                                            <button class="artistInformation new-text-white rounded-0 btn btn-dark"-->
-<!--                                                                    type="button" data-bs-toggle="collapse"-->
-<!--                                                                    aria-expanded="false" aria-controls="collapseExample">-->
-<!--                                                                아티스트 정보-->
-<!--                                                            </button>-->
-<!--                                                        </p>-->
-<!--                                                    </div>-->
-<!--                                                </div>-->
-<!--                                                <div class="row">-->
-<!--                                                    <div class="col">-->
-<!--                                                        &lt;!&ndash;아티스트 디테일&ndash;&gt;-->
-<!--                                                        <div class="collapse p-2" id="collapseExample">-->
-<!--                                                            <div class="card card-body artistDetail rounded-0">-->
-<!--                                                            </div>-->
-<!--                                                            <a class="new-text-white">-->
-<!--                                                                <div class="col"> >자세히 보기</div>-->
-<!--                                                            </a>-->
-<!--                                                        </div>-->
-<!--                                                    </div>-->
-<!--                                                </div>-->
-<!--                                            </div>-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                </div>-->
+                                <!--                                <div class="row">-->
+                                <!--                                    &lt;!&ndash;상세정보 한번 감싸주는 것&ndash;&gt;-->
+                                <!--                                    <div class="col">-->
+                                <!--                                        &lt;!&ndash;아티스트 사진&ndash;&gt;-->
+                                <!--                                        &lt;!&ndash;세부정보.. 이 부분에 대해서 이해가 필요할듯&ndash;&gt;-->
+                                <!--                                        <div class="row">-->
+                                <!--                                            <div class="col">-->
+                                <!--                                                <div class="row">-->
+                                <!--                                                    <div class="col text-center">-->
+                                <!--                                                        &lt;!&ndash;아래 디테일을 불러오는 버튼&ndash;&gt;-->
+                                <!--                                                        &lt;!&ndash;d-inline-flex&ndash;&gt;-->
+                                <!--                                                        <p class="gap-1 new-text-white d-grid">-->
+                                <!--                                                            <button class="artistInformation new-text-white rounded-0 btn btn-dark"-->
+                                <!--                                                                    type="button" data-bs-toggle="collapse"-->
+                                <!--                                                                    aria-expanded="false" aria-controls="collapseExample">-->
+                                <!--                                                                아티스트 정보-->
+                                <!--                                                            </button>-->
+                                <!--                                                        </p>-->
+                                <!--                                                    </div>-->
+                                <!--                                                </div>-->
+                                <!--                                                <div class="row">-->
+                                <!--                                                    <div class="col">-->
+                                <!--                                                        &lt;!&ndash;아티스트 디테일&ndash;&gt;-->
+                                <!--                                                        <div class="collapse p-2" id="collapseExample">-->
+                                <!--                                                            <div class="card card-body artistDetail rounded-0">-->
+                                <!--                                                            </div>-->
+                                <!--                                                            <a class="new-text-white">-->
+                                <!--                                                                <div class="col"> >자세히 보기</div>-->
+                                <!--                                                            </a>-->
+                                <!--                                                        </div>-->
+                                <!--                                                    </div>-->
+                                <!--                                                </div>-->
+                                <!--                                            </div>-->
+                                <!--                                        </div>-->
+                                <!--                                    </div>-->
+                                <!--                                </div>-->
                             </div>
                         </div>
                     </div>
                 </div>
-                </div>
             </div>
+        </div>
         <!-- /* 푸터 */ -->
         <div th:replace="~{common/navi::bottomNavi}"></div>
         <!--/* 퀵바 */-->
         <div th:replace="~{common/navi::quickNavi}"></div>
-        </div>
     </div>
+</div>
 <!--/* 사이드바 */-->
 <div th:replace="~{common/navi::sidebarLeft}"></div>
 <script src="/public/js/information/informationUser.js"></script>

@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <link rel="stylesheet" href="/public/css/information/information.css">
 </head>
@@ -80,7 +81,7 @@
 
     //날짜 하나에만 해당하는 아티스트를 어떻게 출력할지에 대해서도 고민해야할듯..
     //날짜변환함수..
-    function formDate(dateString){
+    function formDate(dateString) {
         const date = new Date(dateString);
         const year = date.getFullYear();
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
@@ -88,14 +89,14 @@
         return `${year}/${month}/${day}`;
     }
 
-    function FestivalDate(dateString){
+    function FestivalDate(dateString) {
         const date = new Date(dateString);
         const month = ('0' + (date.getMonth() + 1)).slice(-2);
         const day = ('0' + date.getDate()).slice(-2);
         return `${month}/${day}`;
     }
 
-    window.addEventListener("DOMContentLoaded",()=>{
+    window.addEventListener("DOMContentLoaded", () => {
         getMainLineUpInfo();
     })
 
@@ -190,7 +191,8 @@
                                 <div class="row">
                                     <div class="col d-grid text-center">
                                         <a class="artistDetailPage">
-                                            <button class="btn btn-dark rounded-0 new-text-white w-100">아티스트 정보 보기</button>
+                                            <button class="btn btn-dark rounded-0 new-text-white w-100">아티스트 정보 보기
+                                            </button>
                                         </a>
                                     </div>
                                 </div>

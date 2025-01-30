@@ -15,6 +15,7 @@
     background-color: black; /* 마우스 오버 시 검은 배경 */
     color: white; /* 마우스 오버 시 흰색 텍스트 */
 }
+
 .offcanvas-bottom {
     max-height: 25em !important; /* offcanvas의 최대 높이를 설정합니다 */
     height: 25em !important; /* offcanvas의 기본 높이를 설정합니다 */

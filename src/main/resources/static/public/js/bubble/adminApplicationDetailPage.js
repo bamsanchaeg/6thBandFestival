@@ -1,12 +1,11 @@
-
 const urlParams = new URL(window.location.href).searchParams;
 const applicationId = urlParams.get("id");
 const applicationUrl = "/api/bubble/getApplicationDetail?id=" + applicationId;
 
-function getApplicationDetail (){
+function getApplicationDetail() {
     fetch(applicationUrl)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
 
             const e = response.data.applicationDetail;
 
@@ -29,7 +28,6 @@ function getApplicationDetail (){
             createdDate.innerText = addNineHours(e.created_at).toISOString().split('T')[0];
 
 
-
             //눌러서 승인버튼 update 쿼리 작동하게 하기
             // 승인 버튼에 update 쿼리 작동하게 하기
             const accessStatement = document.getElementById("accessStatement");
@@ -48,29 +46,25 @@ function getApplicationDetail (){
             }
 
 
-
-
-
-
         })
 }
 
-function acceptRegister(applicationId){
- const acceptUrl = "/api/bubble/updateStatement";
-        fetch(acceptUrl, {
-                method: "post",
-                headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: `id=${applicationId}`
-        })
-            .then(response => {
-                if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                }
-                alert("처리가 완료되었습니다.")
-                window.location.reload();
-                return response.text(); // 응답을 텍스트로 받아서 확인
+function acceptRegister(applicationId) {
+    const acceptUrl = "/api/bubble/updateStatement";
+    fetch(acceptUrl, {
+        method: "post",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: `id=${applicationId}`
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            alert("처리가 완료되었습니다.")
+            window.location.reload();
+            return response.text(); // 응답을 텍스트로 받아서 확인
         })
 }
 
@@ -81,6 +75,6 @@ function addNineHours(dateString) {
     return newDate;
 }
 
-window.addEventListener("DOMContentLoaded", () =>{
-        getApplicationDetail();
+window.addEventListener("DOMContentLoaded", () => {
+    getApplicationDetail();
 })

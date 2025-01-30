@@ -10,6 +10,6 @@ import java.util.Date;
 @Data
 public class FestivalLineUpDto {
     private int id;
-    private int performance_id;//등록된 performance_date의 PK로 생각하면 됨
+    private int performance_id;//등록된 performance_date의 PK
     private int artist_id;
 }

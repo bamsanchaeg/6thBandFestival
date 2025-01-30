@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <link rel="stylesheet" href="/public/css/information/information.css">
 </head>
@@ -50,7 +51,6 @@
     }
 
 
-
 </style>
 <script>
 
@@ -58,7 +58,7 @@
     const artistId = urlParams.get("id");
     const artistsUrl = "/api/information/getArtistDetailById?id=" + artistId;
 
-    function getArtistDetail(){
+    function getArtistDetail() {
         fetch(artistsUrl)
             .then(response => response.json())
             .then(response => {
@@ -74,39 +74,39 @@
                 artistDetail.innerText = e.artistDetail.artist_detail;
 
                 const artistThumbnail = document.getElementById("artistThumbnail");
-                artistThumbnail.src = '/images/' +  e.artistDetail.thumbnail;
+                artistThumbnail.src = '/images/' + e.artistDetail.thumbnail;
 
                 const artistUpdate = document.getElementById("artistUpdate");
                 artistUpdate.href = '/admin/information/artistUpdatePage?id=' + e.artistDetail.id;
 
                 const artistDelete = document.getElementById("artistDelete");
-                artistDelete.onclick = function (){
+                artistDelete.onclick = function () {
                     event.preventDefault();
                     confirmDeletion();
                 };
 
                 const artistVideo = document.getElementById('youtube-video')
                 // Replace 'VIDEO_ID' with your actual video ID
-                artistVideo.setAttribute('src',"https://www.youtube.com/embed/" + e.artistDetail.youtube_url);
-                console.log("유투브 주소",e.artistDetail.youtube_url);
+                artistVideo.setAttribute('src', "https://www.youtube.com/embed/" + e.artistDetail.youtube_url);
+                console.log("유투브 주소", e.artistDetail.youtube_url);
 
             })
 
     }
 
-    function getArtistImages(){
+    function getArtistImages() {
         fetch(artistsUrl)
             .then(response => response.json())
-            .then(response =>{
+            .then(response => {
 
                 const artistImages = response.data.artistDetail.artistImages;
                 //이미지 반복문 출력
-                const imageListBox = document.getElementById("imageListBox") ;
+                const imageListBox = document.getElementById("imageListBox");
                 imageListBox.innerHTML = "";
 
                 const artistImagesWrapperTemplete = document.querySelector("#templete .imageListWrapper");
 
-                for(const image of artistImages){
+                for (const image of artistImages) {
 
                     const newArtistImageWrapper = artistImagesWrapperTemplete.cloneNode(true);
 
@@ -121,12 +121,12 @@
     }
 
     //복붙하지말고 이해하기...지피티믿지마
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const tabs = document.querySelectorAll('.nav-link');
         const tabContents = document.querySelectorAll('.tab-content');
 
         tabs.forEach(tab => {
-            tab.addEventListener('click', function(event) {
+            tab.addEventListener('click', function (event) {
                 event.preventDefault(); // 링크 기본 동작 방지
                 if (tab.classList.contains('disabled')) return; // Disabled 탭 무시
 
@@ -154,7 +154,7 @@
     }
 
 
-    window.addEventListener("DOMContentLoaded", ()=>{
+    window.addEventListener("DOMContentLoaded", () => {
         getArtistDetail();
         getArtistImages();
     })
@@ -180,7 +180,8 @@
                     <div class="row">
                         <div class="col">
                             <div class="row border-top border-bottom new-mb-25">
-                                <div class="col-auto border-end fw-bold d-flex align-items-center justify-content-center" style="background-color: #e3e3e3">
+                                <div class="col-auto border-end fw-bold d-flex align-items-center justify-content-center"
+                                     style="background-color: #e3e3e3">
                                     아티스트 이름
                                 </div>
                                 <div class="col py-1 mb-0 h5
@@ -189,14 +190,16 @@
                                 </div>
                             </div>
                             <div class="row border-top border-bottom new-mb-25">
-                                <div class="col-auto border-end fw-bold d-flex align-items-center justify-content-center" style="background-color: #e3e3e3">
+                                <div class="col-auto border-end fw-bold d-flex align-items-center justify-content-center"
+                                     style="background-color: #e3e3e3">
                                     프로필 이미지
                                 </div>
                                 <div class="col">
                                     <div class="row align-end new-mb-25">
                                         <div class="col pt-3
                                                     d-flex align-items-center justify-content-center">
-                                            <image class="img-fluid align-items-center justify-content-center" id="artistThumbnail"></image>
+                                            <image class="img-fluid align-items-center justify-content-center"
+                                                   id="artistThumbnail"></image>
                                         </div>
                                     </div>
                                 </div>
@@ -240,7 +243,7 @@
                                     <div class="row">
                                         <div class="col">
                                             <div class="video-container">
-                                                <iframe id="youtube-video"  allowfullscreen></iframe>
+                                                <iframe id="youtube-video" allowfullscreen></iframe>
                                             </div>
                                         </div>
                                     </div>
@@ -260,7 +263,7 @@
                             <div class="row new-my-45">
                                 <div class="col">
                                     <a id="artistUpdate">
-                                        <button class="btn btn-outline-secondary rounded-0" >수정하기</button>
+                                        <button class="btn btn-outline-secondary rounded-0">수정하기</button>
                                     </a>
                                     <a id="artistDelete">
                                         <input type="button" value="삭제하기" class="btn btn-outline-secondary rounded-0">

@@ -1,18 +1,19 @@
 const url = "/api/bubble/getArtistApplyList"
-function getApplicationList(){
+
+function getApplicationList() {
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
 
             const applications = response.data.applications;
 
             //메세지 반복문 출력
-            const applicationListBox = document.getElementById("applicationListBox") ;
+            const applicationListBox = document.getElementById("applicationListBox");
             applicationListBox.innerHTML = "";
 
             const applicationWrapperTemplete = document.querySelector("#templete .applicationListWrapper");
 
-            for(let e of applications){
+            for (let e of applications) {
 
                 const newApplicationWrapper = applicationWrapperTemplete.cloneNode(true);
                 newApplicationWrapper.classList.remove('d-none');
@@ -24,7 +25,7 @@ function getApplicationList(){
                 userId.innerText = e.user_id;
 
                 const userName = newApplicationWrapper.querySelector(".userName");
-                userName.innerText= e.user_name;
+                userName.innerText = e.user_name;
 
                 const emailAddress = newApplicationWrapper.querySelector(".emailAddress");
                 emailAddress.innerText = e.email_address;
@@ -42,6 +43,6 @@ function getApplicationList(){
         })
 }
 
-window.addEventListener("DOMContentLoaded",() =>{
+window.addEventListener("DOMContentLoaded", () => {
     getApplicationList();
 })

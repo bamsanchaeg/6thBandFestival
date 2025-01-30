@@ -1,17 +1,16 @@
-
 const urlParams = new URL(window.location.href).searchParams;
 const festivalId = urlParams.get("id");
-const festivalUrl ="/api/information/festivalDetailPageForAdmin?id=" + festivalId;
+const festivalUrl = "/api/information/festivalDetailPageForAdmin?id=" + festivalId;
 console.log(festivalId);
 
 //전역변수
 let FestivalLocation;
 
-function gertFestivalDetailForAdmin(){
+function gertFestivalDetailForAdmin() {
 
     fetch(festivalUrl)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
             const e = response.data.festivalData;
 
             const festivalName = document.getElementById("festivalName");
@@ -23,7 +22,7 @@ function gertFestivalDetailForAdmin(){
             FestivalLocation = e.festivalDetail.festival_location;
 
             const posterImage = document.getElementById("posterImage");
-            posterImage.src ='/images/' + e.festivalDetail.thumbnail;
+            posterImage.src = '/images/' + e.festivalDetail.thumbnail;
 
             //페스티벌 소개
             const festivalIntro = document.getElementById("festivalIntro");
@@ -40,7 +39,7 @@ function gertFestivalDetailForAdmin(){
 
             const festivalDelete = document.getElementById("festivalDelete");
             festivalDelete.href = '/admin/information/festivalDeleteProcess?id=' + e.festivalDetail.id;
-            festivalDelete.onclick = function() {
+            festivalDelete.onclick = function () {
                 event.preventDefault();
                 confirmDeletion('/admin/information/festivalDeleteProcess?id=' + e.festivalDetail.id);
             };
@@ -51,8 +50,7 @@ function gertFestivalDetailForAdmin(){
 
             //새창으로 이동하는 주소를 생성하는 것을 의미한다. 이동은 성공했으나 Controller쪽에서 주소 설정이 잘못되어서 수정함.
             const registerLineUplink = document.getElementById("registerLineUplink");
-            registerLineUplink.href= "/admin/information/registerPerformanceDate?id=" + e.festivalDetail.id;
-
+            registerLineUplink.href = "/admin/information/registerPerformanceDate?id=" + e.festivalDetail.id;
 
 
         });
@@ -69,12 +67,12 @@ function confirmDeletion(url) {
 let map;
 
 //복붙하지말고 이해하기...지피티믿지마
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const tabs = document.querySelectorAll('.nav-link');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabs.forEach(tab => {
-        tab.addEventListener('click', function(event) {
+        tab.addEventListener('click', function (event) {
             event.preventDefault(); // 링크 기본 동작 방지
             if (tab.classList.contains('disabled')) return; // Disabled 탭 무시
 
@@ -92,13 +90,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function getAMap(){
+function getAMap() {
     const tabEl = document.querySelector('a[data-tab="tab4"]');
     console.log("Tab shown event triggered", tabEl);
 
 
     //왜 탭전환이 안되냐..
-    tabEl.addEventListener('click', function() {
+    tabEl.addEventListener('click', function () {
         console.log("Tab shown event triggered2", tabEl);
         getKakaoMap();
 
@@ -152,11 +150,7 @@ function getKakaoMap() {
 }
 
 
-
-
-
-
 //function 밖에 있어야함.
-window.addEventListener("DOMContentLoaded",()=>{
+window.addEventListener("DOMContentLoaded", () => {
     gertFestivalDetailForAdmin()
 })

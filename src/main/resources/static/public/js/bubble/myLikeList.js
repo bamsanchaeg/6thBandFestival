@@ -1,16 +1,16 @@
 /**세션 유저가 좋아요 한 게시물 리스트 출력**/
 
-const url= '/api/bubble/selectMyLikePost';
+const url = '/api/bubble/selectMyLikePost';
 fetch(url)
     .then(response => response.json())
-    .then(response=>{
+    .then(response => {
 
         const postListBox = document.getElementById("postListBox");
         postListBox.innerHTML = "";
 
         const postWrapperTemplete = document.querySelector("#templete .postListWrapper");
 
-        console.log('데이터 출력',response.data.postList);
+        console.log('데이터 출력', response.data.postList);
 
         if (!response.data.postList || response.data.postList.length === 0) {
             const noPostMessage = document.createElement('div');
@@ -20,7 +20,7 @@ fetch(url)
             return;
         }
 
-        for(let e of response.data.postList){
+        for (let e of response.data.postList) {
 
             const newPostWrapper = postWrapperTemplete.cloneNode(true);
 

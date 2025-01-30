@@ -4,11 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
     <link rel="stylesheet" href="/public/css/information/information.css">
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=82f1c58e1a81c1b92f6b88ceea9549bd&libraries=services"></script>
+    <script type="text/javascript"
+            src="//dapi.kakao.com/v2/maps/sdk.js?appkey=82f1c58e1a81c1b92f6b88ceea9549bd&libraries=services"></script>
 </head>
 <style>
 
@@ -46,7 +48,7 @@
 
     /*커서를 올렸을떄의 상태변경*/
     .nav-link:hover {
-        color:  #656565; /* 호버 상태의 글자색 */
+        color: #656565; /* 호버 상태의 글자색 */
 
     }
 
@@ -67,7 +69,7 @@
     const urlParams = new URL(window.location.href).searchParams;
     //파라미터로 날아오는 게시물 값을 받아오기
     const festivalId = urlParams.get("id");
-    const festivalUrl ="/api/information/getFestivalDetail?id=" + festivalId;
+    const festivalUrl = "/api/information/getFestivalDetail?id=" + festivalId;
     console.log(festivalId);
 
     //전역변수
@@ -75,62 +77,62 @@
 
     //이 방식으로 많이 쓰임.const url
     //단일 데이터는 list를 쓸 일이 없어서 getElementById로 진행한다.
-    function getFestivalDetail(){
+    function getFestivalDetail() {
 
         fetch(festivalUrl)
             .then(response => response.json())
-            .then(response =>{
+            .then(response => {
 
                 //이미지 경로를 미리 선언해서 복잡도를 줄이기
-                const e  = response.data.festivalDetail;
+                const e = response.data.festivalDetail;
 
-            const festivalName = document.getElementById("festivalName");
+                const festivalName = document.getElementById("festivalName");
                 festivalName.innerText = e.festivalDetail.festival_name;
 
                 const festivalTitle = document.getElementById("festivalTitle");
                 festivalTitle.innerText = e.festivalDetail.festival_name;
 
-            const festivalContent = document.getElementById("festivalContent")
+                const festivalContent = document.getElementById("festivalContent")
                 festivalContent.innerText = e.festivalDetail.festival_content;
 
-            const startingDate = document.getElementById("startingDate");
-            startingDate.innerText=formDate(e.festivalDetail.starting_date);
+                const startingDate = document.getElementById("startingDate");
+                startingDate.innerText = formDate(e.festivalDetail.starting_date);
 
-            const endDate = document.getElementById("endDate");
-                endDate.innerText=formDate(e.festivalDetail.end_date);
+                const endDate = document.getElementById("endDate");
+                endDate.innerText = formDate(e.festivalDetail.end_date);
 
-            const festivalReservationMethod = document.getElementById("festivalReservationMethod");
+                const festivalReservationMethod = document.getElementById("festivalReservationMethod");
                 festivalReservationMethod.innerText = e.festivalDetail.festival_reservationMethod;
 
 
-            const festivalThumbnail = document.getElementById("festivalThumbnail");
+                const festivalThumbnail = document.getElementById("festivalThumbnail");
                 festivalThumbnail.src = '/images/' + e.festivalDetail.thumbnail;
 
-            const festivalCaution = document.getElementById("festivalCaution");
+                const festivalCaution = document.getElementById("festivalCaution");
                 festivalCaution.innerText = e.festivalDetail.festival_caution;
 
-            const festivalLocation = document.getElementById("festivalLocation");
-            festivalLocation.innerText = e.festivalDetail.festival_location;
+                const festivalLocation = document.getElementById("festivalLocation");
+                festivalLocation.innerText = e.festivalDetail.festival_location;
 
-            const festivalLocationTitle = document.getElementById("festivalLocationTitle");
+                const festivalLocationTitle = document.getElementById("festivalLocationTitle");
                 festivalLocationTitle.innerText = e.festivalDetail.festival_location;
 
-            FestivalLocation = e.festivalDetail.festival_location;
+                FestivalLocation = e.festivalDetail.festival_location;
 
-            const festivalAgeLimit = document.getElementById("festivalAgeLimit");
+                const festivalAgeLimit = document.getElementById("festivalAgeLimit");
                 festivalAgeLimit.innerText = e.festivalDetail.age_limit;
 
-            // const festivalIdForLineUp = document.getElementById("getLineUp");
-            // festivalIdForLineUp.href = "/information/festivalHistoryLineUp?id=" + festivalId;
+                // const festivalIdForLineUp = document.getElementById("getLineUp");
+                // festivalIdForLineUp.href = "/information/festivalHistoryLineUp?id=" + festivalId;
 
 
-        })
+            })
     }
 
     let map;
 
     //복붙하지말고 이해하기...지피티믿지마, 탭 레이아웃 활성화해주는 자바스크립트 코드
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const tabs = document.querySelectorAll('.nav-link');
         const tabContents = document.querySelectorAll('.tab-content');
 
@@ -155,13 +157,13 @@
 
     })
 
-    function getAMap(){
+    function getAMap() {
         const tabEl = document.querySelector('a[data-tab="tab5"]');
         console.log("Tab shown event triggered", tabEl);
 
 
         //왜 탭전환이 안되냐..
-        tabEl.addEventListener('click', function() {
+        tabEl.addEventListener('click', function () {
             console.log("Tab shown event triggered2", tabEl);
             getKakaoMap();
 
@@ -171,64 +173,61 @@
     }
 
 
-        function getKakaoMap() {
+    function getKakaoMap() {
 
-            //카카오맵 API
+        //카카오맵 API
 
-            var geocoder = new kakao.maps.services.Geocoder();
-            var mapContainer = document.getElementById('map')
+        var geocoder = new kakao.maps.services.Geocoder();
+        var mapContainer = document.getElementById('map')
 
-            let xVar;
-            let yVar;
+        let xVar;
+        let yVar;
 
-            var callback = function (result, status) {
-                if (status === kakao.maps.services.Status.OK) {
-                    console.log(result);
-                    xVar = result[0].x;
-                    yVar = result[0].y;
+        var callback = function (result, status) {
+            if (status === kakao.maps.services.Status.OK) {
+                console.log(result);
+                xVar = result[0].x;
+                yVar = result[0].y;
 
-                    console.log("x축 값", xVar);
-                    console.log("y축 값", yVar);
+                console.log("x축 값", xVar);
+                console.log("y축 값", yVar);
 
-                    var mapOption = {
-                        center: new kakao.maps.LatLng(yVar, xVar), // 지도의 중심좌표
-                        level: 3, // 지도의 확대 레벨
-                        mapTypeId: kakao.maps.MapTypeId.ROADMAP // 지도종류
-                    };
+                var mapOption = {
+                    center: new kakao.maps.LatLng(yVar, xVar), // 지도의 중심좌표
+                    level: 3, // 지도의 확대 레벨
+                    mapTypeId: kakao.maps.MapTypeId.ROADMAP // 지도종류
+                };
 
-                    // 지도를 생성한다
-                    var map = new kakao.maps.Map(mapContainer, mapOption);
+                // 지도를 생성한다
+                var map = new kakao.maps.Map(mapContainer, mapOption);
 
-                    // 지도에 마커를 생성하고 표시한다
-                    var marker = new kakao.maps.Marker({
-                        position: new kakao.maps.LatLng(yVar, xVar), // 마커의 좌표
-                        map: map // 마커를 표시할 지도 객체
+                // 지도에 마커를 생성하고 표시한다
+                var marker = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(yVar, xVar), // 마커의 좌표
+                    map: map // 마커를 표시할 지도 객체
 
-                    });
+                });
 
-                    // 탭이 전환된 후에 지도 크기를 재설정하고 중심을 다시 설정
-                }
-            };
+                // 탭이 전환된 후에 지도 크기를 재설정하고 중심을 다시 설정
+            }
+        };
 
-            geocoder.addressSearch(FestivalLocation, callback);
+        geocoder.addressSearch(FestivalLocation, callback);
 
-        }
-
-
-        window.addEventListener("DOMContentLoaded", () => {
-            getFestivalDetail();
-
-        })
+    }
 
 
+    window.addEventListener("DOMContentLoaded", () => {
+        getFestivalDetail();
 
+    })
 
 
 </script>
 <style>
- span{
-     vertical-align: center;
- }
+    span {
+        vertical-align: center;
+    }
 </style>
 <body>
 <div id="root">
@@ -272,9 +271,11 @@
                                             <div class="col-3">
                                                 공연기간
                                             </div>
-                                            <div class="col-auto new-text-gray" id="startingDate" style="font-size: 0.9em"></div>
+                                            <div class="col-auto new-text-gray" id="startingDate"
+                                                 style="font-size: 0.9em"></div>
                                             <div class="col-auto new-text-gray">-</div>
-                                            <div class="col-auto new-text-gray" id="endDate" style="font-size: 0.9em"></div>
+                                            <div class="col-auto new-text-gray" id="endDate"
+                                                 style="font-size: 0.9em"></div>
                                         </div>
                                         <div class="row ps-1">
                                             <div class="col-3">공연장</div>
@@ -289,25 +290,30 @@
                                 </div>
                                 <!--공연 상세정보-->
                                 <div class="row">
-                                    <div class="col" >
+                                    <div class="col">
                                         <!--내비게이션 탭-->
                                         <div class="row">
                                             <div class="col custom-scroll" style="overflow-x: auto;">
                                                 <ul class="nav nav-underline">
                                                     <li class="nav-item">
-                                                        <a class="nav-link active" aria-current="page" data-toggle="tab" href="#tab1" data-tab="tab1">페스티벌 소개</a>
+                                                        <a class="nav-link active" aria-current="page" data-toggle="tab"
+                                                           href="#tab1" data-tab="tab1">페스티벌 소개</a>
                                                     </li>
                                                     <li class="nav-item">
-                                                        <a class="nav-link" data-toggle="tab" href="#tab2" data-tab="tab2">예매방법</a>
+                                                        <a class="nav-link" data-toggle="tab" href="#tab2"
+                                                           data-tab="tab2">예매방법</a>
                                                     </li>
                                                     <li class="nav-item">
-                                                        <a class="nav-link" data-toggle="tab" href="#tab3" data-tab="tab3">주의사항</a>
+                                                        <a class="nav-link" data-toggle="tab" href="#tab3"
+                                                           data-tab="tab3">주의사항</a>
                                                     </li>
                                                     <li class="nav-item">
-                                                        <a class="nav-link" data-toggle="tab" href="#tab4"  data-tab="tab4">연령제한</a>
+                                                        <a class="nav-link" data-toggle="tab" href="#tab4"
+                                                           data-tab="tab4">연령제한</a>
                                                     </li>
                                                     <li class="nav-item">
-                                                        <a class="nav-link" data-toggle="tab" href="#tab5" data-tab="tab5" onclick="getAMap()">장소</a>
+                                                        <a class="nav-link" data-toggle="tab" href="#tab5"
+                                                           data-tab="tab5" onclick="getAMap()">장소</a>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -327,7 +333,8 @@
                                             </div>
                                             <div id="tab3" class="tab-content">
                                                 <div class="row">
-                                                    <div class="col" id="festivalCaution" style="word-break: break-word;">
+                                                    <div class="col" id="festivalCaution"
+                                                         style="word-break: break-word;">
                                                     </div>
                                                 </div>
                                             </div>
@@ -365,7 +372,7 @@
             <div class="new-fixed-bottom align-items-center z-1">
                 <div class="col py-2 new-px-25 new-bg-white">
                     <div class="row">
-<!--                        자유..-->
+                        <!--                        자유..-->
                         <div class="col-3 d-flex justify-content-center align-items-center">
                             <span class="material-symbols-outlined">
                             favorite
@@ -374,7 +381,7 @@
                             share
                             </span>
                         </div>
-<!--                        티켓 선택 페이지 이동-->
+                        <!--                        티켓 선택 페이지 이동-->
                         <div class="col fw-bold text-center">
                             종료된 페스티벌입니다.
                         </div>

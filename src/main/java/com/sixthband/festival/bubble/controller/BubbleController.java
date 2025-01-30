@@ -21,24 +21,24 @@ public class BubbleController {
     BubbleService bubbleService;
 
     @RequestMapping("postWritingPage")
-    public String postWritingPage(){
+    public String postWritingPage() {
         return "bubble/postWritingPage";
     }
 
 
-    //유저 아이디 정보 받아와야함. 이 부분 세션에서 가져오기.(8.2)
+    //유저 아이디 정보 세션에서 가져오는 프로세스
     @RequestMapping("postWritingProcess")
     public String postWritingProcess(BubblePostDto bubblePostDto,
                                      List<MultipartFile> postImages,
-                                     HttpSession session){
+                                     HttpSession session) {
         UserDto sessionUser = (UserDto) session.getAttribute("loginUser");
-        if(sessionUser == null){
+        if (sessionUser == null) {
             System.out.println("로그인 정보가 없습니다.");
             return "bubble/bubbleMySubscribePage";
         }
         //세션 아이디 넣어주기
-        bubbleService.registerBubblePost(bubblePostDto,sessionUser.getId());
-        bubbleService.registerBubbleImages(postImages,bubblePostDto.getId());
+        bubbleService.registerBubblePost(bubblePostDto, sessionUser.getId());
+        bubbleService.registerBubbleImages(postImages, bubblePostDto.getId());
         return "redirect:./bubbleCommonPage";
     }
 
@@ -47,10 +47,10 @@ public class BubbleController {
     @RequestMapping("applyArtistProcess")
     public String applyArtistProcess(HttpSession session,
                                      BubbleArtistDto bubbleArtistDto,
-                                     @RequestParam("image") MultipartFile image){
+                                     @RequestParam("image") MultipartFile image) {
 
         UserDto sessionUser = (UserDto) session.getAttribute("loginUser");
-        if(sessionUser == null){
+        if (sessionUser == null) {
             System.out.println("로그인 정보가 없습니다.");
             return "bubble/bubbleCommonPage";
         }
@@ -66,80 +66,82 @@ public class BubbleController {
         //DTO에 url설정해주기
         bubbleArtistDto.setIdentification_image(identificationUrl);
         //세션 아이디 넣어주기
-        bubbleService.applyArtistForm(getUserId,bubbleArtistDto);
+        bubbleService.applyArtistForm(getUserId, bubbleArtistDto);
 
         return "bubble/applyArtistDonePage";
     }
 
-    //내가 구독한 버블 페이지로 보내는 곳
+    //내가 구독한(팔로우한) 버블 페이지로 보내는 곳
     @RequestMapping("bubbleMainPage")
-    public String bubbleMainPage(){
+    public String bubbleMainPage() {
         return "bubble/bubbleMySubscribePage";
     }
 
     @RequestMapping("bubbleCommonPage")
-    public String mainPage(){
+    public String mainPage() {
 
         return "bubble/bubbleCommonPage";
     }
 
 
     @RequestMapping("postDetailPage")
-    public String postDetailPage(){
+    public String postDetailPage() {
         return "bubble/bubbleDetailPage";
     }
 
     @RequestMapping("bubbleIntroPage")
-    public String bubbleIntroPage(){
+    public String bubbleIntroPage() {
 
         return "bubble/bubbleIntroPage";
     }
 
     @RequestMapping("bubbleChatPage")
-    public String bubbleChatPage(){
+    public String bubbleChatPage() {
         return "bubble/bubbleChatPage";
     }
 
     //채팅리스트 페이지
     @RequestMapping("bubbleChatListPage")
-    public String bubbleChatListPage(){
+    public String bubbleChatListPage() {
         return "bubble/bubbleChatListPage";
     }
 
     @RequestMapping("bubbleMyPage")
-    public String bubbleMyPage(){
+    public String bubbleMyPage() {
         return "bubble/bubbleMyUserPage";
     }
 
     //유저 개인페이지로 이동
     @RequestMapping("bubbleUserPrivatePage")
-    public String bubbleUserPrivatePage(){ return "bubble/bubbleUserPrivatePage";}
+    public String bubbleUserPrivatePage() {
+        return "bubble/bubbleUserPrivatePage";
+    }
 
     //버블 디테일 페이지
     @RequestMapping("bubbleDetailPage")
-    public String bubbleDetailPage(){
+    public String bubbleDetailPage() {
         return "bubble/bubbleDetailPage";
     }
 
 
     @RequestMapping("bubbleMyLikePage")
-    public String bubbleMyLikePage(){
+    public String bubbleMyLikePage() {
         return "bubble/myLikePage";
     }
 
     @RequestMapping("bubbleMyAlarmPage")
-    public String bubbleMyAlarmPage(){
+    public String bubbleMyAlarmPage() {
         return "bubble/myAlarmPage";
     }
 
     //아티스트 요청
     @RequestMapping("artistApplyPage")
-    public String artistApplyPage(){
+    public String artistApplyPage() {
         return "bubble/applyArtistPage";
     }
 
     @RequestMapping("artistApplyDonePage")
-    public String artistApplyDonePage(){
+    public String artistApplyDonePage() {
         return "bubble/applyArtistDonePage";
     }
 

@@ -1,23 +1,21 @@
-
-
-function getSubscribePostList(){
-    const url ="/api/bubble/followingBubblePage"
+function getSubscribePostList() {
+    const url = "/api/bubble/followingBubblePage"
 
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
 
 
             const postListBox = document.getElementById("postListBox");
             postListBox.innerHTML = "";
 
-                if (!response.data.postList || response.data.postList.length === 0) {
-                        // 로그인은 했으나 구독한 계정이 없는 경우
-                        const noSubscriptionMessage = document.createElement('div');
-                        noSubscriptionMessage.innerHTML = "<p>현재 구독하고있는 계정이 없습니다.</p><p>좋아하는 아티스트를 추가해보세요.</p>";
-                        noSubscriptionMessage.className = "no-subscription-message"; // 스타일을 적용할 수 있도록 클래스 추가
-                        postListBox.appendChild(noSubscriptionMessage);
-                    }
+            if (!response.data.postList || response.data.postList.length === 0) {
+                // 로그인은 했으나 구독한 계정이 없는 경우
+                const noSubscriptionMessage = document.createElement('div');
+                noSubscriptionMessage.innerHTML = "<p>현재 구독하고있는 계정이 없습니다.</p><p>좋아하는 아티스트를 추가해보세요.</p>";
+                noSubscriptionMessage.className = "no-subscription-message"; // 스타일을 적용할 수 있도록 클래스 추가
+                postListBox.appendChild(noSubscriptionMessage);
+            }
 
 
             // // response.data 및 postList 유효성 확인
@@ -27,106 +25,105 @@ function getSubscribePostList(){
             //
             // }else{
 
-                const postWrapperTemplete = document.querySelector("#templete .postListWrapper");
-                console.log('데이터 출력',response.data.postList);
+            const postWrapperTemplete = document.querySelector("#templete .postListWrapper");
+            console.log('데이터 출력', response.data.postList);
 
-                for(let e of response.data.postList){
+            for (let e of response.data.postList) {
 
-                    const newPostWrapper = postWrapperTemplete.cloneNode(true);
-                    newPostWrapper.classList.remove('d-none');
+                const newPostWrapper = postWrapperTemplete.cloneNode(true);
+                newPostWrapper.classList.remove('d-none');
 
-                    const postContent = newPostWrapper.querySelector(".postContent");
-                    postContent.innerText = e.postDto.content;
+                const postContent = newPostWrapper.querySelector(".postContent");
+                postContent.innerText = e.postDto.content;
 
 
-                    const artistStatement = newPostWrapper.querySelector(".artistStatement");
-                    if (artistStatement) {
-                        if (e.postDto.artist === 'Y') { // e.artistStatus가 'Y'인 경우
-                            // 아이콘을 추가할 HTML 생성
-                            const iconElement = document.createElement('span');
-                            iconElement.className = 'material-symbols-outlined';
-                            iconElement.innerText = 'check_circle'; // 아이콘 이름 설정
+                const artistStatement = newPostWrapper.querySelector(".artistStatement");
+                if (artistStatement) {
+                    if (e.postDto.artist === 'Y') { // e.artistStatus가 'Y'인 경우
+                        // 아이콘을 추가할 HTML 생성
+                        const iconElement = document.createElement('span');
+                        iconElement.className = 'material-symbols-outlined';
+                        iconElement.innerText = 'check_circle'; // 아이콘 이름 설정
 
-                            // 아이콘을 artistStatement 요소에 추가
-                            artistStatement.appendChild(iconElement);
-                        }
-                        // 'Y'가 아닌 경우에는 아이콘을 추가하지 않지만, col 요소는 그대로 유지됨
+                        // 아이콘을 artistStatement 요소에 추가
+                        artistStatement.appendChild(iconElement);
                     }
-
-                    // 프로필 이미지를 처리하는 로직
-                    const profilePic = newPostWrapper.querySelector(".profilePic");// 프로필 이미지를 감싸는 컨테이너 선택
-                    profilePic.src = '/images/'+ e.postDto.profile_img;
-
-                    const userPostPrivatePage = newPostWrapper.querySelector(".userPostPrivatePage")
-                    userPostPrivatePage.href = './bubbleUserPrivatePage?id=' + e.postDto.user_id;
-
-                    const postImage = newPostWrapper.querySelector(".postImage");
-                    postImage.src = '/images/' + e.postDto.image_url;
-
-                    const accountName = newPostWrapper.querySelector(".accountName");
-                    accountName.innerText = e.postDto.account_name;
-
-                    const postingDate = newPostWrapper.querySelector(".postingDate");
-                    postingDate.innerText = formatDate(e.postDto.created_at);
-
-                    const bubbleLikecount = newPostWrapper.querySelector(".bubbleLike");
-                    const likeCount = e.postDto.like_count;
-                    if(likeCount === 0){
-                        // like_count가 0일 경우 요소를 숨깁니다.
-                        bubbleLikecount.style.display = 'none';
-                    }else{
-                        // like_count가 0이 아닐 경우 텍스트를 설정하고 요소를 표시
-                        bubbleLikecount.innerText = "like" + " " + e.postDto.like_count;
-                        bubbleLikecount.style.display = 'block'; // 혹시 요소가 숨겨져 있을 경우를 대비해 다시 표시
-                    }
-
-                    //댓글 갯수 세기
-                    const commentCount = newPostWrapper.querySelector(".commentCount");
-                    const numberOfComment = e.numberOfComment;
-                    if(numberOfComment === 0){
-                        commentCount.style.display = 'none';
-                    }else{
-                        commentCount.innerText = "comments" + " " + e.numberOfComment;
-                    }
-
-                    const postHeart = newPostWrapper.querySelector(".postHeart");
-                    postHeart.setAttribute('data-post-id', e.postDto.post_id); // 포스트 ID를 데이터 속성에 저장
-                    // LikeOrUnLike 상태에 따른 버튼 스타일 설정
-                    if (e.LikeOrUnLike) {
-                        postHeart.classList.add('liked'); // 이미 좋아요를 누른 상태로 표시
-                    } else {
-                        postHeart.classList.remove('liked'); // 좋아요를 누르지 않은 상태로 표시
-                    }
-
-                    // 클릭 이벤트 설정
-                    postHeart.addEventListener('click', function() {
-                        const isLiked = postHeart.classList.contains('liked');
-                        const postId = postHeart.getAttribute('data-post-id');
-                        console.log("게시물 아이디", postId);
-
-                        if (isLiked) {
-                            // 좋아요 상태였으면 취소
-                            undoLike(postId);
-                            postHeart.classList.remove('liked'); // 빈 하트로 변경
-                        } else {
-                            // 좋아요 상태가 아니었으면 좋아요
-                            doLike(postId);
-                            postHeart.classList.add('liked'); // 채워진 하트로 변경
-                        }
-                    });
-
-
-                    // offcanvas를 여는 부분, 이 부분을 클릭할때마다 postId 할당
-                    const chatBubble = newPostWrapper.querySelector(".chat_bubble");
-                    chatBubble.onclick = () => showOffcanvas(e.postDto.post_id);
-
-
-                    postListBox.appendChild(newPostWrapper);
-
+                    // 'Y'가 아닌 경우에는 아이콘을 추가하지 않지만, col 요소는 그대로 유지됨
                 }
 
-            // }
+                // 프로필 이미지를 처리하는 로직
+                const profilePic = newPostWrapper.querySelector(".profilePic");// 프로필 이미지를 감싸는 컨테이너 선택
+                profilePic.src = '/images/' + e.postDto.profile_img;
 
+                const userPostPrivatePage = newPostWrapper.querySelector(".userPostPrivatePage")
+                userPostPrivatePage.href = './bubbleUserPrivatePage?id=' + e.postDto.user_id;
+
+                const postImage = newPostWrapper.querySelector(".postImage");
+                postImage.src = '/images/' + e.postDto.image_url;
+
+                const accountName = newPostWrapper.querySelector(".accountName");
+                accountName.innerText = e.postDto.account_name;
+
+                const postingDate = newPostWrapper.querySelector(".postingDate");
+                postingDate.innerText = formatDate(e.postDto.created_at);
+
+                const bubbleLikecount = newPostWrapper.querySelector(".bubbleLike");
+                const likeCount = e.postDto.like_count;
+                if (likeCount === 0) {
+                    // like_count가 0일 경우 요소를 숨깁니다.
+                    bubbleLikecount.style.display = 'none';
+                } else {
+                    // like_count가 0이 아닐 경우 텍스트를 설정하고 요소를 표시
+                    bubbleLikecount.innerText = "like" + " " + e.postDto.like_count;
+                    bubbleLikecount.style.display = 'block'; // 혹시 요소가 숨겨져 있을 경우를 대비해 다시 표시
+                }
+
+                //댓글 갯수 세기
+                const commentCount = newPostWrapper.querySelector(".commentCount");
+                const numberOfComment = e.numberOfComment;
+                if (numberOfComment === 0) {
+                    commentCount.style.display = 'none';
+                } else {
+                    commentCount.innerText = "comments" + " " + e.numberOfComment;
+                }
+
+                const postHeart = newPostWrapper.querySelector(".postHeart");
+                postHeart.setAttribute('data-post-id', e.postDto.post_id); // 포스트 ID를 데이터 속성에 저장
+                // LikeOrUnLike 상태에 따른 버튼 스타일 설정
+                if (e.LikeOrUnLike) {
+                    postHeart.classList.add('liked'); // 이미 좋아요를 누른 상태로 표시
+                } else {
+                    postHeart.classList.remove('liked'); // 좋아요를 누르지 않은 상태로 표시
+                }
+
+                // 클릭 이벤트 설정
+                postHeart.addEventListener('click', function () {
+                    const isLiked = postHeart.classList.contains('liked');
+                    const postId = postHeart.getAttribute('data-post-id');
+                    console.log("게시물 아이디", postId);
+
+                    if (isLiked) {
+                        // 좋아요 상태였으면 취소
+                        undoLike(postId);
+                        postHeart.classList.remove('liked'); // 빈 하트로 변경
+                    } else {
+                        // 좋아요 상태가 아니었으면 좋아요
+                        doLike(postId);
+                        postHeart.classList.add('liked'); // 채워진 하트로 변경
+                    }
+                });
+
+
+                // offcanvas를 여는 부분, 이 부분을 클릭할때마다 postId 할당
+                const chatBubble = newPostWrapper.querySelector(".chat_bubble");
+                chatBubble.onclick = () => showOffcanvas(e.postDto.post_id);
+
+
+                postListBox.appendChild(newPostWrapper);
+
+            }
+
+            // }
 
 
         })
@@ -137,7 +134,7 @@ let currentPostId = null; // 현재 선택된 게시물 ID를 저장할 변수
 
 function showOffcanvas(postId) {
     currentPostId = postId; // 클릭한 게시물의 postId 저장
-    console.log("postId : " , postId);
+    console.log("postId : ", postId);
     var offcanvas = new bootstrap.Offcanvas(document.getElementById("offcanvasBottom"));
     offcanvas.show();
 
@@ -167,7 +164,7 @@ function loadComments(postId) {
 
                 commentData.forEach(item => {
                     if (item.comment) {
-                        const { comment } = item;
+                        const {comment} = item;
                         const commentElement = document.createElement("div");
                         commentElement.className = "comment";
                         commentElement.innerHTML = `
@@ -213,30 +210,30 @@ function hideOverlay() {
 }
 
 //좋아요 작성
-function doLike(postId){
+function doLike(postId) {
     currentPostId = postId;
     const url = "/api/bubble/createLike?id=" + currentPostId;
-    console.log("post_id : " , postId);
+    console.log("post_id : ", postId);
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
             console.log("After fetch response:", response); // 응답 확인 후 로그 찍기
             // 좋아요 성공 시 하트 모양 변경
             location.reload();
-        }) .catch(error => console.error("Error during fetch:", error)); // 오류가 발생할 경우 로그 찍기
+        }).catch(error => console.error("Error during fetch:", error)); // 오류가 발생할 경우 로그 찍기
 
 }
 
 
 //좋아요 취소
-function undoLike(postId){
+function undoLike(postId) {
     currentPostId = postId; // 클릭한 게시물의 postId 저장
-    console.log("postId : " , postId);
+    console.log("postId : ", postId);
 
-    const url ="/api/bubble/deleteLike?post_id=" + currentPostId;
+    const url = "/api/bubble/deleteLike?post_id=" + currentPostId;
     fetch(url)
         .then(response => response.json())
-        .then(response =>{
+        .then(response => {
             console.log("After fetch response:", response); // 응답 확인 후 로그 찍기
             // 좋아요 성공 시 하트 모양 변경
             location.reload();
@@ -244,7 +241,7 @@ function undoLike(postId){
 }
 
 //댓글작성
-function registerCommentForSubscribe(){
+function registerCommentForSubscribe() {
 
     //링크를 넣어주겠습니다, 여기 코드 잘못됨 체크해야함
     //post 방식은 데이터를 get처럼 링크로 보내는게 아니기 때문에 body에다 보내야함
@@ -293,7 +290,6 @@ function registerCommentForSubscribe(){
 }
 
 
-
 // 월 이름 배열 생성
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -312,6 +308,6 @@ function formatDate(isoDateString) {
 }
 
 
-window.addEventListener("DOMContentLoaded",() =>{
+window.addEventListener("DOMContentLoaded", () => {
     getSubscribePostList();
 })

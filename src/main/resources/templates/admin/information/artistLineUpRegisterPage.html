@@ -4,20 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
 </head>
 <script>
     //안쓰는페이지, 구 페이지가 되었습니다.
     const urlParams = new URL(window.location.href).searchParams;
-    let performanceId= urlParams.get("id");
+    let performanceId = urlParams.get("id");
     const artistsUrl = "/api/information/festivalArtistListForAdmin?id=" + performanceId;
 
-    function getArtistListForLineUp(){
+    function getArtistListForLineUp() {
 
         fetch(artistsUrl)
             .then(response => response.json())
-            .then(response =>{
+            .then(response => {
 
                 const artistListBox = document.getElementById("artistListBox");
                 artistListBox.innerHTML = "";
@@ -26,7 +27,7 @@
                 const artistWrapperTemplete = document.querySelector("#templete .artistListWrapper");
 
                 //틀 반복문 돌려주기
-                for(e of response.data.artistList){
+                for (e of response.data.artistList) {
 
                     const newArtistWrapper = artistWrapperTemplete.cloneNode(true);
 
@@ -45,41 +46,40 @@
     }
 
 
-
-    function registerArtist(){
+    function registerArtist() {
         const registerArtist = document.getElementById('registerArtistForm');
         const formData = new FormData(registerArtist);
-        formData.append("performance_id",performanceId);
+        formData.append("performance_id", performanceId);
 
         //FormData의 구조는 List와 같아서 for문으로 뜯어줘야 데이터 확인이 가능함.
-        for(let key of formData.keys()){
+        for (let key of formData.keys()) {
             console.log(key);
         }
 
-        for(let value of formData.values()){
+        for (let value of formData.values()) {
             console.log(value);
         }
 
         const url = "/api/information/artistRegisterForLineUpProcess"
 
-        fetch(url,{
-            method:"post",
-            cache:"no-cache",
+        fetch(url, {
+            method: "post",
+            cache: "no-cache",
             body: formData
         })
             .then(response => response.json())
             .then(response => {
-                console.log("등록이 완료되었습니다.",response);
+                console.log("등록이 완료되었습니다.", response);
             })
-            .catch(Error =>{
-                console.log("Error",Error);
+            .catch(Error => {
+                console.log("Error", Error);
             })
 
         alert("등록이 완료되었습니다.")
         history.back();
     }
 
-    window.addEventListener("DOMContentLoaded",()=>{
+    window.addEventListener("DOMContentLoaded", () => {
         getArtistListForLineUp();
     })
 

@@ -4,30 +4,31 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
 </head>
 <style>
     .profile {
-        width: 35px;  /* 원하는 너비 */
+        width: 35px; /* 원하는 너비 */
         height: 35px; /* 원하는 높이 (width와 같게 설정) */
         border-radius: 50%; /* 원형으로 만들기 위해 50% 설정 */
-        object-fit: cover;  /* 이미지를 정방형 내에서 잘라서 채우기 */
+        object-fit: cover; /* 이미지를 정방형 내에서 잘라서 채우기 */
     }
 
     .col-autoImg {
-        display: inline-block;  /* col 크기가 콘텐츠(이미지)에 맞춰짐 */
-        padding: 0;  /* 기본 padding을 없애기 위해 필요할 수 있음 */
+        display: inline-block; /* col 크기가 콘텐츠(이미지)에 맞춰짐 */
+        padding: 0; /* 기본 padding을 없애기 위해 필요할 수 있음 */
     }
 
-    .postContent{
+    .postContent {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         max-width: 500px;
     }
 
-    .no-alarm-message{
+    .no-alarm-message {
         justify-content: center;
         text-align: center;
     }
@@ -55,23 +56,23 @@
                             <img class="img-fluid profile" src="/public/img/user/user_icon.png">
                         </div>
 
-                            <div class="col">
-                                <a class="userId">
-                                    <div class="row">
+                        <div class="col">
+                            <a class="userId">
+                                <div class="row">
                                     <div class="col fw-bold userName"></div>
-                                    </div>
-                                </a>
-                                <div class="row">
-                                    <div class="col postContent">
-                                    </div>
                                 </div>
-                                <a class="postDetail" style="font-size: 0.8em; color: #9f9f9f">
-                                    게시물 보러가기
-                                </a>
-                                <div class="row">
-                                    <div class="col likeTime"></div>
+                            </a>
+                            <div class="row">
+                                <div class="col postContent">
                                 </div>
                             </div>
+                            <a class="postDetail" style="font-size: 0.8em; color: #9f9f9f">
+                                게시물 보러가기
+                            </a>
+                            <div class="row">
+                                <div class="col likeTime"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

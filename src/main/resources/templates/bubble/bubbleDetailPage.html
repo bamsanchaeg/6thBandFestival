@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6th band</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link rel="stylesheet" href="/public/css/common.css">
 </head>
 <style>
@@ -13,20 +14,20 @@
     .input-with-icon {
         display: flex;
         align-items: center;
-        border: 1px solid #ccc;  /* 선택사항: input 필드와 일치하는 테두리 */
-        border-radius: 4px;  /* 선택사항: 둥근 모서리 */
-        padding: 5px;  /* 선택사항: padding을 추가하여 여백 설정 */
+        border: 1px solid #ccc; /* 선택사항: input 필드와 일치하는 테두리 */
+        border-radius: 4px; /* 선택사항: 둥근 모서리 */
+        padding: 5px; /* 선택사항: padding을 추가하여 여백 설정 */
     }
 
     .input-with-icon .material-icons {
-        margin-right: 8px;  /* 아이콘과 input 필드 사이의 간격 */
+        margin-right: 8px; /* 아이콘과 input 필드 사이의 간격 */
         font-size: 18px;
         color: #666;
     }
 
     .input-with-icon input {
-        border: none;  /* input 필드의 기본 테두리 제거 */
-        outline: none;  /* input 필드에 포커스가 갈 때 나오는 테두리 제거 */
+        border: none; /* input 필드의 기본 테두리 제거 */
+        outline: none; /* input 필드에 포커스가 갈 때 나오는 테두리 제거 */
         width: 100%;
         font-size: 14px;
         box-sizing: border-box;
@@ -115,7 +116,7 @@
         color: #ff3434;
     }
 
-    .chat_bubble{
+    .chat_bubble {
         color: #9a9a9a;
     }
 
@@ -135,21 +136,21 @@
     }
 
     /*댓글 row 패딩 준 것*/
-    .postComments{
+    .postComments {
         padding-left: 20px;
         padding-right: 20px;
     }
 
     /*댓글 내용 폰트 사이즈 키운것*/
-    .commentContents{
+    .commentContents {
         font-size: 1rem;
     }
 
-    .commentUserId{
+    .commentUserId {
         font-size: 1rem;
     }
 
-    .profilePic{
+    .profilePic {
         height: 30px;
         width: 30px;
         border-radius: 50%;
@@ -183,7 +184,7 @@
                                     </div>
                                     <div class="col-auto p-0">
                                         <a id="userPostPrivatePage">
-                                            <div class="col ps-0" style="font-weight: bold" id="accountNameTitle" >
+                                            <div class="col ps-0" style="font-weight: bold" id="accountNameTitle">
                                                 유저아이디
                                             </div>
                                         </a>
@@ -246,10 +247,12 @@
                                     </div>
                                 </div>
                                 <!-- Offcanvas 구조 -->
-                                <div class="offcanvas offcanvas-bottom bubbleOffcanvas" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+                                <div class="offcanvas offcanvas-bottom bubbleOffcanvas" tabindex="-1"
+                                     id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
                                     <div class="offcanvas-header">
                                         <h5 class="offcanvas-title" id="offcanvasBottomLabel">댓글</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                                aria-label="Close"></button>
                                     </div>
                                     <div class="offcanvas-body small">
                                         <div class="comment-list px-2">
@@ -258,8 +261,10 @@
                                             <!-- ... -->
                                         </div>
                                         <div class="comment-input">
-                                            <input type="text" placeholder="댓글 작성하기" class="form-control" id="inputComment">
-                                            <input class="send-button" type="button" value="Submit" onclick="registerComment()">
+                                            <input type="text" placeholder="댓글 작성하기" class="form-control"
+                                                   id="inputComment">
+                                            <input class="send-button" type="button" value="Submit"
+                                                   onclick="registerComment()">
                                         </div>
                                     </div>
                                 </div>
