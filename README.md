@@ -2,8 +2,10 @@
 
 ## 프로젝트 개요
 
-6th BAND FESTIVAL 사이트는 '밴드 붐은 온다'라는 슬로건을 모토로, 음악과 문화를 사랑하는 사람들이 활동할 수 있는 웹사이트 입니다.
+6th BAND FESTIVAL 사이트는 '밴드 붐은 온다'라는 슬로건을 모토로, 음악과 문화를 사랑하는 사람들이 활동할 수 있는 웹사이트 입니다.  
 6명의 개발자가 함께 만들어 나간 프로젝트이며, 각자의 개성과 장점을 이용해 각 기능을 맡았습니다.
+
+[프로젝트 링크](https://festival.null-pointer-exception.com/)
 
 ## 프로젝트 기간
 
@@ -32,4 +34,39 @@
 <br>
 <br>
 
-[프로젝트 링크](https://festival.null-pointer-exception.com/)
+## ✨ Sixth Band Project ✨
+
+The 6th BAND FESTIVAL website is a platform created under the slogan “The Band Boom is Coming”,designed for music and culture enthusiasts to engage and participate.  
+This project was developed by six developers, each contributing their unique skills and strengths to different features.
+
+
+  
+## Project Duration
+
+📅 July 2024 – August 2024  
+
+
+## 🛠️ Tech Stack  
+
+- **Frontend** : HTML, CSS, JavaScript
+- **Backend** : Java 17, Spring Boot, MyBatis
+- **Database** : MariaDB, DBeaver
+- **Other** : AWS, Bootstrap
+  
+
+## Key Features
+
+- **Lineup & Artist Information** : Users can view the festival lineup and artist details for each year.
+- **Past Festival Records** : Access information and lineups from previous festivals.
+- **Ticket Purchase** : Buy festival tickets and receive digital entry passes.
+- **Festival Reviews** : Share personal experiences and reviews of past festivals.
+- **Funding Support** : Participate in crowdfunding campaigns to support emerging artists.
+- **Community** : Engage in festival-related discussions and activities.
+- **Bubble Feature** : Social networking functionality, including messaging for fan-artist interactions.
+- **Artist IP Product Store** : Purchase merchandise based on artists’ intellectual property.
+- **Festival Support Rental Shop** : Rent festival essentials through a dedicated rental shop.
+- **Customer Support** : Get assistance for any issues to ensure a seamless festival experience.
+
+
+
+
