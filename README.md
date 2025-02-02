@@ -15,24 +15,103 @@
 
 ```
 .
-└── festival
-    ├──  admin
-    ├──  bubble
-    ├──  club
-    ├──  common
-    ├──  dto
-    ├──  exception
-    ├──  funding
-    ├──  goods
-    ├──  information
-    ├──  interceptor
-    ├──  main
-    ├──  rental
-    ├──  scheduler
-    ├──  serviceTeam
-    ├──  ticket
-    ├──  user
-    └──  util
+├── README.md
+├── build.gradle
+└── src
+    ├── main
+    │   ├── java
+    │   │   └── com
+    │   │       └── sixthband
+    │   │           └── festival
+    │   │               ├── FestivalApplication.java
+    │   │               ├── admin
+    │   │               ├── bubble
+    │   │               ├── club
+    │   │               ├── common
+    │   │               ├── dto
+    │   │               ├── exception
+    │   │               ├── funding
+    │   │               ├── goods
+    │   │               ├── information
+    │   │               ├── interceptor
+    │   │               ├── main
+    │   │               ├── rental
+    │   │               ├── scheduler
+    │   │               ├── serviceTeam
+    │   │               ├── ticket
+    │   │               ├── user
+    │   │               └── util
+    │   └── resources
+    │       ├── mybatis
+    │       │   └── mapper
+    │       │       ├── admin
+    │       │       ├── bubble
+    │       │       ├── club
+    │       │       ├── funding
+    │       │       ├── goods
+    │       │       ├── information
+    │       │       ├── rental
+    │       │       ├── serviceTeam
+    │       │       ├── ticket
+    │       │       └── user
+    │       ├── static
+    │       │   └── public
+    │       │       ├── css
+    │       │       │   ├── bubble
+    │       │       │   ├── ckeditor
+    │       │       │   ├── common.css
+    │       │       │   ├── funding
+    │       │       │   ├── goods
+    │       │       │   └── information
+    │       │       ├── ddl
+    │       │       │   ├── bubble
+    │       │       │   ├── community
+    │       │       │   ├── fetival_information
+    │       │       │   ├── funding
+    │       │       │   ├── goods
+    │       │       │   ├── rental
+    │       │       │   ├── serviceTeam
+    │       │       │   └── ticket
+    │       │       ├── font
+    │       │       ├── img
+    │       │       └── js
+    │       │           ├── admin
+    │       │           ├── bubble
+    │       │           ├── club
+    │       │           ├── funding
+    │       │           ├── goods
+    │       │           ├── information
+    │       │           ├── lockLikeMobile.js
+    │       │           ├── main
+    │       │           ├── serviceTeam
+    │       │           ├── ticket
+    │       │           ├── user
+    │       │           └── util
+    │       └── templates
+    │           ├── admin
+    │           │   ├── bubble
+    │           │   ├── club
+    │           │   ├── funding
+    │           │   ├── goods
+    │           │   ├── information
+    │           │   ├── rental
+    │           │   └── ticket
+    │           ├── bubble
+    │           ├── club
+    │           │   ├── board
+    │           │   └── myPage
+    │           ├── common
+    │           ├── funding
+    │           ├── goods
+    │           ├── information
+    │           ├── main
+    │           ├── rental
+    │           ├── serviceTeam
+    │           ├── ticket
+    │           └── user
+    │               
+    └── test
+
 
 ```
 
