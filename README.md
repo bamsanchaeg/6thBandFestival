@@ -16,74 +16,23 @@
 ```
 .
 └── festival
-    ├── FestivalApplication.java
-    ├── 📁 admin
-    │   ├── controller
-    │   ├── mapper
-    │   └── service
-    ├── 📁 bubble
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 club
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 common
-    │   ├── AppConfig.java
-    │   ├── GlobalControllerAdvice.java
-    │   └── HttpsRedirectFilter.java
-    ├── 📁 dto
-    │   ├── ImageDto.java
-    │   ├── OAuthToken.java
-    │   ├── RestResponseDto.java
-    │   └── UserDto.java
-    ├── 📁 exception
-    │   ├── GlobalExceptionHandler.java
-    │   ├── SessionNotFoundException.java
-    │   └── WebErrorController.java
-    ├── 📁 funding
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 goods
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 information
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 interceptor
-    │   └── SessionInterceptor.java
-    ├── 📁 main
-    │   └── controller
-    ├── 📁 rental
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 scheduler
-    ├── 📁 serviceTeam
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 ticket
-    │   ├── controller
-    │   ├── dto
-    │   ├── mapper
-    │   └── service
-    ├── 📁 user
-    │   ├── controller
-    │   ├── mapper
-    │   └── service
-    └── 📁 util
+    ├──  admin
+    ├──  bubble
+    ├──  club
+    ├──  common
+    ├──  dto
+    ├──  exception
+    ├──  funding
+    ├──  goods
+    ├──  information
+    ├──  interceptor
+    ├──  main
+    ├──  rental
+    ├──  scheduler
+    ├──  serviceTeam
+    ├──  ticket
+    ├──  user
+    └──  util
 
 ```
 
